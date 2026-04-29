@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>BO #140 — Architecture</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">@viewport { width: device-width; initial-scale: 1; }
+:root {
+--bg: #0d1117;
+--fg: #c9d1d9;
+--fg-muted: #8b949e;
+--border: #30363d;
+--link: #58a6ff;
+--code-bg: #161b22;
+--table-stripe: #161b22;
+--warn: #f0883e;
+--danger: #f85149;
+--good: #3fb950;
+--header: #f0f6fc;
+}
+@media (prefers-color-scheme: light) {
+:root {
+--bg: #ffffff;
+--fg: #1f2328;
+--fg-muted: #59636e;
+--border: #d1d9e0;
+--link: #0969da;
+--code-bg: #f6f8fa;
+--table-stripe: #f6f8fa;
+--warn: #bf8700;
+--danger: #cf222e;
+--good: #1a7f37;
+--header: #1f2328;
+}
+}
+* { box-sizing: border-box; }
+html, body {
+margin: 0;
+padding: 0;
+background: var(--bg);
+color: var(--fg);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+font-size: 16px;
+line-height: 1.6;
+-webkit-text-size-adjust: 100%;
+}
+body {
+max-width: 900px;
+margin: 0 auto;
+padding: 1.25rem 1rem 4rem;
+}
+h1, h2, h3, h4, h5, h6 {
+color: var(--header);
+margin-top: 1.6em;
+margin-bottom: 0.6em;
+line-height: 1.25;
+font-weight: 600;
+}
+h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.0rem; }
+p { margin: 0.6em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+code {
+background: var(--code-bg);
+padding: 0.15em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+font-size: 0.875em;
+word-break: break-word;
+}
+pre {
+background: var(--code-bg);
+padding: 0.85rem;
+border-radius: 6px;
+overflow-x: auto;
+font-size: 0.825em;
+line-height: 1.5;
+border: 1px solid var(--border);
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+blockquote {
+border-left: 4px solid var(--border);
+margin: 1em 0;
+padding: 0.4em 1em;
+color: var(--fg-muted);
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1em 0;
+font-size: 0.9em;
+display: block;
+overflow-x: auto;
+}
+th, td {
+border: 1px solid var(--border);
+padding: 0.4em 0.7em;
+text-align: left;
+vertical-align: top;
+}
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(2n) { background: var(--table-stripe); }
+hr {
+border: none;
+border-top: 1px solid var(--border);
+margin: 2em 0;
+}
+
+@media (max-width: 600px) {
+body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; }
+h1 { font-size: 1.45rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+pre { font-size: 0.78em; padding: 0.6rem; }
+table { font-size: 0.82em; }
+th, td { padding: 0.3em 0.5em; }
+}
+
+.review-index {
+list-style: none;
+padding: 0;
+}
+.review-index li {
+padding: 0.5em 0.7em;
+border: 1px solid var(--border);
+border-radius: 6px;
+margin: 0.4em 0;
+background: var(--code-bg);
+}
+.review-index li.master {
+border-left: 4px solid var(--good);
+font-weight: 600;
+}
+.review-index li.note {
+border-left: 4px solid var(--warn);
+font-style: italic;
+background: transparent;
+font-size: 0.9em;
+}
+.size {
+color: var(--fg-muted);
+font-size: 0.85em;
+float: right;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">BO #140 — Architecture</h1>
+</header>
+<h1 id="pr-140--architecture--service-surface-audit">PR #140 —
+Architecture &amp; Service Surface Audit</h1>
+<p><strong>PR</strong>: TBG-AI/Backend-Odds#140 (&quot;Dev coverage and odds
+impro&quot;) <strong>Base / Head</strong>: <code>dev</code> ←
+<code>dev-coverage-and-odds-impro</code> <strong>Scale</strong>: 330
+changed files, +88,029 / −2,160 <strong>Scope of this audit</strong>:
+services under <code>src/backend_odds/application/service/</code>,
+repositories under <code>src/backend_odds/core/data/data_access/</code>,
+Alembic migrations (<code>alembic/versions/</code> +
+<code>alembic_ext_odds/</code>), DTOs/schemas crossing service
+boundaries, configuration surface, and notable architectural decisions.
+Read-only; line citations are at-HEAD on the PR branch.</p>
+<hr />
+<h2 id="1-service-surface">1. Service surface</h2>
+<p>The PR introduces a flat → grouped reorganisation of
+<code>application/service/</code>. Six subfolders now exist:
+<code>odds/</code>, <code>calibration/</code>, <code>backtest/</code>,
+<code>betting/</code>, <code>lineup/</code>, <code>info/</code>. Renames
+(no content change) preserve git history; new files carry the bulk of
+the W1–W5 functionality.</p>
+<h3 id="1a-new-service-modules">1a. New service modules</h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Purpose (1 line)</th>
+<th>File:line</th>
+<th>Key public API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BacktestRunner</code></td>
+<td>Single harness collapsing the duplicated temporal-cutoff loops in
+<code>scripts/odds_qa_testing/backtest_cluster_model.py</code>,
+<code>scripts/eval/run_eval.py</code>,
+<code>scripts/debug/cluster/evaluate_cluster_model.py</code>. Pluggable
+<code>BacktestScenario</code> enum.</td>
+<td><code>application/service/backtest/backtest_runner.py:234</code></td>
+<td><code>BacktestRunner.run(request: BacktestRequest) -&gt; BacktestResult</code>;
+<code>BacktestScenario</code> (enum, line 67);
+<code>BacktestRequest</code>/<code>BacktestResult</code> dataclasses
+(lines 91, 115); <code>BacktestLeakageError</code> (line 137);
+<code>_assert_no_leakage()</code> (line 167)</td>
+</tr>
+<tr>
+<td><code>_backtest_scenarios</code></td>
+<td>Scenario→config translator, split out purely to keep the runner
+under the 600-LOC contract. Mutual import with the runner.</td>
+<td><code>application/service/backtest/_backtest_scenarios.py:25</code></td>
+<td><code>_ScenarioMixin</code>; <code>build_pipeline_config()</code>
+(32); <code>position_lookup_for_scenario()</code> (72);
+<code>mae</code>/<code>ece</code>/<code>roi</code> metric helpers
+(109/119/141); <code>coerce_to_utc</code> (153);
+<code>list_games</code>/<code>iter_stat_rows</code> (170/189)</td>
+</tr>
+<tr>
+<td><code>ExposureService</code></td>
+<td>Reads per-market / per-match bet exposure counters from Redis hashes
+(<code>exposure:{market_key}</code>) and persists snapshots into the
+<code>exposure_snapshots</code> table. Pairs with the existing
+<code>BetConsumer</code> in tbg-streaming.</td>
+<td><code>application/service/betting/exposure_service.py:52</code></td>
+<td><code>MarketExposure</code> dataclass (39);
+<code>ExposureService.snapshot_market(...)</code>,
+<code>.snapshot_all(...)</code></td>
+</tr>
+<tr>
+<td><code>MatchCalibrationService</code> (W2)</td>
+<td>Per-match multiplicative calibration. Computes lightweight
+adjustment factors so model-implied probabilities track external books
+for moneyline, player props, and team props. The single largest new
+module in the PR (~2,000 LOC).</td>
+<td><code>application/service/calibration/match_calibration_service.py:524</code></td>
+<td><code>calibrate_match(game_id, ...)</code> (549);
+<code>get_adjustment(game_id)</code> (753);
+<code>MatchCalibrationAdjustment</code> dataclass with
+<code>to_json/from_json</code> (455, 489, 493); plus
+<code>is_match_calibration_enabled()</code> module-level (56).
+Internals: <code>_optimise_factors</code> (813),
+<code>_calibrate_player_props</code> (1119),
+<code>_calibrate_team_props</code> (1617)</td>
+</tr>
+<tr>
+<td><code>DataCompletenessService</code></td>
+<td>Read-only completeness diagnostics over
+<code>games.data_locked</code> plus the per-source coverage columns
+added in PR #109 (<code>has_whoscored_events</code>,
+<code>has_sofascore_events</code>, <code>*_event_count</code>). Drives
+<code>/admin/data-health</code>.</td>
+<td><code>application/service/info/data_completeness_service.py:70</code></td>
+<td><code>GameCompletenessReport</code> (49);
+<code>DataCompletenessService.get_report(game_id)</code>,
+<code>.evaluate_alerts()</code>; module-level
+<code>_evaluate_alerts</code> (245)</td>
+</tr>
+<tr>
+<td><code>MigrationService</code></td>
+<td>Orchestrates the canonical &quot;WhoScored → SofaScore&quot; migration pair
+per league, persists per-step audit rows in <code>migration_runs</code>,
+and exposes a single async <code>migrate_league()</code> entry
+point.</td>
+<td><code>application/service/info/migration_service.py:75</code></td>
+<td><code>StepResult</code> (34); <code>MigrationResult</code> (56);
+<code>MigrationService.migrate_league(league_code, force=False)</code></td>
+</tr>
+<tr>
+<td><code>RequestAnalyticsService</code></td>
+<td>Background-thread Kafka consumer (<code>odds.odds_requests</code>
+topic) that maintains lightweight Redis counters for odds-request
+telemetry.</td>
+<td><code>application/service/info/request_analytics_service.py:54</code></td>
+<td><code>RequestAnalyticsService.start()</code>, <code>.stop()</code>,
+plus accessor methods for counter/window reads</td>
+</tr>
+<tr>
+<td><code>LineupChangeDetector</code> (W4)</td>
+<td>Diffs a freshly-scraped <code>LineupUpdate</code> against the
+previously-known lineup in Redis; emits a Kafka event only on real
+change.</td>
+<td><code>application/service/lineup/lineup_change_detector.py:66</code></td>
+<td><code>LineupDiff</code> (35);
+<code>LineupChangeDetector.detect(update) -&gt; LineupDiff | None</code></td>
+</tr>
+<tr>
+<td><code>MarketOddsApiService</code></td>
+<td>Single deep service for <code>the-odds-api.com</code>. Replaces
+auth/session/dedup/upsert duplication across
+<code>fetch_player_prop_odds.py</code>,
+<code>fetch_all_market_odds.py</code>,
+<code>fetch_single_event_odds.py</code>,
+<code>fetch_afcon_h2h_odds.py</code>,
+<code>fetch_kalshi_odds.py</code>.</td>
+<td><code>application/service/odds/market_odds_api_service.py:83</code></td>
+<td><code>fetch_upcoming_events(league)</code> (129);
+<code>fetch_h2h_totals_spreads(event_id, markets)</code> (149);
+<code>fetch_player_props(event_id, props)</code> (169);
+<code>fetch_historical_at(event_id, ts)</code> (196);
+<code>persist(snapshot, db_session)</code> (217); domain errors
+<code>OddsApiAuthError</code>/<code>RateLimitError</code>/<code>ResponseError</code>
+(71/75/79)</td>
+</tr>
+<tr>
+<td><code>extreme_factor_alerts</code></td>
+<td>Module-level helpers backing the <code>passthrough_with_alert</code>
+policy on <code>MATCH_CALIBRATION_EXTREME_POLICY</code> (URA-T41).
+Pushes structured events to a Redis sorted set for human review.</td>
+<td><code>application/service/odds/extreme_factor_alerts.py</code></td>
+<td><code>record_extreme_factor(...)</code> (43);
+<code>drain_alerts(...)</code> (107)</td>
+</tr>
+<tr>
+<td><code>vig_policy</code></td>
+<td>Pure-math vig/overround application. Centralises three operations
+previously inlined across pricing paths. No I/O, no pipeline state.</td>
+<td><code>application/service/odds/vig_policy.py</code></td>
+<td><code>apply_divisive_vig</code> (38) — single-outcome
+(ZAP/ZAT/single-ZAO); <code>apply_power_vig</code> (74) — multi-outcome
+(MOM/ZAO-most/player props); <code>invert_power_vig</code> (141) — used
+by player-props calibration to undo the book&#39;s vig</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1b-renamed--relocated-services-content-largely-preserved">1b.
+Renamed / relocated services (content largely preserved)</h3>
+<table>
+<thead>
+<tr>
+<th>New path</th>
+<th>Old path</th>
+<th>Net diff</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>application/service/betting/live_betting_service.py</code></td>
+<td><code>application/service/live_betting_service.py</code></td>
+<td>+1/−1</td>
+</tr>
+<tr>
+<td><code>application/service/betting/live_policy.py</code></td>
+<td><code>application/service/live_policy.py</code></td>
+<td>0/0</td>
+</tr>
+<tr>
+<td><code>application/service/calibration/parameter_service.py</code></td>
+<td><code>application/service/parameter_service.py</code></td>
+<td>0/0</td>
+</tr>
+<tr>
+<td><code>application/service/calibration/refit_manager.py</code></td>
+<td><code>application/service/refit_manager.py</code></td>
+<td>+16/−1</td>
+</tr>
+<tr>
+<td><code>application/service/info/info_service.py</code></td>
+<td><code>application/service/info_service.py</code></td>
+<td>0/0</td>
+</tr>
+<tr>
+<td><code>application/service/odds/builder_service.py</code></td>
+<td><code>application/service/builder_service.py</code></td>
+<td>0/0 (but DTOs grew — see §4)</td>
+</tr>
+<tr>
+<td><code>application/service/odds/live_odds_service.py</code></td>
+<td><code>application/service/live_odds_service.py</code></td>
+<td>+22/−15</td>
+</tr>
+<tr>
+<td><code>application/service/odds/market_odds_service.py</code></td>
+<td><code>application/service/market_odds_service.py</code></td>
+<td>+23/−4</td>
+</tr>
+<tr>
+<td><code>application/service/odds/odds_service.py</code></td>
+<td><code>application/service/odds_service.py</code></td>
+<td>+18/−24</td>
+</tr>
+</tbody>
+</table>
+<p><code>GetOddsForBet</code> (the main <code>odds_service.py</code>
+entry point) at
+<code>application/service/odds/odds_service.py:129</code> retains its
+public surface (<code>get_live_odds</code>, <code>get_mom_odds</code>,
+<code>get_odds_for_all_players</code>, <code>get_odds_for_zao</code>,
+<code>get_live_odds_status</code>, etc.).</p>
+<hr />
+<h2 id="2-repositories">2. Repositories</h2>
+<table>
+<thead>
+<tr>
+<th>Repository</th>
+<th>Purpose</th>
+<th>File:line</th>
+<th>Key public API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LineupTrainingRepository</code> (NEW)</td>
+<td>Pulls feature vectors from <code>lineups</code> + <code>games</code>
+for <code>FittedLineupModel.fit()</code> and <code>PlayerFeatures</code>
+for prediction.</td>
+<td><code>core/data/data_access/lineup_training_repository.py:38</code></td>
+<td><code>get_training_data(...)</code> (47);
+<code>get_player_features_for_team(...)</code> (197)</td>
+</tr>
+<tr>
+<td><code>lineup_source_priority</code> (NEW, helpers)</td>
+<td>De-dup helpers for reading <code>LineupModel</code> rows once both
+<code>whoscored</code> + <code>sofascore</code> providers may insert per
+game. Returns single-source-priority
+<code>Select</code>/<code>Subquery</code>.</td>
+<td><code>core/data/data_access/lineup_source_priority.py</code></td>
+<td><code>select_preferred_lineups()</code> (65);
+<code>preferred_lineups_subquery()</code> (85)</td>
+</tr>
+<tr>
+<td><code>event_source</code> (NEW, helpers)</td>
+<td>Per-game source resolution between WhoScored / SofaScore. Constants
++ <code>resolve_event_source()</code>.</td>
+<td><code>core/data/event_source.py</code></td>
+<td><code>SOURCE_WHOSCORED</code>, <code>SOURCE_SOFASCORE</code>;
+<code>MIN_EVENT_COUNT = 5</code>;
+<code>get_source_actions(source)</code> (42);
+<code>resolve_event_source(...)</code> (51)</td>
+</tr>
+<tr>
+<td><code>GamesRepository</code></td>
+<td>+71/−2. Adds source-aware queries
+(<code>has_whoscored_events</code>, <code>has_sofascore_events</code>,
+etc.) introduced by <code>q2r3s4t5u6v7</code>.</td>
+<td><code>core/data/data_access/games_repository.py:18</code></td>
+<td><code>class GamesRepository(BaseRepository[Games])</code></td>
+</tr>
+<tr>
+<td><code>MatchStatisticsRepository</code></td>
+<td>+57/−12. Source filtering for new
+<code>match_statistics.source</code> column; pre-existing PK now
+<code>(…, source)</code>.</td>
+<td><code>core/data/data_access/match_statistics_repository.py:16</code></td>
+<td><code>class MatchStatisticsRepository(BaseRepository[MatchStatistics])</code></td>
+</tr>
+<tr>
+<td><code>MOMRepository</code></td>
+<td>+88/−63. Substantial rework around lineup source de-dup.</td>
+<td><code>core/data/data_access/mom_repository.py:24</code></td>
+<td><code>class MOMRepository(BaseRepository[LineupModel])</code></td>
+</tr>
+<tr>
+<td><code>PipelineConfigRepository</code></td>
+<td>+74/−0. New helpers for pipeline group configuration / season
+assignment lookups.</td>
+<td><code>core/data/data_access/pipeline_config_repository.py:19</code></td>
+<td><code>class PipelineConfigRepository(BaseRepository[PipelineGroup])</code></td>
+</tr>
+<tr>
+<td><code>PlayerStatisticsRepository</code></td>
+<td>+89/−15. Source-aware reads against
+<code>player_statistics.source</code>.</td>
+<td><code>core/data/data_access/player_statistics_repository.py:36</code></td>
+<td><code>class PlayerStatisticsRepository(BaseRepository[PlayerStatistics])</code></td>
+</tr>
+<tr>
+<td><code>PlayersRepository</code></td>
+<td>+55/−23.</td>
+<td><code>core/data/data_access/players_repository.py:14</code></td>
+<td><code>class PlayersRepository(BaseRepository[Players])</code></td>
+</tr>
+<tr>
+<td><code>ZonalStatisticsRepository</code></td>
+<td>+24/−4.</td>
+<td><code>core/data/data_access/zonal_statistics_repository.py:10</code></td>
+<td><code>class ZonalStatisticsRepository(BaseRepository)</code></td>
+</tr>
+<tr>
+<td><code>LineupRepository</code></td>
+<td>+13/−4. Wired through <code>lineup_source_priority</code>.</td>
+<td><code>core/data/data_access/lineups_repository.py:16</code></td>
+<td><code>class LineupRepository(BaseRepository[LineupModel])</code></td>
+</tr>
+<tr>
+<td><code>db_factory</code></td>
+<td>+8/−8. Touch-up (likely engine/session wiring for two alembic
+histories).</td>
+<td><code>core/data/data_access/db_factory.py</code></td>
+<td>factory functions</td>
+</tr>
+<tr>
+<td><code>data_process/match_statistics.py</code></td>
+<td>+64/−8. Picks up source resolution.</td>
+<td><code>core/data/data_process/match_statistics.py</code></td>
+<td>–</td>
+</tr>
+<tr>
+<td><code>data_process/player_statistics.py</code></td>
+<td>+25/−5.</td>
+<td><code>core/data/data_process/player_statistics.py</code></td>
+<td>–</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-migrations">3. Migrations</h2>
+<h3 id="3a-alembicversions-main-odds-db">3a.
+<code>alembic/versions/</code> (main odds DB)</h3>
+<table>
+<thead>
+<tr>
+<th>Revision</th>
+<th>Tables affected</th>
+<th>Op</th>
+<th>Risk</th>
+<th>Reversible?</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>q2r3s4t5u6v7</code> add_event_source_tracking</td>
+<td><code>games</code>, <code>events</code>,
+<code>match_statistics</code>, <code>player_statistics</code></td>
+<td><code>add_column</code> ×8, <code>create_index</code> ×5, <strong>PK
+swap</strong> on <code>match_statistics</code> &amp;
+<code>player_statistics</code> to include <code>source</code></td>
+<td><strong>HIGH</strong></td>
+<td>Yes (mirrors upgrade with concurrent index drops)</td>
+<td>Adds <code>has_whoscored_events</code>,
+<code>has_sofascore_events</code>, <code>whoscored_event_count</code>,
+<code>sofascore_event_count</code>, <code>preferred_event_source</code>,
+<code>event_source_resolved</code> to <code>games</code>
+(<code>alembic/versions/q2r3s4t5u6v7_add_event_source_tracking.py:44-49</code>);
+adds <code>source</code> (default <code>whoscored</code>) to
+<code>events</code>, <code>match_statistics</code>,
+<code>player_statistics</code>. Pre-checks for dupe keys before
+constraint swap (line 78-91). Uses
+<code>CREATE UNIQUE INDEX CONCURRENTLY</code> inside
+<code>op.get_context().autocommit_block()</code> to avoid
+<code>ACCESS EXCLUSIVE</code> locks; promotes via
+<code>ALTER TABLE … ADD CONSTRAINT … USING INDEX</code>. PK rename via
+raw <code>op.execute(&#39;ALTER TABLE … DROP CONSTRAINT …&#39;)</code> (line
+155-156) is the riskiest step.</td>
+</tr>
+<tr>
+<td><code>62a181c29a0b</code>
+merge_event_source_tracking_match_lock_</td>
+<td>—</td>
+<td>merge (no-op upgrade/downgrade)</td>
+<td>LOW</td>
+<td>Yes</td>
+<td>Merges heads <code>h8i9j0k1l2m3</code> + <code>q2r3s4t5u6v7</code>.
+Empty body.</td>
+</tr>
+<tr>
+<td><code>r3s4t5u6v7w8</code> add_sf_match_statistics_table</td>
+<td><code>sf_match_statistics</code> (create),
+<code>match_statistics</code> (delete WHERE source=&#39;sofascore&#39;)</td>
+<td><code>create_table</code>, <code>create_index</code>,
+<code>op.execute(DELETE …)</code></td>
+<td><strong>MED</strong></td>
+<td>Partially — the DELETE is irreversible in <code>downgrade()</code>
+by design.</td>
+<td>New SF-keyed team-stats table mirroring Backend-Server.
+<strong>One-shot idempotent cleanup</strong> of zombie SF rows in
+<code>match_statistics</code> that carried hardcoded zeros (line
+88-100). Downgrade explicitly does <em>not</em> restore deleted rows;
+operators must re-run the SF migrator.</td>
+</tr>
+<tr>
+<td><code>s4t5u6v7w8x9</code> add_source_to_lineups</td>
+<td><code>lineups</code></td>
+<td><code>add_column</code> (source, default <code>whoscored</code>),
+pre-check dupes, swap unique constraint to
+<code>(game_id, player_id, source)</code></td>
+<td><strong>MED-HIGH</strong></td>
+<td>Yes</td>
+<td>Same zero-downtime pattern as <code>q2r3s4t5u6v7</code> (concurrent
+index, <code>USING INDEX</code>). Downgrade
+<code>DELETE FROM lineups WHERE source = &#39;sofascore&#39;</code> then drops
+column (line 106).</td>
+</tr>
+<tr>
+<td><code>mig_audit_202604230358</code>
+add_migration_runs_audit_table</td>
+<td><code>migration_runs</code> (create)</td>
+<td><code>create_table</code>, <code>create_index</code></td>
+<td>LOW</td>
+<td>Yes</td>
+<td>New audit table for <code>async_migrate_*.py</code> scripts: 24h
+idempotency gate, <code>--force</code> override. Cols:
+<code>script_name</code>, <code>league_code</code>,
+<code>started_at</code>, <code>ended_at</code>, <code>status</code>
+(<code>running|succeeded|failed</code>),
+<code>rows_touched_by_table</code> (JSONB), <code>error</code>,
+<code>force_flag</code>. Index on
+<code>(script_name, league_code, started_at DESC)</code>.</td>
+</tr>
+<tr>
+<td><code>6392e7d01782</code>
+merge_migration_runs_audit_and_source_</td>
+<td>—</td>
+<td>merge</td>
+<td>LOW</td>
+<td>Yes</td>
+<td>Empty merge of <code>mig_audit_202604230358</code> +
+<code>s4t5u6v7w8x9</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Three head-merges in one PR</strong>
+(<code>62a181c29a0b</code> and <code>6392e7d01782</code>) is a strong
+signal of parallel branch development. Final head is
+<code>6392e7d01782</code>.</p>
+<p><code>alembic_soccer_data.ini</code> (−119 lines, removed) — config
+file deleted; not replaced.</p>
+<h3 id="3b-alembic_ext_oddsversions-new-alembic-history">3b.
+<code>alembic_ext_odds/versions/</code> (NEW alembic history)</h3>
+<table>
+<thead>
+<tr>
+<th>Revision</th>
+<th>Tables affected</th>
+<th>Op</th>
+<th>Risk</th>
+<th>Reversible?</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>f0a1b2c3d4e5</code> initial_ext_odds_schema</td>
+<td>23 tables in <strong>NEW <code>ext_odds</code> SCHEMA</strong></td>
+<td><code>CREATE SCHEMA IF NOT EXISTS ext_odds</code>,
+<code>create_table</code> ×23 + ~30 indexes</td>
+<td>LOW (greenfield)</td>
+<td>Yes (full inverse)</td>
+<td>Greenfield baseline for the <code>ext_odds_streaming</code>
+sub-package. Manually constructed (autogenerate forbidden in the
+overnight loop) — claims to mirror what
+<code>alembic revision --autogenerate</code> would emit with
+<code>compare_type=True, compare_server_default=True</code>. Tables (via
+<code>f0a1b2c3d4e5_initial_ext_odds_schema.py:39-925</code>):
+<code>providers</code>, <code>fetch_log</code>,
+<code>moneyline_odds</code>, <code>totals_odds</code>,
+<code>spread_odds</code>, <code>alternate_spreads</code>,
+<code>alternate_totals</code>, <code>half_moneyline</code>,
+<code>half_spreads</code>, <code>half_totals</code>,
+<code>btts_odds</code>, <code>double_chance_odds</code>,
+<code>draw_no_bet_odds</code>, <code>team_totals_odds</code>,
+<code>corner_totals_odds</code>, <code>corner_spreads_odds</code>,
+<code>card_totals_odds</code>, <code>card_spreads_odds</code>,
+<code>player_goalscorer_odds</code>, <code>player_shots_odds</code>,
+<code>player_shots_on_target_odds</code>,
+<code>player_assists_odds</code>, <code>player_cards_odds</code>. Schema
+constant <code>SCHEMA = &quot;ext_odds&quot;</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Both alembic envs gain
+<code>compare_type=True, compare_server_default=True</code>
+(<code>alembic/env.py:60-61, 81-82</code>;
+<code>alembic_ext_odds/env.py:54-55, 80-81</code>) — strict autogenerate
+fidelity for both online + offline modes.</p>
+<hr />
+<h2 id="4-schema--dtos-crossing-service-boundaries">4. Schema / DTOs
+crossing service boundaries</h2>
+<h3 id="4a-marketoddsapiservice-dtos-new-frozen-dataclasses">4a.
+<code>MarketOddsApiService</code> DTOs (NEW, frozen dataclasses)</h3>
+<p><code>application/service/odds/market_odds_api_dtos.py</code> —
+explicitly small, opaque payloads passed back to
+<code>MarketOddsApiService.persist()</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>File:line</th>
+<th>Shape</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Event</code></td>
+<td><code>:17</code></td>
+<td>event_id, league, kickoff, etc.</td>
+</tr>
+<tr>
+<td><code>MarketOutcome</code></td>
+<td><code>:40</code></td>
+<td>name + price</td>
+</tr>
+<tr>
+<td><code>MarketSnapshot</code></td>
+<td><code>:52</code></td>
+<td>event + outcomes, fetched_at</td>
+</tr>
+<tr>
+<td><code>PlayerPropOutcome</code></td>
+<td><code>:71</code></td>
+<td>player + prop + line + price</td>
+</tr>
+<tr>
+<td><code>PlayerPropSnapshot</code></td>
+<td><code>:88</code></td>
+<td>event + outcomes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4b-builderservice-typed-dicts-renamed-module-but-typeddict-surface-is-the-user-facing-contract-for-the-response-builder">4b.
+<code>BuilderService</code> typed dicts (renamed module, but TypedDict
+surface is the user-facing contract for the response builder)</h3>
+<p><code>application/service/odds/builder_service.py</code>:</p>
+<table>
+<thead>
+<tr>
+<th>TypedDict</th>
+<th>File:line</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TeamInfo</code></td>
+<td><code>:19</code></td>
+<td>nested team payload</td>
+</tr>
+<tr>
+<td><code>AllOddsMetadata</code></td>
+<td><code>:24</code></td>
+<td>response metadata</td>
+</tr>
+<tr>
+<td><code>AllOddsResponse</code></td>
+<td><code>:32</code></td>
+<td>top-level shape</td>
+</tr>
+<tr>
+<td><code>ZapItem</code></td>
+<td><code>:42</code></td>
+<td>per-player ZAP</td>
+</tr>
+<tr>
+<td><code>ZatItem</code></td>
+<td><code>:61</code></td>
+<td>per-team ZAT</td>
+</tr>
+<tr>
+<td><code>TeamPropItem</code></td>
+<td><code>:77</code></td>
+<td>team-prop item</td>
+</tr>
+<tr>
+<td><code>ZaoItem</code></td>
+<td><code>:90</code></td>
+<td>per-zone ZAO</td>
+</tr>
+<tr>
+<td><code>MomItem</code></td>
+<td><code>:100</code></td>
+<td>MOM item</td>
+</tr>
+<tr>
+<td><code>_AllOddsContext</code></td>
+<td><code>:122</code></td>
+<td>private builder state</td>
+</tr>
+<tr>
+<td><code>ZoneGroupConfig</code> (BaseModel)</td>
+<td><code>:160</code></td>
+<td>zone-grouping config</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4c-liveoddsservice-typed-dicts">4c. <code>LiveOddsService</code>
+typed dicts</h3>
+<p><code>application/service/odds/live_odds_service.py</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>File:line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VigConfig</code></td>
+<td><code>:30</code></td>
+</tr>
+<tr>
+<td><code>MoneylineEntry</code> (TypedDict)</td>
+<td><code>:48</code></td>
+</tr>
+<tr>
+<td><code>SpreadEntry</code> (TypedDict)</td>
+<td><code>:57</code></td>
+</tr>
+<tr>
+<td><code>OverUnderEntry</code> (TypedDict)</td>
+<td><code>:67</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="4d-marketoddsservice-typed-dicts">4d.
+<code>MarketOddsService</code> typed dicts</h3>
+<p><code>application/service/odds/market_odds_service.py</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>File:line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MarketMoneyline</code></td>
+<td><code>:40</code></td>
+</tr>
+<tr>
+<td><code>MarketSpread</code></td>
+<td><code>:47</code></td>
+</tr>
+<tr>
+<td><code>MarketTotals</code></td>
+<td><code>:54</code></td>
+</tr>
+<tr>
+<td><code>MarketOddsSummary</code></td>
+<td><code>:64</code></td>
+</tr>
+<tr>
+<td><code>LiveKalshiFetchEntry</code></td>
+<td><code>:84</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="4e-livebetting-schemas">4e. <code>LiveBetting</code>
+schemas</h3>
+<p><code>application/service/betting/live_policy.py</code> — Pydantic +
+Enums centralising &quot;is this market currently live-priceable?&quot;
+contract:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>File:line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LiveOddsStatus</code> (str Enum)</td>
+<td><code>:34</code></td>
+</tr>
+<tr>
+<td><code>LiveMarketType</code> (str Enum)</td>
+<td><code>:62</code></td>
+</tr>
+<tr>
+<td><code>IsLiveResponse</code> (BaseModel)</td>
+<td><code>:74</code></td>
+</tr>
+<tr>
+<td><code>IsLiveBatchRequest</code> (BaseModel)</td>
+<td><code>:81</code></td>
+</tr>
+<tr>
+<td><code>IsLiveBatchResponse</code> (BaseModel)</td>
+<td><code>:92</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="4f-backtest-contracts">4f. Backtest contracts</h3>
+<p><code>application/service/backtest/backtest_runner.py</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>File:line</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BacktestScenario</code> (Enum)</td>
+<td><code>:67</code></td>
+<td>the pluggable axis</td>
+</tr>
+<tr>
+<td><code>BacktestRequest</code> (dataclass)</td>
+<td><code>:91</code></td>
+<td>input contract</td>
+</tr>
+<tr>
+<td><code>BacktestResult</code> (dataclass)</td>
+<td><code>:115</code></td>
+<td>output contract</td>
+</tr>
+<tr>
+<td><code>_PipelineFactory</code> (Protocol)</td>
+<td><code>:152</code></td>
+<td>injectable factory</td>
+</tr>
+<tr>
+<td><code>_RepoFactory</code> (Protocol)</td>
+<td><code>:156</code></td>
+<td>injectable factory</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-config--infra">5. Config &amp; infra</h2>
+<h3 id="5a-required-env-33--1">5a. <code>.required-env</code> (+33 /
+−1)</h3>
+<p>The PR adds <strong>33 new env vars</strong> in 3 logical groups
+(<code>.required-env:206-272, 336-340</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Vars</th>
+<th>Default behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lineup model (W5)</strong></td>
+<td><code>LINEUP_MODEL_ENABLED</code>,
+<code>LINEUP_MODEL_MIN_APPEARANCES</code>,
+<code>CLUSTER_MODEL_ENABLED</code>,
+<code>LINEUP_MODEL_CACHE_TTL_SEC</code>,
+<code>LINEUP_CONFIRMED_OVERRIDE</code></td>
+<td><code>[optional]</code> flags; off by default</td>
+</tr>
+<tr>
+<td><strong>Scheduled odds fetch (W3)</strong></td>
+<td><code>ODDS_FETCH_ENABLED</code>,
+<code>ODDS_FETCH_INTERVAL_SEC</code> (default 300),
+<code>ODDS_FETCH_LOOKAHEAD_HOURS</code> (24),
+<code>ODDS_FETCH_MARKETS</code> (<code>h2h,totals,spreads</code>)</td>
+<td><code>[optional]</code>, off by default</td>
+</tr>
+<tr>
+<td><strong>Match calibration (W2)</strong></td>
+<td><code>MATCH_CALIBRATION_ENABLED</code> (default false),
+<code>MATCH_CALIBRATION_MAX_DELTA</code> (0.15 = ±15%),
+<code>MATCH_CALIBRATION_CONFIDENCE_FLOOR</code> (0.3),
+<code>MATCH_CALIBRATION_COOLDOWN_SEC</code> (60),
+<code>MATCH_CALIBRATION_TTL_SEC</code> (1800),
+<code>MATCH_CALIBRATION_DIVERGENCE_THRESHOLD</code> (0.05),
+<code>MATCH_CALIBRATION_CHECK_INTERVAL_SEC</code> (120),
+<code>MATCH_CALIBRATION_PLAYER_PROPS_ENABLED</code> (true),
+<code>MATCH_CALIBRATION_PLAYER_PROP_HOLD</code> (0.15),
+<code>MATCH_CALIBRATION_PLAYER_PROP_GAMMA</code> (0.90),
+<code>MATCH_CALIBRATION_PLAYER_PROP_R</code> (5.0)</td>
+<td><code>[optional]</code>, off by default</td>
+</tr>
+<tr>
+<td><strong>Lineup scraper (W4)</strong></td>
+<td><code>LINEUP_SCRAPER_ENABLED</code> (false),
+<code>LINEUP_SCRAPER_INTERVAL_SEC</code> (120),
+<code>LINEUP_SCRAPER_LOOKAHEAD_HOURS</code> (24),
+<code>KAFKA_LINEUP_TOPIC</code> (<code>odds.lineup_updates</code>),
+<code>KAFKA_LINEUP_GROUP</code></td>
+<td><code>[optional]</code>, off by default</td>
+</tr>
+<tr>
+<td><strong>Odds request tracking (W1)</strong></td>
+<td><code>ODDS_REQUEST_TRACKING_ENABLED</code> (default true),
+<code>ODDS_REQUEST_KAFKA_TOPIC</code> (<code>odds.odds_requests</code>),
+<code>ODDS_REQUEST_ANALYTICS_GROUP</code>
+(<code>backend-odds-request-analytics</code>)</td>
+<td><code>[optional]</code>, <strong>on by default</strong></td>
+</tr>
+</tbody>
+</table>
+<p><code>EXT_ODDS_FETCH_INTERVAL</code> is now annotated
+<code>(legacy)</code>.</p>
+<p><code>.env.local</code> (+6), <code>.env.stage</code> (+33),
+<code>.env.prod</code> (+33) — env-template churn matching the new
+vars.</p>
+<h3 id="5b-pyprojecttoml-8--5">5b. <code>pyproject.toml</code> (+8 /
+−5)</h3>
+<ul>
+<li><code>scripts/archive</code> → <code>scripts/_archive</code> rename
+across <code>black.exclude</code>, <code>isort.skip</code>,
+<code>ruff.extend-exclude</code>, <code>pylint.ignore</code>,
+<code>coverage.omit</code> (lines 5, 11, 23-24, 62, 82). New
+<code>tests/_archive/</code> exclusion across the same.</li>
+<li>New pytest marker:
+<code>integration: integration tests that spin up the real Backend-Odds app and hit local Redis + Postgres. Opt-in via --run-integration.</code>
+(line 53).</li>
+</ul>
+<h3 id="5c-gitignore-11--1--not-exhaustively-read-growth-correlates-with-new-artifact-dirs">5c.
+<code>.gitignore</code> (+11 / −1) — not exhaustively read; growth
+correlates with new artifact dirs.</h3>
+<h3 id="5d-alembic-env-hardening">5d. Alembic env hardening</h3>
+<p>Both <code>alembic/env.py</code> and
+<code>alembic_ext_odds/env.py</code> add
+<code>compare_type=True, compare_server_default=True</code> to
+<em>both</em> online and offline modes (cited in §3). Material because
+all forthcoming autogenerate runs will detect column-type and
+server-default drift that current heads silently allow.</p>
+<h3 id="5e-tooling-additions">5e. Tooling additions</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AI_DOCS/INDEX.md</code></td>
+<td>NEW</td>
+<td>+29 lines — index of the 19 new reference / research docs in this
+PR.</td>
+</tr>
+<tr>
+<td><code>AI_DOCS/reference/2026-04-13_W{1..5}-*.md</code></td>
+<td>NEW</td>
+<td>Per-workstream design docs (W1 betting-data-pipeline, W2
+match-calibration, W3 scheduled-odds-fetch, W4 lineup-scraping-kafka, W5
+lineup-model + revised zone-cluster-model).</td>
+</tr>
+<tr>
+<td><code>AI_DOCS/reference/2026-04-17_audit-{01..06}-*.md</code>,
+<code>audit-all.md/.html</code>,
+<code>backend-odds-audit.md/.html</code></td>
+<td>NEW</td>
+<td>A 6-part architecture audit (migration, modeling, fitting,
+inefficiency, organization, vs-streaming) — ~28K lines combined.</td>
+</tr>
+<tr>
+<td><code>AI_DOCS/reference/2026-04-17_odds-pricing-exploitability-investigation.md</code>,
+<code>2026-04-18_ralph-audit-fix-report.md</code></td>
+<td>NEW</td>
+<td>Ralph-loop audit-fix output.</td>
+</tr>
+<tr>
+<td><code>AI_DOCS/research/{2025-04-07_player-action-modeling-research.md, CODE_WALKTHROUGH_player-modeling.md, QUICKREF_player-modeling.md, README.md}</code></td>
+<td>NEW</td>
+<td>Research artefacts.</td>
+</tr>
+<tr>
+<td><code>docs/pr/ralph-loop-agents-guide.md</code></td>
+<td>NEW</td>
+<td>Operational AGENTS.md for the audit-fix loop (env, validation gate,
+&quot;do NOT run <code>make check</code>/alembic upgrade head/docker
+compose&quot;).</td>
+</tr>
+<tr>
+<td><code>docs/CHANGELOG-phase-1.md</code>,
+<code>docs/migrations/README.md</code>,
+<code>docs/modeling/cluster_model_math.md</code>,
+<code>docs/playbooks/fa-cup-validation.md</code>,
+<code>docs/pr/odds-pricing-improvements.md</code>,
+<code>docs/pr/parameter-management-todos.md</code> (renamed)</td>
+<td>NEW / RENAMED</td>
+<td>Standalone docs.</td>
+</tr>
+<tr>
+<td><code>IMPLEMENTATION_PLAN.md</code>,
+<code>RESEARCH_MIGRATION_REFIT_KALSHI_ODDS.md</code>,
+<code>UNIFIED_RATE_ACCESS_TODOLIST.md</code></td>
+<td>NEW</td>
+<td>Repo-root planning docs (+79, +839, +386).</td>
+</tr>
+<tr>
+<td><code>scripts/_archive/</code></td>
+<td>NEW dir, 75+ renamed/added files</td>
+<td>The PR&#39;s archive consolidation — <code>scripts/archive</code> →
+<code>scripts/_archive</code> with subfolders
+<code>legacy_archive_orig/</code>, <code>odds_qa_testing/</code>,
+<code>debug/</code>, etc. Also pulls in three new files:
+<code>pipeline_walkthrough.py</code>,
+<code>qa_calibration_diff.py</code>,
+<code>qa_joint_fit_demo.py</code>.</td>
+</tr>
+<tr>
+<td><code>scripts/backtests/</code>, <code>scripts/eval/</code>,
+<code>scripts/debug/cluster/</code>,
+<code>scripts/odds_api_mapping/</code>,
+<code>scripts/odds_qa_testing/</code>,
+<code>scripts/migrations/_audit.py</code>,
+<code>scripts/scratch/</code></td>
+<td>NEW dirs</td>
+<td>Live (non-archive) script trees: backtest harness CLI, eval harness,
+cluster-model debug, odds-API mapping, QA dashboards, migration-audit
+helper, scratch.</td>
+</tr>
+<tr>
+<td><code>.github/workflows/claude-code-review.yml</code></td>
+<td>DELETED (−78)</td>
+<td>Removed CI workflow.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="5f-claudemd-30--0">5f. CLAUDE.md (+30 / −0)</h3>
+<p>Adds the <strong>Starter-Only Assumption</strong> block, the
+cluster-model open-inconsistency call-out, and the <strong>&quot;Redis is
+clustered in stage/prod — no native MGET across slots&quot;</strong> rule
+documenting the live incident on <code>get_market_odds_batch</code>
+(cited in <code>CLAUDE.md</code>).</p>
+<hr />
+<h2 id="6-notable-architectural-decisions">6. Notable architectural
+decisions</h2>
+<ol type="1">
+<li><strong>Six-folder service taxonomy.</strong>
+<code>application/service/</code> flat layout →
+<code>{odds, calibration, backtest, betting, lineup, info}/</code>. 21
+services, history preserved via <code>git mv</code>. The split is by
+<em>responsibility</em>, not by entry-point — calibration and odds are
+siblings, not one inside the other.</li>
+<li><strong>Two alembic histories.</strong>
+<code>alembic_ext_odds/</code> is now first-class (was <code>.ini</code>
+only before; the actual versions/ tree lands here). Migrations in BOTH
+must be run — explicitly documented in
+<code>.claude/rules/migrations.md</code>.
+<strong><code>alembic_soccer_data.ini</code> is deleted</strong> in this
+PR — confirm no environment still depends on it before merging.</li>
+<li><strong>New separate database schema <code>ext_odds</code>.</strong>
+23 tables in a dedicated PG schema, with its own alembic version table
+(<code>version_table_schema=SCHEMA_NAME</code> in
+<code>alembic_ext_odds/env.py:54, 79</code>). Populated by the sister
+project at
+<code>src/ext_odds_streaming/models/ext_odds_models.py</code>. This is a
+<strong>new persistence subsystem</strong>, not just a refactor.</li>
+<li><strong>Source-aware data plane.</strong> <code>events</code>,
+<code>match_statistics</code>, <code>player_statistics</code>,
+<code>lineups</code> all gain <code>source</code> columns
+(<code>whoscored</code> | <code>sofascore</code>). PKs/UNIQUEs widen to
+include <code>source</code>. This is a fundamental shape change to the
+read path: every consumer that did <code>scalar_one_or_none()</code> on
+<code>(game_id, player_id)</code> is at risk —
+<code>lineup_source_priority.py</code> exists specifically because some
+now hit <code>MultipleResultsFound</code>. The
+<code>core/data/event_source.py</code> constants module makes &quot;which
+source is canonical for this game?&quot; a first-class concept rather than a
+string literal. <strong>Dependency direction is bottom-up</strong>:
+helpers in <code>core/data/</code> are now imported by the
+<code>application/service/info/migration_service.py</code> and the
+migrators in <code>scripts/migrations/</code>.</li>
+<li><strong>Calibration as a peer subsystem.</strong>
+<code>MatchCalibrationService</code> (~2K LOC) elevates the previously
+ad-hoc factor adjustments into a layered service with its own enable
+flag, cooldowns, divergence threshold, extreme-policy alerting
+(<code>extreme_factor_alerts.py</code>), and Redis-backed adjustments
+cache. Three policies are configurable via
+<code>MATCH_CALIBRATION_EXTREME_POLICY</code>: clamp / passthrough /
+passthrough_with_alert.</li>
+<li><strong>Vig math centralised.</strong> <code>vig_policy.py</code> is
+the new home for divisive/power vig + inversion. Pure-functional, no
+I/O. Changes the dependency direction: pricing paths now depend on
+<code>application/service/odds/vig_policy.py</code>, eliminating
+duplicated overround code.</li>
+<li><strong>External-API service layer.</strong>
+<code>MarketOddsApiService</code> is the first attempt at collapsing the
+duplicated <code>fetch_*.py</code> scripts into a deep service with
+explicit error taxonomy (<code>OddsApiAuthError</code>,
+<code>OddsApiRateLimitError</code>, <code>OddsApiResponseError</code>).
+Layered DTOs (<code>Event</code>, <code>MarketSnapshot</code>,
+<code>PlayerPropSnapshot</code>) mark the boundary; persistence stays
+inside the service, not the caller.</li>
+<li><strong>Backtest harness consolidation.</strong>
+<code>BacktestRunner</code> + <code>BacktestScenario</code> enum +
+<code>_assert_no_leakage()</code> collapse three duplicated
+temporal-cutoff loops into one with leakage detection as a first-class
+assertion.</li>
+<li><strong>W1 telemetry pipeline.</strong>
+<code>RequestAnalyticsService</code> introduces a Kafka-backed
+background-thread consumer in the <code>application/service/info/</code>
+layer. This is the first time a service in <code>application/</code>
+runs an in-process consumer thread (existing Kafka consumers live in
+<code>infrastructure/kafka/</code>); worth flagging as a layering
+departure.</li>
+<li><strong>Migration audit + idempotency gate.</strong>
+<code>migration_runs</code> +
+<code>MigrationService.migrate_league()</code> add a 24h re-run gate
+(<code>--force</code> to override) for the SF↔︎WS migrators, with
+row-touched tracking in JSONB. The <code>r3s4t5u6v7w8</code> migration&#39;s
+destructive one-shot DELETE relies on this gate to be safe to roll
+forward repeatedly.</li>
+<li><strong>Three open Alembic head merges in this PR</strong>
+(<code>62a181c29a0b</code>, <code>6392e7d01782</code>) indicate the work
+was developed across multiple parallel branches (W2/W3/W4/W5 +
+audit-fix). Final head is <code>6392e7d01782</code>. Operators should
+expect to run <code>alembic upgrade head</code> for
+<code>alembic.ini</code> <em>and</em>
+<code>alembic -c alembic_ext_odds.ini upgrade head</code> for the new
+env.</li>
+<li><strong>Strict autogenerate
+(<code>compare_type=True, compare_server_default=True</code>)</strong>
+turned on for both alembic envs. Future
+<code>alembic revision --autogenerate</code> will surface column-type
+and server-default drift the codebase has historically tolerated. Expect
+noisier autogenerate output post-merge — review carefully.</li>
+<li><strong>CI footprint shrunk.</strong>
+<code>.github/workflows/claude-code-review.yml</code> removed (−78).
+Whatever automated review existed there is no longer running.</li>
+</ol>
+</body>
+</html>

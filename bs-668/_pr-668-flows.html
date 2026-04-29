@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>BS #668 — Flow Inventory</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">@viewport { width: device-width; initial-scale: 1; }
+:root {
+--bg: #0d1117;
+--fg: #c9d1d9;
+--fg-muted: #8b949e;
+--border: #30363d;
+--link: #58a6ff;
+--code-bg: #161b22;
+--table-stripe: #161b22;
+--warn: #f0883e;
+--danger: #f85149;
+--good: #3fb950;
+--header: #f0f6fc;
+}
+@media (prefers-color-scheme: light) {
+:root {
+--bg: #ffffff;
+--fg: #1f2328;
+--fg-muted: #59636e;
+--border: #d1d9e0;
+--link: #0969da;
+--code-bg: #f6f8fa;
+--table-stripe: #f6f8fa;
+--warn: #bf8700;
+--danger: #cf222e;
+--good: #1a7f37;
+--header: #1f2328;
+}
+}
+* { box-sizing: border-box; }
+html, body {
+margin: 0;
+padding: 0;
+background: var(--bg);
+color: var(--fg);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+font-size: 16px;
+line-height: 1.6;
+-webkit-text-size-adjust: 100%;
+}
+body {
+max-width: 900px;
+margin: 0 auto;
+padding: 1.25rem 1rem 4rem;
+}
+h1, h2, h3, h4, h5, h6 {
+color: var(--header);
+margin-top: 1.6em;
+margin-bottom: 0.6em;
+line-height: 1.25;
+font-weight: 600;
+}
+h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.0rem; }
+p { margin: 0.6em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+code {
+background: var(--code-bg);
+padding: 0.15em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+font-size: 0.875em;
+word-break: break-word;
+}
+pre {
+background: var(--code-bg);
+padding: 0.85rem;
+border-radius: 6px;
+overflow-x: auto;
+font-size: 0.825em;
+line-height: 1.5;
+border: 1px solid var(--border);
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+blockquote {
+border-left: 4px solid var(--border);
+margin: 1em 0;
+padding: 0.4em 1em;
+color: var(--fg-muted);
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1em 0;
+font-size: 0.9em;
+display: block;
+overflow-x: auto;
+}
+th, td {
+border: 1px solid var(--border);
+padding: 0.4em 0.7em;
+text-align: left;
+vertical-align: top;
+}
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(2n) { background: var(--table-stripe); }
+hr {
+border: none;
+border-top: 1px solid var(--border);
+margin: 2em 0;
+}
+
+@media (max-width: 600px) {
+body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; }
+h1 { font-size: 1.45rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+pre { font-size: 0.78em; padding: 0.6rem; }
+table { font-size: 0.82em; }
+th, td { padding: 0.3em 0.5em; }
+}
+
+.review-index {
+list-style: none;
+padding: 0;
+}
+.review-index li {
+padding: 0.5em 0.7em;
+border: 1px solid var(--border);
+border-radius: 6px;
+margin: 0.4em 0;
+background: var(--code-bg);
+}
+.review-index li.master {
+border-left: 4px solid var(--good);
+font-weight: 600;
+}
+.review-index li.note {
+border-left: 4px solid var(--warn);
+font-style: italic;
+background: transparent;
+font-size: 0.9em;
+}
+.size {
+color: var(--fg-muted);
+font-size: 0.85em;
+float: right;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">BS #668 — Flow Inventory</h1>
+</header>
+<h1 id="flows-specialist--synthesis-mid-level-deep">Flows Specialist —
+Synthesis (Mid Level, Deep)</h1>
+<blockquote>
+<p>Synthesized from 7 leaf reports under <code>pr-668-leaves/</code>:
+Foundation: <a href="pr-668-leaves/flows-http-routes.html"><code>flows-http-routes.md</code></a>,
+<a href="pr-668-leaves/flows-websocket.html"><code>flows-websocket.md</code></a>,
+<a href="pr-668-leaves/flows-scheduled-kafka.html"><code>flows-scheduled-kafka.md</code></a>,
+<a href="pr-668-leaves/flows-pipelines-workers.html"><code>flows-pipelines-workers.md</code></a>.
+Deep walks: <a href="pr-668-leaves/flows-deep-sf-data.html"><code>flows-deep-sf-data.md</code></a>,
+<a href="pr-668-leaves/flows-deep-admin-jobs.html"><code>flows-deep-admin-jobs.md</code></a>,
+<a href="pr-668-leaves/flows-deep-cross-service.html"><code>flows-deep-cross-service.md</code></a>.</p>
+</blockquote>
+<blockquote>
+<p><strong>PRIORITY</strong>: per user direction, this is the most
+thorough specialist branch in the review. Every flow walked end-to-end,
+every cross-service hop documented with <code>file:line</code>, header
+propagation matrix verified.</p>
+</blockquote>
+<h2 id="tldr">TL;DR</h2>
+<p>PR #668 changes <strong>45 HTTP routes</strong> (40 new, 5 changed),
+adds <strong>5 net-new scheduled jobs</strong>, <strong>2 Kafka emit
+sites</strong>, <strong>1 cross-service worker</strong> (BS→BO targeted
+migration). <strong>0 WebSocket flows</strong> introduced or modified.
+The flow-correctness picture is mostly clean except for <strong>3
+specific gaps</strong>: (a) 5 admin routes missing from
+<code>ROUTE_TO_FLOW</code>, (b) <code>request_id</code> propagation
+missing on the BS→BO admin call, (c) ContextVar loss in admin daemon
+threads. Auth posture on the BS→BO call is correct (JWT minted with
+<code>role=admin</code>).</p>
+<h2 id="1-inventory-by-surface">1. Inventory by surface</h2>
+<pre><code>Mobile/web client ─┬─ HTTP /info/sofascore/* (32 GET, public, no auth)
+                   ├─ HTTP /info/get_games_in_date_range (existing route, internal rewrite)
+                   └─ HTTP /admin/* (12 admin, 5 modified existing)
+
+Admin client ─┬─ POST /admin/sofascore/{enrich,onboard}    + GET /admin/sofascore/status
+              ├─ POST /admin/leagues/onboard{,*5 routes}
+              ├─ POST /admin/scheduler/run/{job_name}      [body {dry_run}]
+              └─ GET  /admin/scheduler/jobs
+
+APScheduler (separate ECS task) ─┬─ live_fetch (5min)
+                                  ├─ prelive_lineups (5min, was 10min)
+                                  ├─ prelive_lineups_imminent (90s NEW, 1h window)
+                                  ├─ postmatch_quick/full
+                                  ├─ metadata_fetch
+                                  └─ sf_enrich --tier {live|post|daily|weekly|all} (NEW)
+
+OddsClient.get_parlay_odds      → Kafka odds.odds_requests   (OddsRequestEvent)
+UserBetService (post-confirm)   → Kafka odds.user_bets       (BetPlacedEvent)
+
+Cross-service:
+  BS scheduler → BO /odds/admin/migration/run-targeted   (opt-in, JWT auth)
+  BS web      → BO /live/is_live_batch                   (request path, ContextVar headers)
+  BS web      → BO /get_parlay_odds, /live/is_live, etc. (existing, ContextVar headers)</code></pre>
+<p>WebSocket: <strong>none added</strong>. (Existing
+<code>WebSocketMetricsMiddleware</code> in
+<code>metrics_middleware.py</code> is unmodified; Stream Chat WS is
+third-party client-direct.)</p>
+<h2 id="2-end-to-end-walks">2. End-to-end walks</h2>
+<h3 id="21-public-reads--infosofascore--32">2.1 Public reads —
+<code>/info/sofascore/*</code> × 32</h3>
+<p><a href="pr-668-leaves/flows-deep-sf-data.html">Full per-route detail
+in <code>flows-deep-sf-data.md</code></a>.</p>
+<p>Common spine:</p>
+<pre><code>client GET /info/sofascore/{group}/{id}[/{field}]
+   ▼ get_sofascore_data_service (DI)
+SofascoreDataService.&lt;method&gt;
+   ├─ id = await self.id_resolver.resolve_{match,player,team}(id)        ← UUID OR sf_*_id
+   └─ return await self.repo.&lt;method&gt;(resolved_id, ...)
+       ▼ AsyncSession query against sf_match_*, sf_player_*, sf_team_*, players, teams
+       ▼ For *_image / *_media: S3 signed URL fallback to SofaScore CDN</code></pre>
+<p>Grouping:</p>
+<ul>
+<li>17 single-match field routes (combined + 16 individual)</li>
+<li>5 player routes (profile, national-team, recent-matches, image,
+media)</li>
+<li>7 team routes (form, goal-distributions, stats, image, media,
+performance, squad)</li>
+<li>3 league routes (matches, top-rated, image)</li>
+<li>2 odds routes (match, league)</li>
+<li>2 standings/top-players routes</li>
+<li>2 ID-resolution routes</li>
+</ul>
+<p>Observations across all 32:</p>
+<ul>
+<li>✅ All 32 covered in <code>flow_context.ROUTE_TO_FLOW</code> as
+<code>data.sofascore</code>.</li>
+<li>❌ Routes do NOT declare <code>response_model=</code> (schemas exist
+but unenforced).</li>
+<li>❌ <code>SofascoreDataService</code> methods are NOT decorated with
+<code>@flow_traced(Flow.X)</code>.</li>
+<li>✅ Public — no auth dep, no rate limit.</li>
+</ul>
+<h3 id="22-admin-job-spawners--4-routes">2.2 Admin job spawners — 4
+routes</h3>
+<p><a href="pr-668-leaves/flows-deep-admin-jobs.html">Full detail in
+<code>flows-deep-admin-jobs.md</code></a>.</p>
+<pre><code>POST /admin/sofascore/enrich
+  ▼ trigger_sf_enrich (admin/sofascore_routes.py:198-210)
+  ├─ validate (league_code OR match_id)
+  ├─ resolve pipeline-set from with_players/with_season flags
+  ├─ _create_job → JobStatus.PENDING (in-process _jobs dict)
+  └─ threading.Thread(_run_sf_enrich_sync, daemon=True).start()
+        ▼ SfOrchestratorV4.run(...)   ← scrapes SF, writes sf_match_*, …
+        └─ enrichment_audit.write_run(...)
+
+POST /admin/sofascore/onboard
+  ▼ trigger_sf_onboard
+  └─ Thread(_run_sf_onboard_sync) — branches on action:
+        ├─ STATUS:    onboarder.show_status()
+        ├─ LINK:      onboarder.link_one(league_code) → UPDATE league_registry.sf_unique_tournament_id
+        ├─ LINK_ALL:  onboarder.link_all() — iterate unlinked
+        ├─ DISCOVER:  onboarder.discover(league_code, days_back) — read-only
+        └─ CREATE:    onboarder.create(sf_id, name, short_code) — INSERT new row
+
+POST /admin/leagues/onboard (+ list/get/delete/preset)
+  ▼ services/admin/league_onboard_service.{start_onboard, get_status, list_onboard_jobs, cancel_onboard}
+        ▼ Thread(_run_onboard_workflow) — multi-stage state machine ending in SfOrchestratorV4 invocation
+
+GET /admin/sofascore/status
+  ▼ get_sf_status — synchronous (no thread)
+        ▼ JOIN league_registry × tournament_schedule × sf_match_details (counts)</code></pre>
+<h3 id="23-scheduler-trigger-with-dry_run--post-adminschedulerrunjob_name">2.3
+Scheduler trigger with dry_run —
+<code>POST /admin/scheduler/run/{job_name}</code></h3>
+<pre><code>TriggerJobRequest{dry_run: bool}
+  ▼ run_scheduler_job (scheduler_routes.py:84-180)
+  ├─ all_jobs = {**SCRAPER_JOBS, **BACKEND_JOBS}
+  ├─ 404 if job_name not present
+  ├─ 400 if dry_run=true and not spec.supports_dry_run
+  ├─ result = await spec.callable(dry_run=dry_run) | await spec.callable()
+  └─ TriggerJobResponse{job_name, job_type, dry_run, result}</code></pre>
+<p>Job runs <strong>inline on the request thread</strong> (NOT in a
+separate thread). For long jobs this ties up a worker; for dry-runs the
+callable short-circuits before external effects.</p>
+<p>For <code>live_fetch</code> wrapper (representative):</p>
+<pre><code>run_live_fetch(dry_run=False)
+   ├─ args = parse([--max 100] + ([--dry-run] if dry_run else []))
+   ├─ with job_context(&quot;live_fetch&quot;, args, enable_slack=not dry_run):
+   │     await run_live_fetch_job(args, ctx)        ← orchestrator_v3
+   └─ if not dry_run:
+         await sync_lineup_updates_to_odds_service(&quot;live_fetch&quot;)     ← BS→BO post-step</code></pre>
+<h3 id="24-infoget_games_in_date_range--n1--batch">2.4
+<code>/info/get_games_in_date_range</code> — N+1 → batch</h3>
+<pre><code>GameInfoService._compute_live_status_map(games, now)        ← game_info_service.py:117-181
+   ├─ partition: terminal status     → False
+   ├─ partition: LIVE_CHECK_MODE=ALWAYS → True
+   ├─ partition: kickoff is None     → False
+   ├─ partition: outside [-WINDOW_BEFORE, WINDOW_AFTER]      → False
+   └─ remaining → odds_client.get_live_status_batch([…])
+                       │  timeout: LIVE_STATUS_TIMEOUT (2s)
+                       │  headers: get_propagation_headers() ✅ all 7 ContextVars
+                       │
+                       ├─ on success: dict[match_id → bool|None]
+                       └─ on exception/None entry → time-based fallback (now &gt; kickoff)</code></pre>
+<h3 id="25-bs--bo-targeted-migration">2.5 BS → BO targeted
+migration</h3>
+<p><a href="pr-668-leaves/flows-deep-cross-service.html">Full detail in
+<code>flows-deep-cross-service.md</code> §Y.</a></p>
+<pre><code>Scheduler tick → run_live_fetch (or prelive_lineups, prelive_lineups_imminent)
+   └─ if not dry_run:
+         sync_lineup_updates_to_odds_service(job_name)           ← integrations/odds_service_client.py
+              ├─ if not ODDS_SERVICE_SYNC_ENABLED: return
+              ├─ wh_game_ids = await _fetch_recently_scraped_wh_game_ids(window=15min)
+              └─ branch on ODDS_SERVICE_SYNC_MODE
+                    ├─ &quot;http&quot;        → _post_targeted_migration(wh_game_ids)
+                    │                       └─ POST {ODDS_SERVICE_URL}/odds/admin/migration/run-targeted
+                    │                              body: TargetedMigrationRequest{game_ids, with_predicted_lineups, with_missing_players}
+                    │                              headers: _admin_auth_headers()           ← ❌ ONLY Authorization
+                    │                              timeout: 10s
+                    │                              → 202 {job_id, …}
+                    │
+                    └─ &quot;subprocess&quot;  → conda run python &lt;script_in_BO&gt;     [dev/test only]</code></pre>
+<h4 id="251-header-propagation-matrix--verified">2.5.1 Header
+propagation matrix — VERIFIED</h4>
+<table>
+<thead>
+<tr>
+<th>Caller</th>
+<th>Authorization</th>
+<th>request_id / flow / session</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OddsClient.*</code> (request path)</td>
+<td>n/a (in-VPC)</td>
+<td>✅ via <code>_propagation_headers()</code> →
+<code>get_propagation_headers()</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>_post_targeted_migration</code> (scheduler path)</td>
+<td>✅ JWT (5min, <code>role=admin</code>,
+<code>sub=backend-server-scheduler</code>)</td>
+<td>❌ <strong>NOT propagated</strong></td>
+<td>⚠️</td>
+</tr>
+</tbody>
+</table>
+<p><code>_admin_auth_headers()</code> at
+<code>integrations/odds_service_client.py:103-109</code> returns ONLY
+<code>Authorization</code>. Does NOT call
+<code>get_propagation_headers()</code>. Effect: BO logs the
+targeted-migration request without <code>X-Request-ID</code>
+correlation. Cross-service trace breaks at the scheduler→BO boundary.
+<strong>One-line fix</strong> documented in
+<code>flows-deep-cross-service.md</code> §Y.4.</p>
+<h3 id="26-kafka-producer--2-emit-sites">2.6 Kafka producer — 2 emit
+sites</h3>
+<pre><code>OddsClient.get_parlay_odds (existing route, post-response)
+   └─ _emit_odds_request_event(endpoint=&quot;/get_parlay_odds&quot;, game_ids=[…], market_types=[&quot;parlay&quot;])
+            └─ producer.produce(topic=&quot;odds.odds_requests&quot;,
+                                 key=user_id_ctx | &quot;anonymous&quot;,
+                                 value=OddsRequestEvent(...).to_json())
+
+UserBetService (post bet-confirm)
+   └─ self._emit_bet_placed_event(bet)
+            └─ producer.produce(topic=&quot;odds.user_bets&quot;,
+                                 key=user_id,
+                                 value=BetPlacedEvent(...).to_json())</code></pre>
+<p>Both fire-and-forget (<code>producer.produce</code> never raises).
+ContextVars (<code>user_id_ctx</code>, <code>request_id_ctx</code>) are
+captured at emit time <strong>on the request thread</strong> — they
+propagate correctly into the event payload (verified in
+<code>OddsRequestEvent.session_id</code> ←
+<code>request_id_ctx</code>).</p>
+<p>App lifecycle: <code>app.on_event(&quot;startup&quot;)</code> warms the
+singleton; <code>shutdown</code> flushes (5s timeout). Both wrapped in
+try/except.</p>
+<h3 id="27-scheduled-jobs--idempotency--locking">2.7 Scheduled jobs —
+idempotency &amp; locking</h3>
+<table>
+<thead>
+<tr>
+<th>Job</th>
+<th>Idempotency</th>
+<th>Lock</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>live_fetch</code> (5 min)</td>
+<td>✅ ON CONFLICT DO UPDATE in BaseSink</td>
+<td>SingleInstanceLock per job_id, in-process</td>
+<td>post-step → BS→BO</td>
+</tr>
+<tr>
+<td><code>prelive_lineups</code> (5 min)</td>
+<td>✅ same</td>
+<td>same</td>
+<td>post-step → BS→BO</td>
+</tr>
+<tr>
+<td><code>prelive_lineups_imminent</code> (90 s NEW)</td>
+<td>✅ same</td>
+<td>same; cross-instance NOT safe (process-local lock)</td>
+<td>post-step → BS→BO; <code>enable_slack=False</code></td>
+</tr>
+<tr>
+<td><code>postmatch_quick/full</code></td>
+<td>✅ same</td>
+<td>same</td>
+<td></td>
+</tr>
+<tr>
+<td><code>metadata_fetch</code></td>
+<td>✅ same</td>
+<td>same</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sf_enrich</code> (per tier)</td>
+<td>✅ 24h gate at sf_enrich.py:268-291
+(<code>status=&#39;skipped_idempotency&#39;</code>)</td>
+<td>same</td>
+<td></td>
+</tr>
+<tr>
+<td><code>dq_audit</code>, <code>bet_audit</code></td>
+<td>unknown</td>
+<td>unknown</td>
+<td>pre-existing FIXME(task-5/6) — broken imports</td>
+</tr>
+</tbody>
+</table>
+<p>Cross-instance scaling: if APScheduler runs in 2+ scheduler ECS
+tasks, the in-process lock does not coordinate. Both ticks fire, both
+POST to BO. Sinks tolerate duplicates (ON CONFLICT). BO must dedupe
+<code>game_ids</code> on the
+<code>/odds/admin/migration/run-targeted</code> side; <strong>cross-repo
+question</strong> for the BO team.</p>
+<h3 id="28-websocket--none">2.8 WebSocket — none</h3>
+<p><a href="pr-668-leaves/flows-websocket.html"><code>flows-websocket.md</code></a>
+confirms zero WS routes added or modified. The existing
+<code>WebSocketMetricsMiddleware</code> and Stream Chat references in
+the codebase predate this PR. Cross-repo WS contract risk is
+<strong>non-existent</strong> for this PR.</p>
+<h2 id="3-flow-registry-coverage">3. Flow registry coverage</h2>
+<p><code>flow_context.ROUTE_TO_FLOW</code>
+(<code>infrastructure/middleware/flow_context.py</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Routes</th>
+<th>Mapped?</th>
+<th>Flow value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /info/sofascore/*</code> × 21</td>
+<td>✅</td>
+<td><code>data.sofascore</code></td>
+</tr>
+<tr>
+<td><code>POST /admin/sofascore/{enrich,onboard}</code> × 2</td>
+<td>✅</td>
+<td><code>admin.scraper</code></td>
+</tr>
+<tr>
+<td><code>GET /admin/sofascore/status</code></td>
+<td>✅</td>
+<td><code>admin.scraper</code></td>
+</tr>
+<tr>
+<td><code>POST /admin/scheduler/run/{job_name}</code></td>
+<td>✅ (existing)</td>
+<td><code>admin.operations</code></td>
+</tr>
+<tr>
+<td><code>GET /admin/scheduler/jobs</code></td>
+<td>✅ (existing)</td>
+<td><code>admin.operations</code></td>
+</tr>
+<tr>
+<td><code>POST /admin/leagues/onboard</code></td>
+<td><strong>❌ MISSING</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GET /admin/leagues/onboard</code></td>
+<td><strong>❌ MISSING</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>GET /admin/leagues/onboard/{job_id}</code></td>
+<td><strong>❌ MISSING</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>DELETE /admin/leagues/onboard/{job_id}</code></td>
+<td><strong>❌ MISSING</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>POST /admin/leagues/onboard/preset/{preset_name}</code></td>
+<td><strong>❌ MISSING</strong></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>5 routes drift. Pre-commit hook
+<code>./scripts/check-flow-drift.sh</code> will fail.</p>
+<h2 id="4-service-layer-flow_traced-decoration">4. Service-layer
+<code>@flow_traced</code> decoration</h2>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Decorated?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>services/sofascore/sofascore_data_service.py</code></td>
+<td>❌ <strong>none of ~22 methods</strong></td>
+</tr>
+<tr>
+<td><code>services/sofascore/sofascore_id_resolver.py</code></td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>services/admin/league_onboard_service.py</code></td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>services/admin/job_registry.py</code></td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>services/statistics/game_info_service.py</code>
+(<code>get_games_in_date_range</code> and
+<code>_compute_live_status_map</code>)</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>services/bets/user_bet_service.py</code> (existing
+methods)</td>
+<td>✅ <code>@flow_traced(Flow.BETTING_GENERATE)</code> at line 358</td>
+</tr>
+<tr>
+<td><code>services/chat/chat_service.py</code></td>
+<td>✅ multiple <code>@flow_traced</code></td>
+</tr>
+</tbody>
+</table>
+<p>Drift: new code does not follow the project pattern. The middleware
+sets <code>flow_ctx</code> so log lines are tagged, but
+service-method-level OTEL spans are missing for these routes.</p>
+<h2 id="5-cross-flow-boundary-matrix">5. Cross-flow boundary matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Sink</th>
+<th>Channel</th>
+<th>Auth</th>
+<th>request_id</th>
+<th>flow</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frontend</td>
+<td><code>/info/sofascore/*</code> × 32</td>
+<td>HTTPS GET</td>
+<td>none</td>
+<td>inbound from header</td>
+<td>set by middleware</td>
+<td>✅ public</td>
+</tr>
+<tr>
+<td>Admin client</td>
+<td><code>/admin/{sofascore,leagues/onboard,scheduler}/*</code></td>
+<td>HTTPS</td>
+<td><code>verify_admin_token</code></td>
+<td>✅</td>
+<td><code>admin.scraper</code> / <code>admin.operations</code> (5
+missing)</td>
+<td>⚠️ 5 routes drift</td>
+</tr>
+<tr>
+<td>BS web</td>
+<td>BO <code>/get_parlay_odds</code>, <code>/live/is_live</code>,
+<code>/live/is_live_batch</code></td>
+<td>HTTPS</td>
+<td>n/a</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>BS scheduler</td>
+<td>BO <code>/odds/admin/migration/run-targeted</code></td>
+<td>HTTPS</td>
+<td>✅ JWT</td>
+<td><strong>❌ MISSING</strong></td>
+<td><strong>❌ MISSING</strong></td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td>BS web</td>
+<td>Kafka <code>odds.odds_requests</code></td>
+<td>producer</td>
+<td>n/a</td>
+<td>✅ via OddsRequestEvent.session_id</td>
+<td>n/a</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>BS web</td>
+<td>Kafka <code>odds.user_bets</code></td>
+<td>producer</td>
+<td>n/a</td>
+<td>n/a in event schema</td>
+<td>n/a</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>BS app</td>
+<td>SofaScore APIs</td>
+<td>HTTPS via fetcher chain</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>BS app</td>
+<td>S3 (images, audit artifacts)</td>
+<td>S3 SDK</td>
+<td>IAM</td>
+<td>n/a</td>
+<td>n/a</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>BS app</td>
+<td>WebSocket (any direction)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td><strong>none</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-cross-repo-deploy-ordering-flow-correctness">6. Cross-repo
+deploy ordering (flow correctness)</h2>
+<table>
+<thead>
+<tr>
+<th>Required before</th>
+<th>Otherwise</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BO <code>/live/is_live_batch</code> shipped</td>
+<td>All <code>is_live</code> checks fall back to time-based silently —
+live-betting tile correctness regresses</td>
+</tr>
+<tr>
+<td>BO <code>/odds/admin/migration/run-targeted</code> shipped</td>
+<td>Post-scrape sync logs warn; BO stays stale on lineups (no client
+impact)</td>
+</tr>
+<tr>
+<td>BO Kafka consumers shipped</td>
+<td>Events queue in topic; topic retention bounds lag
+(KAFKA_BETTING_EVENTS_ENABLED defaults false)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-top-flow-correctness-gaps-rolled-up-to-risk">7. Top
+flow-correctness gaps (rolled up to risk)</h2>
+<ol type="1">
+<li><strong>5 admin routes missing from
+<code>ROUTE_TO_FLOW</code></strong> (HIGH).</li>
+<li><strong><code>request_id</code> / <code>flow</code> not propagated
+on BS→BO admin call</strong> (HIGH — one-line fix in
+<code>_admin_auth_headers</code>).</li>
+<li><strong>ContextVar loss in admin daemon threads</strong> (MED — wrap
+with <code>contextvars.copy_context()</code>).</li>
+<li><strong><code>@flow_traced</code> missing on new SF/admin
+services</strong> (MED — service-method spans missing).</li>
+<li><strong>Logging-formatter import drift in
+<code>src/scheduler/main.py:34</code></strong> (HIGH — scheduler may
+fail at startup).</li>
+<li><strong>Cross-instance scheduler scale-out not safe for
+SingleInstanceLock</strong> (LOW — process-local lock).</li>
+<li><strong>BS does not dedupe <code>game_ids</code> across overlapping
+90s ticks → 15min window</strong> — relies on BO idempotency (MED —
+cross-repo question).</li>
+</ol>
+<p>These propagate to the risk specialist&#39;s <a href="pr-668-leaves/risk-flow-correctness.html"><code>risk-flow-correctness.md</code></a>
+leaf.</p>
+</body>
+</html>

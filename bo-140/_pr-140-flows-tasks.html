@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>BO #140 — Tasks + Kafka</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">@viewport { width: device-width; initial-scale: 1; }
+:root {
+--bg: #0d1117;
+--fg: #c9d1d9;
+--fg-muted: #8b949e;
+--border: #30363d;
+--link: #58a6ff;
+--code-bg: #161b22;
+--table-stripe: #161b22;
+--warn: #f0883e;
+--danger: #f85149;
+--good: #3fb950;
+--header: #f0f6fc;
+}
+@media (prefers-color-scheme: light) {
+:root {
+--bg: #ffffff;
+--fg: #1f2328;
+--fg-muted: #59636e;
+--border: #d1d9e0;
+--link: #0969da;
+--code-bg: #f6f8fa;
+--table-stripe: #f6f8fa;
+--warn: #bf8700;
+--danger: #cf222e;
+--good: #1a7f37;
+--header: #1f2328;
+}
+}
+* { box-sizing: border-box; }
+html, body {
+margin: 0;
+padding: 0;
+background: var(--bg);
+color: var(--fg);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+font-size: 16px;
+line-height: 1.6;
+-webkit-text-size-adjust: 100%;
+}
+body {
+max-width: 900px;
+margin: 0 auto;
+padding: 1.25rem 1rem 4rem;
+}
+h1, h2, h3, h4, h5, h6 {
+color: var(--header);
+margin-top: 1.6em;
+margin-bottom: 0.6em;
+line-height: 1.25;
+font-weight: 600;
+}
+h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.0rem; }
+p { margin: 0.6em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+code {
+background: var(--code-bg);
+padding: 0.15em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+font-size: 0.875em;
+word-break: break-word;
+}
+pre {
+background: var(--code-bg);
+padding: 0.85rem;
+border-radius: 6px;
+overflow-x: auto;
+font-size: 0.825em;
+line-height: 1.5;
+border: 1px solid var(--border);
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+blockquote {
+border-left: 4px solid var(--border);
+margin: 1em 0;
+padding: 0.4em 1em;
+color: var(--fg-muted);
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1em 0;
+font-size: 0.9em;
+display: block;
+overflow-x: auto;
+}
+th, td {
+border: 1px solid var(--border);
+padding: 0.4em 0.7em;
+text-align: left;
+vertical-align: top;
+}
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(2n) { background: var(--table-stripe); }
+hr {
+border: none;
+border-top: 1px solid var(--border);
+margin: 2em 0;
+}
+
+@media (max-width: 600px) {
+body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; }
+h1 { font-size: 1.45rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+pre { font-size: 0.78em; padding: 0.6rem; }
+table { font-size: 0.82em; }
+th, td { padding: 0.3em 0.5em; }
+}
+
+.review-index {
+list-style: none;
+padding: 0;
+}
+.review-index li {
+padding: 0.5em 0.7em;
+border: 1px solid var(--border);
+border-radius: 6px;
+margin: 0.4em 0;
+background: var(--code-bg);
+}
+.review-index li.master {
+border-left: 4px solid var(--good);
+font-weight: 600;
+}
+.review-index li.note {
+border-left: 4px solid var(--warn);
+font-style: italic;
+background: transparent;
+font-size: 0.9em;
+}
+.size {
+color: var(--fg-muted);
+font-size: 0.85em;
+float: right;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">BO #140 — Tasks + Kafka</h1>
+</header>
+<h1 id="pr-140--scheduled--kafka-flows">PR #140 — Scheduled + Kafka
+Flows</h1>
+<p>Branch: <code>dev-coverage-and-odds-impro</code> → <code>dev</code>.
+Read-only audit. Verified by reading head files in the PR branch.</p>
+<h2 id="summary">Summary</h2>
+<ul>
+<li>New scheduled / background tasks: 6 (lineup scraper W4, match
+calibration W2, scheduled odds fetch W3, market-odds warm-up, exposure
+snapshot flush, scheduled calibration is preexisting but rewired)</li>
+<li>New kafka producers: 2 (<code>odds.lineup_updates</code>,
+<code>odds.odds_requests</code>); 1 producer module
+(<code>KafkaOddsProducer</code> for <code>odds.market_updates</code>) is
+unchanged at the producer site.</li>
+<li>New kafka consumers: 2 process-internal
+(<code>RequestAnalyticsService</code> on
+<code>odds.odds_requests</code>; <code>KafkaLineupConsumer</code>
+retained but <strong>NOT started</strong> in lifespan).
+<code>KafkaOddsConsumer</code> modified.</li>
+<li>Modified: <code>KafkaOddsConsumer</code> (BATCH_SIZE 2000→200,
+narrow-except, dedup metrics for parse/deserialize/unknown-market).</li>
+<li>Ralph loop: NO scripts in this PR — only docs
+(<code>docs/pr/ralph-loop-agents-guide.md</code>,
+<code>AI_DOCS/reference/2026-04-18_ralph-audit-fix-report.md</code>). v1
+report flagging &quot;ralph wiring&quot; is wrong.</li>
+<li>v1 cross-checks: lineup-scraper W4, match-calibration W2,
+scheduled-odds-fetch W3, exposure flush, <code>odds.odds_requests</code>
+producer, analytics consumer pair — all confirmed against code.</li>
+</ul>
+<h2 id="scheduled-tasks-lifespan-registered">Scheduled tasks
+(lifespan-registered)</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Trigger / interval</th>
+<th>file:line</th>
+<th>Service call</th>
+<th>Status (env-gate)</th>
+<th>Idempotent?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>run_odds_broadcast</code></td>
+<td>loop, 60s</td>
+<td><code>web/app.py:218</code>; impl <code>api/tasks.py:41</code></td>
+<td><code>global_broadcaster.broadcast_to_clients(process_odds_for_client, ...)</code>
+<code>tasks.py:76</code></td>
+<td>Always on</td>
+<td>Yes — read-only WS push per cycle</td>
+</tr>
+<tr>
+<td><code>run_live_odds_broadcast</code></td>
+<td>loop, <code>LIVE_BETTING_POLICY.broadcast_interval_seconds</code>
+(10s default)</td>
+<td><code>app.py:221</code>; impl <code>tasks.py:97</code></td>
+<td>same broadcaster, live-only filter</td>
+<td>Always on</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>run_spotlight_broadcast</code></td>
+<td>loop, 120s</td>
+<td><code>app.py:230</code>; impl <code>tasks.py:232</code></td>
+<td><code>connection_manager.generate_spotlight_odds_data(season_ids)</code>
+then parallel send</td>
+<td>Always on</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>run_idle_cleanup</code></td>
+<td>loop, 300s</td>
+<td><code>app.py:237</code>; impl <code>tasks.py:400</code></td>
+<td>disconnects clients idle &gt;30 min</td>
+<td>Always on</td>
+<td>Yes (idempotent disconnect)</td>
+</tr>
+<tr>
+<td><code>run_expected_profit_task</code></td>
+<td>loop, 5 min</td>
+<td><code>app.py:240</code>; impl <code>tasks.py:451</code></td>
+<td>reads <code>active_parlays:monitoring</code>, writes
+<code>parlay_profit_metrics</code> Redis key (TTL 7200s)</td>
+<td>Always on</td>
+<td>Yes — Redis SET ex</td>
+</tr>
+<tr>
+<td><code>run_scheduled_calibration</code></td>
+<td>loop, <code>CALIBRATION_INTERVAL_HOURS</code> (24h default; sleeps
+one interval first)</td>
+<td><code>app.py:243-244</code>; impl <code>tasks.py:1041</code></td>
+<td><code>refit_manager.start_refit(group, force, calibrate)</code> per
+pipeline; polls 30s up to 30 min</td>
+<td>Gated by <code>CALIBRATION_ENABLED=true</code>
+(<code>tasks.py:797</code>)</td>
+<td>Yes — <code>start_refit</code> returns conflict and is skipped</td>
+</tr>
+<tr>
+<td><code>_warm_market_odds_loop</code></td>
+<td>loop, 240s</td>
+<td><code>app.py:256-278</code></td>
+<td><code>MarketOddsService.warm_cache()</code> → Redis</td>
+<td>Always on</td>
+<td>Yes — overwrites cache</td>
+</tr>
+<tr>
+<td><code>run_scheduled_odds_fetch</code> (W3)</td>
+<td>loop, <code>ODDS_FETCH_INTERVAL_SEC</code> (300s)</td>
+<td><code>app.py:292</code>; impl
+<code>kafka/scheduled_odds_fetch.py:256</code></td>
+<td>calls <code>fetch_all_market_odds.fetch_and_store_all_odds</code>,
+<code>fetch_kalshi_odds.fetch_and_store(write_redis=True)</code>,
+<code>fetch_player_prop_odds.fetch_and_store_all_player_props</code> via
+<code>asyncio.to_thread</code></td>
+<td>Gated by <code>ODDS_FETCH_ENABLED=true</code>
+(<code>scheduled_odds_fetch.py:71</code>)</td>
+<td><strong>Partial</strong> — DB writes use upserts, but no per-cycle
+dedup guard; concurrent cycles guarded only by sequential
+<code>await</code> chain</td>
+</tr>
+<tr>
+<td><code>run_match_calibration_check</code> (W2)</td>
+<td>loop, <code>MATCH_CALIBRATION_CHECK_INTERVAL_SEC</code> (120s)</td>
+<td><code>app.py:305</code>; impl <code>tasks.py:1133</code></td>
+<td><code>MatchCalibrationService.calibrate_match(...)</code> per
+upcoming game via <code>asyncio.to_thread</code></td>
+<td>Gated by <code>MATCH_CALIBRATION_ENABLED</code></td>
+<td>Yes — service has cooldown
+(<code>MATCH_CALIBRATION_COOLDOWN_SEC</code>) and divergence check</td>
+</tr>
+<tr>
+<td><code>run_lineup_scraper</code> (W4)</td>
+<td>loop, <code>LINEUP_SCRAPER_INTERVAL_SEC</code> (120s) + adaptive
+(skip &gt;24h, 30 min @ 2-24h, base @ &lt;2h/live)</td>
+<td><code>app.py:329</code>; impl <code>tasks.py:813</code></td>
+<td><code>scrape_lineup_from_db</code> →
+<code>_upsert_lineup_to_db</code> (<code>tasks.py:850</code>) →
+<code>KafkaLineupProducer.send</code> → flush per cycle</td>
+<td>Gated by <code>LINEUP_SCRAPER_ENABLED</code>
+(<code>tasks.py:808</code>)</td>
+<td>Yes — <code>LineupChangeDetector</code> short-circuits unchanged
+lineups; DB upsert by (game_id, player_id)</td>
+</tr>
+<tr>
+<td><code>_exposure_snapshot_loop</code></td>
+<td>loop, sleep-first 300s</td>
+<td><code>app.py:349-366</code></td>
+<td><code>ExposureService.flush_snapshots()</code> via
+<code>asyncio.to_thread</code> (<code>exposure_service.py:143</code>) —
+SCAN <code>exposure:match:*</code>, write to
+<code>ExposureSnapshots</code></td>
+<td>Always on</td>
+<td>Idempotent per-(match, snapshot_at) row-level upsert (verify when
+reviewing exposure_service body)</td>
+</tr>
+<tr>
+<td>Pre-existing <code>run_parameter_backup_task</code></td>
+<td>loop, 20 min</td>
+<td><code>tasks.py:341</code> (defined)</td>
+<td>NOT started in current <code>app.py</code> lifespan</td>
+<td></td>
+<td>n/a</td>
+</tr>
+<tr>
+<td>Redis pub/sub <code>redis_subscriber_task</code></td>
+<td>listener</td>
+<td><code>tasks.py:145</code></td>
+<td>commented out at <code>app.py:234</code></td>
+<td>DISABLED</td>
+<td>n/a</td>
+</tr>
+</tbody>
+</table>
+<p>Lifespan teardown cancels: odds, live_odds, spotlight, profit,
+calibration, market_odds, odds_fetch, exposure, match_cal,
+lineup_scraper (<code>app.py:372-374</code>).
+<code>idle_cleanup_task.cancel()</code> is <strong>after</strong>
+<code>await ... gather</code> and is not awaited — minor leak on
+shutdown.</p>
+<h2 id="kafka-producers-table">Kafka producers (table)</h2>
+<table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Producer call site</th>
+<th>file:line</th>
+<th>Trigger</th>
+<th>Schema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>odds.lineup_updates</code>
+(<code>KAFKA_LINEUP_TOPIC</code>)</td>
+<td><code>KafkaLineupProducer.send(lineup_update)</code> then
+<code>producer.flush()</code></td>
+<td>producer <code>kafka/lineup_producer.py:85,101</code>; call sites
+<code>tasks.py:1008,1021</code></td>
+<td>Each lineup-scraper cycle that detects a change</td>
+<td><code>LineupUpdate</code> JSON; key
+<code>lineup:{game_id}</code></td>
+</tr>
+<tr>
+<td><code>odds.odds_requests</code>
+(<code>ODDS_REQUEST_KAFKA_TOPIC</code>)</td>
+<td><code>odds_request_producer.emit(OddsRequestEvent(...))</code></td>
+<td>producer <code>kafka/request_producer.py:128</code>; call sites
+<code>rest/routers/odds.py:186,848</code>,
+<code>rest/routers/builder.py:297</code></td>
+<td>Inline on REST odds-fetch endpoints; fire-and-forget (non-blocking,
+drops on broker outage)</td>
+<td><code>OddsRequestEvent</code> (user_id, game_id, market_types,
+bet_types, ts_ms, session_id, device_id)
+<code>request_producer.py:27</code></td>
+</tr>
+<tr>
+<td><code>odds.market_updates</code> (preexisting
+<code>KAFKA_ODDS_TOPIC</code>)</td>
+<td>unchanged in this PR (consumer side modified)</td>
+<td>n/a in this PR</td>
+<td>upstream (tbg-streaming)</td>
+<td><code>OddsUpdate</code></td>
+</tr>
+</tbody>
+</table>
+<p>Producer config: lineup uses
+<code>enable.idempotence=true, acks=all, lz4</code>
+(<code>lineup_producer.py:23</code>); request producer uses
+<code>acks=1, linger.ms=50</code> (<code>request_producer.py:87</code>)
+— analytics-grade durability.</p>
+<h2 id="kafka-consumers-table">Kafka consumers (table)</h2>
+<table>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Consumer file:line</th>
+<th>Handler</th>
+<th>Side effects</th>
+<th>Manual span?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>odds.market_updates</code></td>
+<td><code>kafka/consumer.py:228</code> (<code>KafkaOddsConsumer</code>);
+started <code>app.py:316</code> unless <code>--disable-kafka</code></td>
+<td><code>_process_batch</code> parses <code>OddsUpdate</code>, splits
+moneyline/totals/spreads, writes Redis <code>live_odds:{game_id}</code>
+then upserts <code>MoneylineOdds/TotalsOdds/SpreadOdds</code></td>
+<td>Redis write (TTL 30s live / 300s prematch) + DB upsert; commits
+offsets sync</td>
+<td>Yes — <code>kafka.process_batch</code>,
+<code>kafka.redis_write</code>, <code>kafka.db_upsert</code>
+(<code>consumer.py:379,513,519</code>); 3 OTEL counters
+(<code>kafka.match_id.parse_error</code>,
+<code>kafka.odds_update.deserialize_error</code>,
+<code>kafka.odds_update.unknown_market</code>)
+<code>consumer.py:70-97</code></td>
+</tr>
+<tr>
+<td><code>odds.odds_requests</code></td>
+<td><code>application/service/info/request_analytics_service.py:54</code>;
+started <code>app.py:344</code> unless <code>--disable-kafka</code></td>
+<td><code>_aggregate_event</code> → Redis HINCRBY
+<code>req_analytics:match:{gid}</code> (TTL 86400), HLL
+<code>pfadd</code> for unique users, ZADD
+<code>req_analytics:user_activity</code> (TTL 7d)</td>
+<td>Redis only; commits offsets sync</td>
+<td>Yes — <code>request_analytics.process_batch</code>
+(<code>request_analytics_service.py:154</code>)</td>
+</tr>
+<tr>
+<td><code>odds.lineup_updates</code></td>
+<td><code>kafka/lineup_consumer.py:46</code>
+(<code>KafkaLineupConsumer</code>) — <strong>module retained, NOT
+started</strong> in <code>app.py</code> lifespan; docstring at
+<code>lineup_consumer.py:1-12</code> confirms scraper now writes DB
+directly</td>
+<td>upserts <code>LineupModel</code> rows</td>
+<td>n/a (not running)</td>
+<td>Defined <code>kafka.lineup.process_batch</code>
+<code>lineup_consumer.py:154</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="flow-walks-for-new-tasks">Flow walks for new tasks</h2>
+<h3 id="f-task-1-lineup-scraper-w4">F-TASK-1: Lineup Scraper (W4)</h3>
+<ul>
+<li>Trigger: lifespan
+<code>asyncio.create_task(run_lineup_scraper(...))</code>
+<code>app.py:329</code>. Adaptive base interval 120s.</li>
+<li>Steps:
+<ul>
+<li><code>games_repo.get_upcoming_games(season_ids, limit=100)</code>
+<code>tasks.py:915</code></li>
+<li>filter by lookahead window + per-game elapsed-since-last-scrape
+<code>tasks.py:923-957</code></li>
+<li><code>scrape_lineup_from_db(session, game_id)</code> via
+<code>asyncio.to_thread</code> <code>tasks.py:975-979</code></li>
+<li><code>LineupChangeDetector.detect(...)</code> (skip if unchanged)
+<code>tasks.py:988</code></li>
+<li><code>_upsert_lineup_to_db</code> direct ORM upsert
+<code>tasks.py:850-888,997</code></li>
+<li><code>KafkaLineupProducer.send</code> then <code>flush()</code> per
+cycle <code>tasks.py:1008,1021</code></li>
+</ul></li>
+<li>Side effects: writes <code>lineups</code> table; publishes
+Kafka.</li>
+<li>Failure mode: per-game try/except logs and continues;
+<code>producer.close()</code> on cancel; <strong>no retry/DLQ</strong>
+for failed Kafka deliveries beyond producer&#39;s own idempotent
+retries.</li>
+</ul>
+<h3 id="f-task-2-match-calibration-check-w2">F-TASK-2: Match Calibration
+Check (W2)</h3>
+<ul>
+<li>Trigger: lifespan <code>app.py:305</code>. Loop every 120s.</li>
+<li>Steps: <code>games_repo.get_upcoming_games(...)</code> → per game
+<code>cal_service.calibrate_match(game_id, home, away, trigger_type=&quot;market_odds&quot;)</code>
+via <code>asyncio.to_thread</code> <code>tasks.py:1188</code>.</li>
+<li>Side effects: writes Redis adjustment keys (managed by
+<code>MatchCalibrationService</code>).</li>
+<li>Failure mode: outer <code>try/except</code> logs sweep error and
+continues; cooldown enforced inside the service.</li>
+</ul>
+<h3 id="f-task-3-scheduled-external-odds-fetch-w3">F-TASK-3: Scheduled
+External Odds Fetch (W3)</h3>
+<ul>
+<li>Trigger: lifespan <code>app.py:292</code>; loop
+<code>ODDS_FETCH_INTERVAL_SEC</code> (300s)
+<code>scheduled_odds_fetch.py:309</code>.</li>
+<li>Steps: sequential
+<code>_run_odds_api_fetch(market_categories)</code> →
+<code>_run_kalshi_fetch()</code> → <code>_run_player_prop_fetch()</code>
+each via <code>asyncio.to_thread</code>.</li>
+<li>Side effects: DB writes (odds tables); Redis
+<code>live_odds:{game_id}</code> (Kalshi) and
+<code>player_props:{game_id}</code> (player props). Also mutates
+<code>sys.path</code> once <code>_ensure_script_imports</code>
+<code>scheduled_odds_fetch.py:97</code>.</li>
+<li>Failure mode: per-stage <code>try/except logger.exception</code>;
+cycle continues. No alerting on quota exhaustion.</li>
+<li><strong>Idempotency risk:</strong> the cap
+<code>ODDS_FETCH_PLAYER_PROPS_MAX_EVENTS=10</code> per league prevents
+quota blow-out, but consecutive cycles will always re-hit Odds API — DB
+writes assumed upsert-safe by called scripts. No mutex if previous cycle
+still running (sequential <code>await</code> chain in single task is
+enough today; would break if moved to threadpool fanout).</li>
+</ul>
+<h3 id="f-task-4-exposure-snapshot-flush">F-TASK-4: Exposure Snapshot
+Flush</h3>
+<ul>
+<li>Trigger: <code>_exposure_snapshot_loop</code>
+<code>app.py:349</code>. Loop sleeps 300s <strong>before</strong> first
+run.</li>
+<li>Steps: <code>exposure_service.flush_snapshots()</code> via
+<code>asyncio.to_thread</code>; scans <code>exposure:match:*</code>
+(cluster-safe SCAN), writes <code>ExposureSnapshots</code> rows.</li>
+<li>Failure mode: <code>try/except logger.warning</code>; per-cycle
+continues.</li>
+</ul>
+<h3 id="f-task-5-oddsodds_requests-producerconsumer-pair-w1">F-TASK-5:
+<code>odds.odds_requests</code> producer/consumer pair (W1)</h3>
+<ul>
+<li>Trigger:
+<ul>
+<li>producer started in lifespan <code>app.py:339</code>;
+<code>emit()</code> called inline in REST handlers (3 sites).</li>
+<li>analytics consumer started unless <code>--disable-kafka</code>
+<code>app.py:343-344</code>.</li>
+</ul></li>
+<li>Side effects: Kafka publish (acks=1, linger 50ms); Redis
+aggregations on consume.</li>
+<li>Failure mode: producer drops on
+<code>BufferError</code>/<code>Exception</code> with WARN log
+<code>request_producer.py:146-149</code>; consumer offsets committed per
+batch (sync), errors logged + 1 s sleep
+<code>request_analytics_service.py:159-161</code>. Gated by
+<code>ODDS_REQUEST_TRACKING_ENABLED=true</code>
+(<code>request_producer.py:69</code>).</li>
+</ul>
+<h2 id="findings-worth-flagging">Findings worth flagging</h2>
+<ol type="1">
+<li><code>idle_cleanup_task</code> is cancelled
+(<code>app.py:397</code>) but never awaited — pending coroutine on
+shutdown.</li>
+<li><code>KafkaLineupConsumer</code> is dead code in this PR&#39;s wiring
+(only producer used) — deletion candidate or wire it for
+downstream.</li>
+<li><code>run_scheduled_calibration</code> polls
+<code>refit_manager.get_status</code> every 30 s up to 1800 s with no
+exponential backoff — fine, just notable for review.</li>
+<li><code>run_scheduled_odds_fetch</code> ignores all repo arguments
+(<code>scheduled_odds_fetch.py:271-276</code>) — interface noise that
+should be cleaned up or removed.</li>
+<li><code>_warm_market_odds_loop</code> has no env gate — unconditional
+Redis writes every 240s, even in dev.</li>
+<li>v1 report&#39;s &quot;ralph loop wiring&quot; claim is unsupported; the only ralph
+artifacts are markdown docs.</li>
+</ol>
+</body>
+</html>

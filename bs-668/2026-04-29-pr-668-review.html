@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>BS #668 — Master Review</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">@viewport { width: device-width; initial-scale: 1; }
+:root {
+--bg: #0d1117;
+--fg: #c9d1d9;
+--fg-muted: #8b949e;
+--border: #30363d;
+--link: #58a6ff;
+--code-bg: #161b22;
+--table-stripe: #161b22;
+--warn: #f0883e;
+--danger: #f85149;
+--good: #3fb950;
+--header: #f0f6fc;
+}
+@media (prefers-color-scheme: light) {
+:root {
+--bg: #ffffff;
+--fg: #1f2328;
+--fg-muted: #59636e;
+--border: #d1d9e0;
+--link: #0969da;
+--code-bg: #f6f8fa;
+--table-stripe: #f6f8fa;
+--warn: #bf8700;
+--danger: #cf222e;
+--good: #1a7f37;
+--header: #1f2328;
+}
+}
+* { box-sizing: border-box; }
+html, body {
+margin: 0;
+padding: 0;
+background: var(--bg);
+color: var(--fg);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+font-size: 16px;
+line-height: 1.6;
+-webkit-text-size-adjust: 100%;
+}
+body {
+max-width: 900px;
+margin: 0 auto;
+padding: 1.25rem 1rem 4rem;
+}
+h1, h2, h3, h4, h5, h6 {
+color: var(--header);
+margin-top: 1.6em;
+margin-bottom: 0.6em;
+line-height: 1.25;
+font-weight: 600;
+}
+h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.0rem; }
+p { margin: 0.6em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+code {
+background: var(--code-bg);
+padding: 0.15em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+font-size: 0.875em;
+word-break: break-word;
+}
+pre {
+background: var(--code-bg);
+padding: 0.85rem;
+border-radius: 6px;
+overflow-x: auto;
+font-size: 0.825em;
+line-height: 1.5;
+border: 1px solid var(--border);
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+blockquote {
+border-left: 4px solid var(--border);
+margin: 1em 0;
+padding: 0.4em 1em;
+color: var(--fg-muted);
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1em 0;
+font-size: 0.9em;
+display: block;
+overflow-x: auto;
+}
+th, td {
+border: 1px solid var(--border);
+padding: 0.4em 0.7em;
+text-align: left;
+vertical-align: top;
+}
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(2n) { background: var(--table-stripe); }
+hr {
+border: none;
+border-top: 1px solid var(--border);
+margin: 2em 0;
+}
+
+@media (max-width: 600px) {
+body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; }
+h1 { font-size: 1.45rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+pre { font-size: 0.78em; padding: 0.6rem; }
+table { font-size: 0.82em; }
+th, td { padding: 0.3em 0.5em; }
+}
+
+.review-index {
+list-style: none;
+padding: 0;
+}
+.review-index li {
+padding: 0.5em 0.7em;
+border: 1px solid var(--border);
+border-radius: 6px;
+margin: 0.4em 0;
+background: var(--code-bg);
+}
+.review-index li.master {
+border-left: 4px solid var(--good);
+font-weight: 600;
+}
+.review-index li.note {
+border-left: 4px solid var(--warn);
+font-style: italic;
+background: transparent;
+font-size: 0.9em;
+}
+.size {
+color: var(--fg-muted);
+font-size: 0.85em;
+float: right;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">BS #668 — Master Review</h1>
+</header>
+<h1 id="pr-668--backend-server-dev-coverage-and-odds-impro-review">PR
+#668 — Backend-Server <code>dev-coverage-and-odds-impro</code>
+Review</h1>
+<blockquote>
+<p>Branch <code>dev-coverage-and-odds-impro</code> → base
+<code>dev</code>. Author @vxbrandon. Opened 2026-04-29. Hierarchical
+3-level review with <strong>flow-correctness priority</strong> (per
+latest user direction). Mid-level: <a href="_pr-668-flows.html"><code>_pr-668-flows.md</code></a>, <a href="_pr-668-arch.html"><code>_pr-668-arch.md</code></a>, <a href="_pr-668-tests.html"><code>_pr-668-tests.md</code></a>, <a href="_pr-668-risk.html"><code>_pr-668-risk.md</code></a>. Leaves under
+<a href="pr-668-leaves/"><code>pr-668-leaves/</code></a> (17 files;
+flows branch is the deepest with 7 leaves including 3 deep walks).</p>
+</blockquote>
+<hr />
+<h2 id="0-tldr--flow-correctness-picture">0. TL;DR — Flow-correctness
+picture</h2>
+<p><strong>Recommendation: REQUEST CHANGES.</strong> PR #668 ships
+substantial value; the data flows themselves are mostly correct. The
+flow-correctness gaps are concentrated on observability and
+request-correlation: <code>request_id</code> and <code>X-Flow</code> are
+NOT propagated on the BS→BO admin call; 5 admin routes are missing from
+the flow registry; admin daemon threads lose ContextVars; the scheduler
+service still imports an old <code>logging_formatter</code> path. None
+are correctness-fatal but they undermine the structured-logging story
+the rest of the codebase relies on.</p>
+<table>
+<thead>
+<tr>
+<th>Headline</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Commits ahead of <code>dev</code></td>
+<td>4</td>
+</tr>
+<tr>
+<td>Files changed</td>
+<td>426 (+89,277 / −10,784)</td>
+</tr>
+<tr>
+<td>HTTP routes added/changed</td>
+<td>45 (40 new, 5 changed)</td>
+</tr>
+<tr>
+<td>Scheduled jobs added/changed</td>
+<td>2 net-new (<code>prelive_lineups_imminent</code> 90s,
+<code>sf_enrich --tier</code>) + 5 reorganised</td>
+</tr>
+<tr>
+<td>Kafka emit sites added</td>
+<td>2 (<code>BetPlacedEvent</code> from UserBetService;
+<code>OddsRequestEvent</code> from OddsClient)</td>
+</tr>
+<tr>
+<td>Cross-service HTTP surfaces added</td>
+<td>2 (<code>BO /live/is_live_batch</code>,
+<code>BO /odds/admin/migration/run-targeted</code>)</td>
+</tr>
+<tr>
+<td><strong>WebSocket flows added</strong></td>
+<td><strong>0</strong></td>
+</tr>
+<tr>
+<td>Migrations added</td>
+<td>22 (16 net-new tables; 1 destructive:
+<code>20260420_dedup_competitions</code>)</td>
+</tr>
+<tr>
+<td>Tests added</td>
+<td>62 files / ~10,705 LOC</td>
+</tr>
+<tr>
+<td><strong>Hard blockers</strong></td>
+<td><strong>5</strong> (all flow-correctness or observability except
+dedup migration)</td>
+</tr>
+<tr>
+<td><strong>Soft blockers</strong></td>
+<td><strong>7</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The bundle: SF coverage v1 (#652) + odds-microservice latency fixes
+(#598/#599/#628) + Kafka producer (#603).</p>
+<h2 id="01-theme-tree">0.1 Theme tree</h2>
+<pre><code>PR #668
+ ├── ① SofaScore coverage v1
+ │     ├── 17+ sf_* tables + cross-table FKs
+ │     ├── domain/identity/ (NEW package)
+ │     ├── application/services/sofascore/ + repositories/sofascore/
+ │     ├── /info/sofascore/* (32 GET routes)
+ │     ├── /admin/sofascore/{enrich,onboard,status} (3) + /admin/leagues/onboard* (5)
+ │     ├── scraper/jobs/sf_enrich.py — tiered (live/post/daily/weekly/all)
+ │     └── audit tables: scrape_runs, enrichment_runs, sf_enrichment_match_state, whoscored_runs, wh_player_resolution_audit
+ │
+ ├── ② Odds-microservice client latency fixes
+ │     ├── DEFAULT_TIMEOUT 30s→5s, LIVE_STATUS_TIMEOUT 2s
+ │     ├── get_live_status_batch (replaces N+1 fan-out)
+ │     ├── GameInfoService._compute_live_status_map (partition + fallback)
+ │     └── LIVE_CHECK_MODE / WINDOW config
+ │
+ ├── ③ BS → Backend-Odds back-channel
+ │     ├── integrations/odds_service_client.py + _odds_admin_contracts.py
+ │     ├── post-scrape sync from prelive_lineups, prelive_lineups_imminent, live_fetch
+ │     ├── 90s prelive_lineups_imminent tier (NEW)
+ │     ├── http vs subprocess modes; opt-in via ODDS_SERVICE_SYNC_ENABLED
+ │     └── JWT-auth via _mint_admin_jwt (5min, role=admin)
+ │
+ ├── ④ Kafka / Redpanda producer
+ │     ├── infrastructure/kafka/{config, producer, schemas}
+ │     ├── app.on_event startup/shutdown lifecycle
+ │     ├── 2 emit sites: OddsClient.get_parlay_odds + UserBetService (post-confirm)
+ │     └── Topics: odds.user_bets, odds.odds_requests
+ │
+ ├── ⑤ Security / hardening (Priority 4 fixes)  ← deprioritized per user
+ │     ├── SECURE_COOKIES on admin/cashier login + logout
+ │     ├── /info/debug/teams_with_games → admin-guarded
+ │     └── OTP / password-reset rate limiting
+ │
+ ├── ⑥ Critical bug fixes (Priority 1)
+ │     ├── orchestrator_v3 dangling `count` reference
+ │     ├── postmatch_refresh hardcoded season → SeasonNames.from_date()
+ │     ├── transaction_service create_manual_withdrawal staticmethod fix
+ │     └── BetNotificationTracking FK target rename
+ │
+ ├── ⑦ Notifications: WITHDRAWAL_COMPLETED removed
+ │     └── Domain enum + handler removed; payment_metrics path retained
+ │
+ └── ⑧ Scheduler refactor
+       ├── BACKEND_JOBS + SCRAPER_JOBS unified registry consumption
+       ├── /admin/scheduler/run/{job_name} now supports `dry_run`
+       └── JobSpec.supports_dry_run flag</code></pre>
+<hr />
+<h2 id="1-flows-priority-section--_pr-668-flowsmd">1. Flows (priority
+section) — <code>_pr-668-flows.md</code></h2>
+<blockquote>
+<p>Specialist synthesis of 7 leaves (4 foundation + 3 deep walks):
+Foundation: <a href="pr-668-leaves/flows-http-routes.html">http-routes</a> · <a href="pr-668-leaves/flows-websocket.html">websocket</a> · <a href="pr-668-leaves/flows-scheduled-kafka.html">scheduled-kafka</a> · <a href="pr-668-leaves/flows-pipelines-workers.html">pipelines-workers</a>.
+Deep walks: <a href="pr-668-leaves/flows-deep-sf-data.html">deep-sf-data</a> · <a href="pr-668-leaves/flows-deep-admin-jobs.html">deep-admin-jobs</a> · <a href="pr-668-leaves/flows-deep-cross-service.html">deep-cross-service</a>.</p>
+</blockquote>
+<h3 id="11-inventory-by-surface">1.1 Inventory by surface</h3>
+<pre><code>Mobile/web client ─┬─ HTTP /info/sofascore/* (32 GET, public)
+                   ├─ HTTP /info/get_games_in_date_range (existing route, internal rewrite)
+                   └─ HTTP /admin/* (admin-token gated)
+
+APScheduler (separate ECS task) ─┬─ live_fetch (5min)
+                                  ├─ prelive_lineups (5min, was 10min)
+                                  ├─ prelive_lineups_imminent (90s NEW, 1h window)
+                                  ├─ postmatch_quick/full
+                                  ├─ metadata_fetch
+                                  └─ sf_enrich --tier {live|post|daily|weekly|all} (NEW)
+
+OddsClient.get_parlay_odds      → Kafka odds.odds_requests
+UserBetService (post-confirm)   → Kafka odds.user_bets
+
+Cross-service:
+  BS scheduler → BO /odds/admin/migration/run-targeted   (opt-in, JWT auth, ❌ ContextVar headers)
+  BS web      → BO /live/is_live_batch                   (request path, ✅ ContextVar headers)
+  BS web      → BO /get_parlay_odds, /live/is_live, etc. (existing, ✅ ContextVar headers)</code></pre>
+<p><strong>WebSocket: none added or modified.</strong> Existing
+<code>WebSocketMetricsMiddleware</code> is unmodified; Stream Chat WS is
+third-party client-direct. Cross-repo WS contract risk vs Backend-Odds
+is non-existent for this PR.</p>
+<h3 id="12-public-reads--infosofascore--32-routes">1.2 Public reads —
+<code>/info/sofascore/*</code> × 32 routes</h3>
+<p><a href="pr-668-leaves/flows-deep-sf-data.html">Full per-route walk
+in <code>flows-deep-sf-data.md</code></a>. Common spine:</p>
+<pre><code>client GET /info/sofascore/{group}/{id}[/{field}]
+   ▼ get_sofascore_data_service (DI; infrastructure/api/dependencies.py)
+SofascoreDataService.&lt;method&gt;
+   ├─ id = await self.id_resolver.resolve_{match,player,team}(id)        ← UUID OR sf_*_id
+   └─ return await self.repo.&lt;method&gt;(resolved_id, ...)
+       ▼ AsyncSession query against sf_match_*, sf_player_*, sf_team_*, players, teams
+       ▼ For *_image / *_media: S3 signed URL fallback to SofaScore CDN</code></pre>
+<p>Grouping: 17 single-match field routes + 5 player + 7 team + 3 league
++ 2 odds + 2 standings/top-players + 2 ID-resolution.</p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>flow_context.ROUTE_TO_FLOW</code> covers all 32</td>
+<td>✅ <code>data.sofascore</code></td>
+</tr>
+<tr>
+<td><code>response_model=</code> declared</td>
+<td>❌ schemas exist but not wired</td>
+</tr>
+<tr>
+<td><code>@flow_traced</code> on service methods</td>
+<td>❌ none of ~22 methods</td>
+</tr>
+<tr>
+<td>Auth dep</td>
+<td>none (public reads)</td>
+</tr>
+<tr>
+<td>Rate limit</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-admin-job-spawners--4-routes">1.3 Admin job spawners — 4
+routes</h3>
+<p><a href="pr-668-leaves/flows-deep-admin-jobs.html">Full walks in
+<code>flows-deep-admin-jobs.md</code></a>.</p>
+<pre><code>POST /admin/sofascore/enrich   →  Thread(_run_sf_enrich_sync, daemon=True)
+                                       ▼ SfOrchestratorV4.run(...) → enrichment_audit
+POST /admin/sofascore/onboard  →  Thread(_run_sf_onboard_sync, daemon=True)
+                                       ▼ LeagueOnboarder.{link_one,link_all,discover,create,show_status}
+POST /admin/leagues/onboard    →  start_onboard → Thread(_run_onboard_workflow, daemon=True)
+                                       ▼ multi-stage state machine ending in SfOrchestratorV4
+GET  /admin/sofascore/status   →  synchronous, no thread
+                                       ▼ JOIN league_registry × tournament_schedule × sf_match_details (counts)</code></pre>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Auth (parent router <code>verify_admin_token</code>)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>ContextVars propagated into daemon thread</td>
+<td>❌ — wrap with <code>contextvars.copy_context()</code></td>
+</tr>
+<tr>
+<td><code>flow_context.ROUTE_TO_FLOW</code> for
+<code>/admin/sofascore/*</code></td>
+<td>✅ <code>admin.scraper</code> (3)</td>
+</tr>
+<tr>
+<td><code>flow_context.ROUTE_TO_FLOW</code> for
+<code>/admin/leagues/onboard*</code></td>
+<td>❌ <strong>5 routes missing</strong></td>
+</tr>
+<tr>
+<td>Job-status persistence</td>
+<td>in-process <code>_jobs</code> dict (lost on uvicorn restart,
+per-worker)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="14-infoget_games_in_date_range--n1--batch">1.4
+<code>/info/get_games_in_date_range</code> — N+1 → batch</h3>
+<pre><code>GameInfoService._compute_live_status_map(games, now)         ← game_info_service.py:117-181
+   ├─ partition: terminal status     → False
+   ├─ partition: LIVE_CHECK_MODE=ALWAYS → True
+   ├─ partition: kickoff is None     → False
+   ├─ partition: outside [-WINDOW_BEFORE, WINDOW_AFTER]      → False
+   └─ remaining → odds_client.get_live_status_batch([…])
+                       │  timeout: LIVE_STATUS_TIMEOUT (2s)
+                       │  headers: get_propagation_headers()  ← ✅ all 7 ContextVars
+                       │
+                       ├─ on success: dict[match_id → bool|None]
+                       └─ on exception/None entry → time-based fallback (now &gt; kickoff)</code></pre>
+<h3 id="15-cross-service--bs--bo-targeted-migration">1.5 Cross-service —
+BS → BO targeted migration</h3>
+<p><a href="pr-668-leaves/flows-deep-cross-service.html">Full walk in
+<code>flows-deep-cross-service.md</code> §Y</a>.</p>
+<pre><code>Scheduler tick → run_live_fetch (or prelive_lineups, prelive_lineups_imminent)
+   └─ if not dry_run:
+         sync_lineup_updates_to_odds_service(job_name)        ← integrations/odds_service_client.py
+              ├─ if not ODDS_SERVICE_SYNC_ENABLED: return
+              ├─ wh_game_ids = await _fetch_recently_scraped_wh_game_ids(window=15min)
+              └─ branch on ODDS_SERVICE_SYNC_MODE
+                    ├─ &quot;http&quot;  → POST {ODDS_SERVICE_URL}/odds/admin/migration/run-targeted
+                    │                payload: TargetedMigrationRequest{game_ids, with_predicted_lineups, with_missing_players}
+                    │                headers: _admin_auth_headers()           ← ❌ ONLY Authorization
+                    │                timeout: 10s
+                    │                → 202 {job_id, …}
+                    │
+                    └─ &quot;subprocess&quot;  → conda run python &lt;script_in_BO&gt;     [dev/test only]</code></pre>
+<h4 id="151-header-propagation-matrix--verified">1.5.1
+Header-propagation matrix — verified</h4>
+<table>
+<thead>
+<tr>
+<th>Caller</th>
+<th>Authorization</th>
+<th>request_id / flow / session</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OddsClient.*</code> (request path)</td>
+<td>n/a (in-VPC)</td>
+<td>✅ via <code>_propagation_headers</code> →
+<code>get_propagation_headers()</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>_post_targeted_migration</code> (scheduler path)</td>
+<td>✅ JWT (5min, <code>role=admin</code>)</td>
+<td>❌ <strong>NOT propagated</strong></td>
+<td>⚠️</td>
+</tr>
+</tbody>
+</table>
+<p>The auth posture is correct. The <strong>flow-correlation
+gap</strong> is the issue: BO logs the targeted-migration request
+without <code>X-Request-ID</code>. One-line fix in
+<code>_admin_auth_headers()</code>.</p>
+<h3 id="16-kafka-producer--2-emit-sites">1.6 Kafka producer — 2 emit
+sites</h3>
+<pre><code>OddsClient.get_parlay_odds (existing route, post-response)
+   └─ _emit_odds_request_event(endpoint=&quot;/get_parlay_odds&quot;, game_ids=[…], market_types=[&quot;parlay&quot;])
+            └─ producer.produce(topic=&quot;odds.odds_requests&quot;, key=user_id|&quot;anonymous&quot;,
+                                 value=OddsRequestEvent{...,session_id=request_id_ctx}.to_json())
+
+UserBetService (post bet-confirm)
+   └─ self._emit_bet_placed_event(bet)
+            └─ producer.produce(topic=&quot;odds.user_bets&quot;, key=user_id,
+                                 value=BetPlacedEvent(bet_id, user_id, game_ids, legs, stake, …).to_json())</code></pre>
+<p>Both fire-and-forget on the request thread
+(<code>producer.produce()</code> never raises).
+<code>OddsRequestEvent.session_id</code> ← <code>request_id_ctx</code>
+is captured before the request thread ends. ✅</p>
+<h3 id="17-idempotency--scheduled-task-safety">1.7 Idempotency /
+scheduled-task safety</h3>
+<table>
+<thead>
+<tr>
+<th>Job</th>
+<th>Idempotency</th>
+<th>Lock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>live_fetch</code> (5 min)</td>
+<td>✅ ON CONFLICT DO UPDATE in BaseSink</td>
+<td><code>SingleInstanceLock</code> per job_id (process-local)</td>
+</tr>
+<tr>
+<td><code>prelive_lineups</code> (5 min)</td>
+<td>✅ same</td>
+<td>same</td>
+</tr>
+<tr>
+<td><code>prelive_lineups_imminent</code> (90 s NEW)</td>
+<td>✅ same</td>
+<td>process-local; cross-instance NOT safe</td>
+</tr>
+<tr>
+<td><code>postmatch_quick/full</code></td>
+<td>✅ same</td>
+<td>same</td>
+</tr>
+<tr>
+<td><code>metadata_fetch</code></td>
+<td>✅ same</td>
+<td>same</td>
+</tr>
+<tr>
+<td><code>sf_enrich</code> per tier</td>
+<td>✅ 24h gate at <code>sf_enrich.py:268-291</code></td>
+<td>same</td>
+</tr>
+<tr>
+<td><code>dq_audit</code>, <code>bet_audit</code></td>
+<td>unknown</td>
+<td>same — pre-existing FIXME(task-5/6) broken imports</td>
+</tr>
+</tbody>
+</table>
+<p>Cross-instance: if APScheduler runs in 2+ scheduler ECS tasks, both
+fire concurrently. Sinks tolerate via ON CONFLICT. The BS→BO post-step
+relies on <strong>BO</strong> to dedupe <code>game_ids</code>
+server-side (cross-repo question).</p>
+<h3 id="18-flow-registry-coverage-gap">1.8 Flow registry coverage
+gap</h3>
+<p>5 routes missing from <code>flow_context.ROUTE_TO_FLOW</code>:</p>
+<pre><code>POST   /admin/leagues/onboard
+GET    /admin/leagues/onboard
+GET    /admin/leagues/onboard/{job_id}
+DELETE /admin/leagues/onboard/{job_id}
+POST   /admin/leagues/onboard/preset/{preset_name}</code></pre>
+<p>Pre-commit drift hook fails. <strong>HARD BLOCKER 1</strong>.</p>
+<h3 id="19-service-layer-flow_traced-decoration-gap">1.9 Service-layer
+<code>@flow_traced</code> decoration gap</h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Decorated?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>services/sofascore/*.py</code></td>
+<td>❌ none</td>
+</tr>
+<tr>
+<td><code>services/admin/*.py</code></td>
+<td>❌ none</td>
+</tr>
+<tr>
+<td><code>services/statistics/game_info_service.py</code> (new
+method)</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><code>services/bets/user_bet_service.py</code> (existing)</td>
+<td>✅ multiple</td>
+</tr>
+<tr>
+<td><code>services/chat/chat_service.py</code> (existing)</td>
+<td>✅ multiple</td>
+</tr>
+</tbody>
+</table>
+<p>Middleware sets <code>flow_ctx</code> so log lines are tagged, but
+service-method-level OTEL spans are missing for the new routes.
+<strong>SOFT BLOCKER 7</strong>.</p>
+<hr />
+<h2 id="2-architecture--_pr-668-archmd">2. Architecture —
+<code>_pr-668-arch.md</code></h2>
+<blockquote>
+<p>Specialist synthesis of 4 leaves: <a href="pr-668-leaves/arch-services.html">services</a> · <a href="pr-668-leaves/arch-repositories.html">repositories</a> · <a href="pr-668-leaves/arch-migrations.html">migrations</a> · <a href="pr-668-leaves/arch-dtos-config.html">dtos-config</a>.</p>
+</blockquote>
+<h3 id="21-new-top-level-namespaces">2.1 New top-level namespaces</h3>
+<table>
+<thead>
+<tr>
+<th>Namespace</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>application/services/admin/</code></td>
+<td>Admin in-process job tracker + league-onboard service</td>
+</tr>
+<tr>
+<td><code>application/services/sofascore/</code></td>
+<td>Read API for <code>/info/sofascore/*</code> + ID resolver</td>
+</tr>
+<tr>
+<td><code>domain/identity/</code></td>
+<td>Cross-provider ID abstractions (WS ↔︎ SF ↔︎ internal UUIDs)</td>
+</tr>
+<tr>
+<td><code>infrastructure/integrations/</code></td>
+<td>Cross-service back-channel clients (BS → BO admin)</td>
+</tr>
+<tr>
+<td><code>infrastructure/kafka/</code></td>
+<td>Producer singleton, dataclass schemas, config</td>
+</tr>
+<tr>
+<td><code>infrastructure/repositories/sofascore/</code></td>
+<td>SF data repo</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-migrations-22-files-1-destructive">2.2 Migrations (22 files;
+1 destructive)</h3>
+<pre><code>20260324_add_sofascore_tables_and_columns         ← 17+ tables + sf_* columns
+20260413_add_remaining_sf_tables
+20260414_{image_s3_key, national_team_to_player_profile}
+20260416_add_sf_team_and_odds_tables
+20260417_{fix_england_national_league_sf_tid, sf_player_404_cache}
+20260420_dedup_competitions_add_unique            ← DESTRUCTIVE (affects flows §4 below)
+20260423_{audit_tables, skipped_concurrent, sf_enrichment_match_state}
+20260426_wh_player_resolution_audit
+20260427_{add_missing_sf_fks, whoscored_runs_audit}     ← FKs must run AFTER dedup
+20260428_add_config_to_audit_runs
+
++ 6 merge-head migrations</code></pre>
+<p>ORM-first compliance per <code>.claude/rules/orm-first.md</code> is
+satisfied — every previously flagged gap (#654, #656) is now closed in
+this PR.</p>
+<h3 id="23-env--config">2.3 Env / config</h3>
+<table>
+<thead>
+<tr>
+<th>Var(s)</th>
+<th>In <code>.env.example</code>?</th>
+<th>In <code>.required-env</code>?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LIVE_CHECK_*</code> (3)</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>KAFKA_*</code> (5)</td>
+<td>implicit (defaults)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>ODDS_SERVICE_SYNC_*</code> (8)</td>
+<td>✅</td>
+<td><strong>❌ — drift</strong></td>
+</tr>
+</tbody>
+</table>
+<p><code>config/core/app.py</code>: <code>LiveCheckMode</code> enum,
+<code>LIVE_CHECK_MODE</code>, <code>LIVE_CHECK_WINDOW_BEFORE</code>,
+<code>LIVE_CHECK_WINDOW_AFTER</code>, <code>SECURE_COOKIES</code>.</p>
+<p>Logging-formatter relocated to
+<code>core/utils/logging_formatter.py</code>. <code>app.py</code> and
+<code>middleware/request_id.py</code> updated;
+<strong><code>scheduler/main.py:34</code> NOT updated</strong>.</p>
+<h3 id="24-architectural-notes">2.4 Architectural notes</h3>
+<ul>
+<li>Admin daemon-thread pattern + module-level <code>_jobs</code> dict
+diverges from the request-path async UoW pattern. Status lost on worker
+restart, per-worker.</li>
+<li>Kafka schemas are <code>@dataclass</code> (decoupled from web
+layer); producer fire-and-forget by design.</li>
+<li>Hand-mirrored TypedDict (<code>_odds_admin_contracts.py</code>) —
+calculated trade-off; promote to <code>specs/</code> when a 2nd consumer
+appears.</li>
+<li>32 SF data routes lack <code>response_model=</code> despite schemas
+existing.</li>
+</ul>
+<hr />
+<h2 id="3-tests--_pr-668-testsmd">3. Tests —
+<code>_pr-668-tests.md</code></h2>
+<blockquote>
+<p>Specialist synthesis of 3 leaves: <a href="pr-668-leaves/tests-unit.html">unit</a> · <a href="pr-668-leaves/tests-integration.html">integration</a> · <a href="pr-668-leaves/tests-coverage-gaps.html">coverage-gaps</a>.</p>
+</blockquote>
+<h3 id="31-at-a-glance">3.1 At a glance</h3>
+<p>62 new test files / ~10,705 LOC. SF unit tests (14 files / ~4,648
+LOC) carry most of the coverage.</p>
+<h3 id="32-implemented-high-value">3.2 Implemented (high-value)</h3>
+<ul>
+<li>✅ SF data layer (resolver, schema drift, field mapping, season
+parser, name match, match-state).</li>
+<li>✅ 4 named Priority-1 bug fixes (AST + behavioural).</li>
+<li>✅ 3 named Priority-4 security fixes.</li>
+<li>✅ <code>_compute_live_status_map</code> partition + fallback.</li>
+<li>✅ Admin SF routes (auth, validation, 202 envelope).</li>
+<li>✅ Layered shell-driven QA at
+<code>qa_test/odds-pricing-main/layer{1-6}/*.sh</code> for cross-service
+BS↔︎BO sync.</li>
+</ul>
+<h3 id="33-top-coverage-gaps-flow-relevant">3.3 Top coverage gaps
+(flow-relevant)</h3>
+<ol type="1">
+<li><strong>Kafka emit verification</strong> — neither
+<code>_emit_*_event</code> site is unit-tested.</li>
+<li><strong><code>odds_service_client</code> end-to-end</strong> —
+<code>_post_targeted_migration</code> HTTP path,
+<code>_fetch_recently_scraped_wh_game_ids</code> window-trim.</li>
+<li><strong><code>/admin/sofascore/onboard</code> non-STATUS
+actions</strong> untested at route level.</li>
+<li><strong><code>response_model=</code> enforcement on
+<code>/info/sofascore/*</code></strong> — 32 routes, no contract
+guard.</li>
+<li><strong><code>/admin/leagues/onboard*</code>
+<code>ROUTE_TO_FLOW</code> drift test</strong> — none in CI.</li>
+<li><strong><code>prelive_lineups_imminent</code> 90s tier</strong> —
+argument shape, post-step hook untested.</li>
+<li><strong><code>20260420_dedup_competitions</code> migration
+upgrade-downgrade test</strong> — destructive, no fixture test.</li>
+<li><strong>Background-thread ContextVar propagation test</strong> —
+silent observability gap.</li>
+<li><strong><code>_odds_admin_contracts</code> cross-repo drift
+detection</strong> — manual only.</li>
+</ol>
+<h3 id="34-pr-description-checklist-all-blank--hard-blocker">3.4 PR
+description checklist all blank — <strong>HARD BLOCKER</strong>.</h3>
+<hr />
+<h2 id="4-risks--blockers--_pr-668-riskmd">4. Risks &amp; blockers —
+<code>_pr-668-risk.md</code></h2>
+<blockquote>
+<p>Specialist synthesis of 4 leaves: <a href="pr-668-leaves/risk-migrations.html">migrations</a> · <a href="pr-668-leaves/risk-observability-env.html">observability-env</a> ·
+<a href="pr-668-leaves/risk-flow-correctness.html">flow-correctness</a>
+· <a href="pr-668-leaves/risk-cross-repo.html">cross-repo</a>.</p>
+<p>Note: per user direction, the previous
+<code>risk-auth-payment-concurrency</code> leaf was deprecated. Auth
+posture for the BS→BO admin call is correct (JWT minted with
+<code>role=admin</code>, 5-min lifetime).</p>
+</blockquote>
+<h3 id="41-hard-blockers-5">4.1 Hard blockers (5)</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Blocker</th>
+<th>Severity</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>/admin/leagues/onboard*</code> × 5 routes missing from
+<code>ROUTE_TO_FLOW</code> — drift hook fails</td>
+<td>HIGH</td>
+<td>flow §1.8, observability-env §A</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>request_id</code> / <code>X-Flow</code> not propagated to BO
+on admin call (<code>_admin_auth_headers</code> returns only
+<code>Authorization</code>)</td>
+<td>HIGH</td>
+<td>flow §1.5.1, flow-correctness §A.4</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>src/scheduler/main.py:34</code> imports old
+<code>logging_formatter</code> path — scheduler may fail at startup</td>
+<td>HIGH</td>
+<td>observability-env §E</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>20260420_dedup_competitions_add_unique</code> not smoke-tested
+on stage; companion <code>base_sink</code> follow-up not in this PR</td>
+<td>HIGH</td>
+<td>risk-migrations §B, flow-correctness §D.1</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PR description checklist all blank, including &quot;Backtest with
+previous dev launch&quot;</td>
+<td>HARD</td>
+<td>observability-env §H</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-soft-blockers-7">4.2 Soft blockers (7)</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Blocker</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6</td>
+<td>ContextVar loss in admin daemon threads (3 endpoints) — wrap with
+<code>contextvars.copy_context()</code></td>
+<td>MED</td>
+</tr>
+<tr>
+<td>7</td>
+<td>New SF / admin services NOT decorated with
+<code>@flow_traced(Flow.X)</code> — service-method spans missing</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>ODDS_SERVICE_SYNC_*</code> env vars in
+<code>.env.example</code> but missing from
+<code>.required-env</code></td>
+<td>MED</td>
+</tr>
+<tr>
+<td>9</td>
+<td>BO endpoint deploy ordering: <code>/live/is_live_batch</code> before
+BS deploy; <code>/odds/admin/migration/run-targeted</code> before flag
+flip; Kafka consumers before producer flag flip</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>WITHDRAWAL_COMPLETED</code> notif_outbox in-flight rows fall
+through to &quot;Unknown event type&quot; branch</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>_odds_admin_contracts.py</code> hand-mirrored TypedDict —
+drift detection manual</td>
+<td>MED</td>
+</tr>
+<tr>
+<td>12</td>
+<td>BS does not dedupe <code>game_ids</code> across 90s ticks within
+15min window — relies on BO idempotency (cross-repo question)</td>
+<td>MED</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-operational-notes-post-merge">4.3 Operational notes
+(post-merge)</h3>
+<ul>
+<li>Multi-instance scheduler scale-out unsafe for
+<code>SingleInstanceLock</code> (process-local).</li>
+<li>Admin job persistence — module-level <code>_jobs</code> dict lost on
+uvicorn restart, per-worker; cross-worker
+<code>GET .../jobs/{job_id}</code> may 404.</li>
+<li><code>prelive_lineups_imminent</code> 90s ×
+<code>ODDS_SERVICE_SYNC_ENABLED</code> → ~960 BS→BO requests/day. Verify
+BO load capacity. Add Grafana panel for
+<code>enrichment_runs.status=&#39;failed&#39; WHERE tier=&#39;live&#39;</code> (Slack
+disabled for this tier).</li>
+<li><code>OddsClient.DEFAULT_TIMEOUT</code> 30→5s —
+non-<code>is_live</code> calls now error on slower BO without time-based
+fallback.</li>
+<li>Public <code>/info/sofascore/*</code> × 32 routes are
+unauthenticated and unrate-limited.</li>
+<li>89k-line PR is hard to revert atomically; staged rollout: SF data
+routes → admin SF routes → BO sync flag → Kafka producer flag.</li>
+</ul>
+<h3 id="44-todofixme-debt-added">4.4 TODO/FIXME debt added</h3>
+<ul>
+<li><code>scraper_job_registry.py</code>:
+<code>TODO: when run_targeted_match_pipeline gains minutes-granularity filtering, tighten this to a 30-min window.</code></li>
+<li><code>scraper_job_registry.py</code>: two
+<code>FIXME(task-5/6)</code> for pre-existing broken
+<code>dq_audit</code> / <code>bet_audit</code> imports — explicitly NOT
+fixed.</li>
+</ul>
+<h3 id="45-pre-existing-risk-surfaced-not-introduced">4.5 Pre-existing
+risk surfaced (not introduced)</h3>
+<ul>
+<li><code>.env.example</code> contains real-looking Stream API secret +
+Slack tokens (committed in <code>643f376e</code>). Out of scope; should
+be rotated.</li>
+</ul>
+<h3 id="46-websocket-protocol-stability--non-issue">4.6 WebSocket
+protocol stability — non-issue</h3>
+<p>PR introduces zero WebSocket flows. No WS-related contract risk.</p>
+<hr />
+<h2 id="5-suggested-labels">5. Suggested labels</h2>
+<p>Per <code>.claude/rules/pr-labels.md</code>:</p>
+<ul>
+<li><code>needs-review</code> — base</li>
+<li><code>ready-to-flow-test</code> — touches routes / services /
+migrations (this is the <strong>real</strong> Mac Mini trigger, not
+<code>flow-test</code>)</li>
+<li><code>integration-tests</code> — adds flow tests</li>
+<li><code>database</code> — substantial schema work</li>
+<li><code>tier3</code> — full feature, large blast radius</li>
+</ul>
+<p>Do NOT add <code>ready-to-stage</code> or <code>ready-to-prod</code>
+until the 5 hard blockers are resolved.</p>
+<hr />
+<h2 id="6-final-verdict">6. Final verdict</h2>
+<table>
+<thead>
+<tr>
+<th>Bucket</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Flow correctness</strong></td>
+<td>⚠️ Data flows are correct, but observability / request-correlation
+has 3 specific gaps (5 ROUTE_TO_FLOW entries missing, header propagation
+gap on BS→BO admin, ContextVar loss in daemon threads). All mechanically
+small.</td>
+</tr>
+<tr>
+<td>Architecture &amp; DDD</td>
+<td>✅ New namespaces follow project layering. ORM-first satisfied.</td>
+</tr>
+<tr>
+<td>Migrations</td>
+<td>⚠️ Single destructive migration
+(<code>20260420_dedup_competitions</code>); follow-up
+<code>base_sink</code> PR is a coordination requirement.</td>
+</tr>
+<tr>
+<td>Cross-service</td>
+<td>⚠️ Hand-mirrored TypedDict + non-trivial deploy-order coupling with
+BO + 2 Kafka topics with no schema registry.</td>
+</tr>
+<tr>
+<td>Tests</td>
+<td>✅ Substantial coverage; gaps concentrated in cross-service + Kafka
+emit verification.</td>
+</tr>
+<tr>
+<td>Bug fixes</td>
+<td>✅ 4 named Priority-1 fixes with regression tests.</td>
+</tr>
+<tr>
+<td>WebSocket</td>
+<td>✅ Non-issue (zero WS changes).</td>
+</tr>
+<tr>
+<td>Documentation</td>
+<td>✅ Extensive in-tree docs; PR description checklist blank.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Disposition</strong>: REQUEST CHANGES. The 5 hard blockers
+are mechanically small; once resolved (and the PR description is filled
+in with stage smoke + backtest evidence), the PR is ready for stage
+deployment with the operational guardrails in §4.3 applied.</p>
+<p>The flow-correctness story is the user&#39;s primary concern, and its fix
+path is concrete:</p>
+<ol type="1">
+<li>5 lines in <code>flow_context.ROUTE_TO_FLOW</code> for
+<code>/admin/leagues/onboard*</code>.</li>
+<li>~5 lines in
+<code>integrations/odds_service_client.py:_admin_auth_headers()</code>
+to merge <code>get_propagation_headers()</code>.</li>
+<li>1 line in <code>src/scheduler/main.py:34</code> to fix the import
+path.</li>
+<li>3-4 lines per admin endpoint to wrap thread spawn with
+<code>contextvars.copy_context()</code>.</li>
+<li>1 decorator per service method to add
+<code>@flow_traced(Flow.X)</code>.</li>
+</ol>
+<p>Total: well under an hour of work plus the dedup-migration smoke-test
+on stage.</p>
+</body>
+</html>

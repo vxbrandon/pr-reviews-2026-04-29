@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>BO #140 — Flows v1 backup</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">@viewport { width: device-width; initial-scale: 1; }
+:root {
+--bg: #0d1117;
+--fg: #c9d1d9;
+--fg-muted: #8b949e;
+--border: #30363d;
+--link: #58a6ff;
+--code-bg: #161b22;
+--table-stripe: #161b22;
+--warn: #f0883e;
+--danger: #f85149;
+--good: #3fb950;
+--header: #f0f6fc;
+}
+@media (prefers-color-scheme: light) {
+:root {
+--bg: #ffffff;
+--fg: #1f2328;
+--fg-muted: #59636e;
+--border: #d1d9e0;
+--link: #0969da;
+--code-bg: #f6f8fa;
+--table-stripe: #f6f8fa;
+--warn: #bf8700;
+--danger: #cf222e;
+--good: #1a7f37;
+--header: #1f2328;
+}
+}
+* { box-sizing: border-box; }
+html, body {
+margin: 0;
+padding: 0;
+background: var(--bg);
+color: var(--fg);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+font-size: 16px;
+line-height: 1.6;
+-webkit-text-size-adjust: 100%;
+}
+body {
+max-width: 900px;
+margin: 0 auto;
+padding: 1.25rem 1rem 4rem;
+}
+h1, h2, h3, h4, h5, h6 {
+color: var(--header);
+margin-top: 1.6em;
+margin-bottom: 0.6em;
+line-height: 1.25;
+font-weight: 600;
+}
+h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.0rem; }
+p { margin: 0.6em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+code {
+background: var(--code-bg);
+padding: 0.15em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+font-size: 0.875em;
+word-break: break-word;
+}
+pre {
+background: var(--code-bg);
+padding: 0.85rem;
+border-radius: 6px;
+overflow-x: auto;
+font-size: 0.825em;
+line-height: 1.5;
+border: 1px solid var(--border);
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+blockquote {
+border-left: 4px solid var(--border);
+margin: 1em 0;
+padding: 0.4em 1em;
+color: var(--fg-muted);
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1em 0;
+font-size: 0.9em;
+display: block;
+overflow-x: auto;
+}
+th, td {
+border: 1px solid var(--border);
+padding: 0.4em 0.7em;
+text-align: left;
+vertical-align: top;
+}
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(2n) { background: var(--table-stripe); }
+hr {
+border: none;
+border-top: 1px solid var(--border);
+margin: 2em 0;
+}
+
+@media (max-width: 600px) {
+body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; }
+h1 { font-size: 1.45rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+pre { font-size: 0.78em; padding: 0.6rem; }
+table { font-size: 0.82em; }
+th, td { padding: 0.3em 0.5em; }
+}
+
+.review-index {
+list-style: none;
+padding: 0;
+}
+.review-index li {
+padding: 0.5em 0.7em;
+border: 1px solid var(--border);
+border-radius: 6px;
+margin: 0.4em 0;
+background: var(--code-bg);
+}
+.review-index li.master {
+border-left: 4px solid var(--good);
+font-weight: 600;
+}
+.review-index li.note {
+border-left: 4px solid var(--warn);
+font-style: italic;
+background: transparent;
+font-size: 0.9em;
+}
+.size {
+color: var(--fg-muted);
+font-size: 0.85em;
+float: right;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">BO #140 — Flows v1 backup</h1>
+</header>
+<h1 id="pr-140--flow-inventory">PR #140 — Flow Inventory</h1>
+<p>Branch: <code>dev-coverage-and-odds-impro</code> → <code>dev</code>.
+Cited file/line numbers refer to the PR head.</p>
+<h2 id="summary">Summary</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New flows added</td>
+<td>14</td>
+</tr>
+<tr>
+<td>Modified flows</td>
+<td>9</td>
+</tr>
+<tr>
+<td>Removed flows</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Total inventoried</td>
+<td>23</td>
+</tr>
+</tbody>
+</table>
+<p>Most net-new logic is plumbed through (a) two new admin routers
+(<code>data_health</code>, expanded <code>pipeline_admin</code>), (b)
+four new background workers wired in <code>app.py</code> lifespan, (c) a
+new Kafka producer + consumer pair (<code>request_producer</code> →
+<code>request_analytics_service</code>), and (d) one extra Kafka
+producer (<code>lineup_producer</code>) driven by the lineup-scraper
+task. Existing odds/parlay routes are mostly modified only to (i) emit
+fire-and-forget tracking events and (ii) chase the
+<code>application/service/{odds,info,betting,calibration,lineup}/</code>
+package re-org.</p>
+<hr />
+<h2 id="flows">Flows</h2>
+<h3 id="f1-get-admindata-healthgamesgame_id--per-game-completeness-report">F1:
+GET /admin/data-health/games/{game_id} — per-game completeness
+report</h3>
+<ul>
+<li>Status: NEW</li>
+<li>Entry:
+<code>src/backend_odds/infrastructure/api/rest/routers/data_health.py:61</code></li>
+<li>Pipeline:
+<ul>
+<li>route handler <code>get_game_completeness</code>
+<code>data_health.py:66</code></li>
+<li>→ <code>_get_service()</code> builds
+<code>DataCompletenessService(get_session_factory())</code>
+<code>data_health.py:54</code></li>
+<li>→ <code>service.check_game(game_id)</code>
+<code>application/service/info/data_completeness_service.py:70</code></li>
+<li>→ SQL reads against <code>Games</code>, <code>Lineups</code>,
+<code>MatchStatistics</code>, <code>PlayerStatistics</code>,
+<code>Events</code> (whoscored/sofascore counts),
+<code>MigrationRunsAudit</code></li>
+<li>→ <code>_evaluate_alerts(...)</code>
+<code>data_completeness_service.py:245</code></li>
+</ul></li>
+<li>Side effects: read-only DB.</li>
+<li>Auth/observability: mounted under <code>/admin</code> with
+<code>Depends(verify_admin_token)</code>
+(<code>rest/routes.py:43</code>); flow tag <code>admin.operations</code>
+(<code>web/middleware/request_context.py:122</code>).</li>
+</ul>
+<h3 id="f2-get-admindata-healthincomplete--list-incomplete-games-in-a-window">F2:
+GET /admin/data-health/incomplete — list incomplete games in a
+window</h3>
+<ul>
+<li>Status: NEW</li>
+<li>Entry: <code>data_health.py:84</code>
+<code>list_incomplete_games(season_id?, within_days)</code></li>
+<li>Pipeline: <code>service.list_incomplete_games(...)</code> → loops
+<code>check_game</code> over upcoming/recent games → returns reports
+flagged with alerts.</li>
+<li>Side effects: read-only DB.</li>
+<li>Auth/observability: same admin guard; flow tag
+<code>admin.operations</code>
+(<code>request_context.py:123</code>).</li>
+</ul>
+<h3 id="f3-post-adminmigrationrun-targeted--get-adminmigrationjob_id">F3:
+POST /admin/migration/run-targeted (+ GET
+/admin/migration/{job_id})</h3>
+<ul>
+<li>Status: NEW (added in this PR)</li>
+<li>Entry: <code>infrastructure/api/rest/routers/admin.py:446</code>
+(POST), <code>admin.py:490</code> (GET poll)</li>
+<li>Pipeline:
+<ul>
+<li>generate <code>job_id</code>, register in-memory
+<code>_migration_jobs</code> map</li>
+<li><code>BackgroundTasks.add_task(_run_targeted_migration_in_process, ...)</code></li>
+<li>background fn calls
+<code>scripts/migrations/async_migrate_whoscored_new_to_postgres_v2.py</code>
+and
+<code>scripts/migrations/async_migrate_sofascore_to_postgres_v2.py</code>
+for the supplied <code>game_ids</code>, then invalidates BO caches.</li>
+</ul></li>
+<li>Side effects: writes Postgres (<code>lineups</code>,
+<code>match_statistics</code>, etc.), invalidates Redis cache keys.</li>
+<li>Auth/observability: <code>verify_admin_token</code>; called by
+Backend-Server&#39;s prelive_lineups job per docstring
+<code>admin.py:457</code>.</li>
+</ul>
+<h3 id="f4-getpostdelete-adminconfignameui--runtime-flag-config">F4:
+GET/POST/DELETE /admin/config[/{name}][/ui] — runtime flag config</h3>
+<ul>
+<li>Status: NEW (added in this PR)</li>
+<li>Entry: <code>admin.py:536</code> GET, <code>admin.py:546</code>
+POST, <code>admin.py:573</code> DELETE, <code>admin.py:593</code> GET
+ui</li>
+<li>Pipeline: list/set/clear flags via <code>runtime_flags</code>
+registry + Redis-backed override store; UI rendered with Jinja2.</li>
+<li>Side effects: writes/reads Redis runtime-flag keys.</li>
+<li>Auth/observability: every route guards on
+<code>verify_admin_token</code>
+(<code>admin.py:538,548,575,596</code>).</li>
+</ul>
+<h3 id="f5-post-adminpipelinesnamerefit--async-refit--optional-calibration">F5:
+POST /admin/pipelines/{name}/refit — async refit + optional
+calibration</h3>
+<ul>
+<li>Status: MODIFIED (calibrate_player_props branch added)</li>
+<li>Entry: <code>pipeline_admin.py:377</code></li>
+<li>Pipeline: <code>_get_refit_manager()</code> →
+<code>RefitManager.start_refit(name, force, calibrate, calibrate_player_props)</code>
+(<code>application/service/calibration/refit_manager.py</code>).</li>
+<li>Side effects: spawns refit worker, writes model cache, writes
+calibration parameters to Redis/DB.</li>
+<li>Auth/observability: admin guard via <code>_admin_guard</code>
+mount.</li>
+</ul>
+<h3 id="f6-post-adminpipelinesnamepost-process--recompute-statistics-tables">F6:
+POST /admin/pipelines/{name}/post-process — recompute statistics
+tables</h3>
+<ul>
+<li>Status: NEW</li>
+<li>Entry: <code>pipeline_admin.py:436</code></li>
+<li>Pipeline: <code>MatchStatisticsProcessor</code> →
+<code>PlayerStatisticsProcessor</code> (skip for shot-only configs) →
+<code>ZonalStatisticsProcessor</code> →
+<code>TeamZonalStatisticsProcessor</code> (each
+<code>pipeline_admin.py:485-498</code>).</li>
+<li>Side effects: bulk writes to <code>match_statistics</code>,
+<code>player_statistics</code>, <code>zonal_statistics</code>,
+<code>team_zonal_statistics</code>.</li>
+</ul>
+<h3 id="f7-post-adminpipelinesnamecalibrate-player-props--shortcut">F7:
+POST /admin/pipelines/{name}/calibrate-player-props — shortcut</h3>
+<ul>
+<li>Status: NEW</li>
+<li>Entry: <code>pipeline_admin.py:508</code> — thin wrapper over
+<code>RefitManager.start_refit(force=False, calibrate_player_props=True)</code>.</li>
+</ul>
+<h3 id="f8-get-adminsourcesactions--static-sourceactions-map">F8: GET
+/admin/sources/actions — static source→actions map</h3>
+<ul>
+<li>Status: NEW</li>
+<li>Entry: <code>pipeline_admin.py:417</code> returns
+<code>SOURCE_ACTIONS</code> constant. Read-only.</li>
+</ul>
+<h3 id="f9-post-adminmigrateleague_code--canonical-league-migration">F9:
+POST /admin/migrate/{league_code} — canonical league migration</h3>
+<ul>
+<li>Status: NEW</li>
+<li>Entry: <code>pipeline_admin.py:659</code></li>
+<li>Pipeline:
+<ul>
+<li>validates <code>include_whoscored</code> /
+<code>include_sofascore</code> flags</li>
+<li>→ <code>migration_service.migrate_league(...)</code>
+<code>application/service/info/migration_service.py:89</code></li>
+<li>→ <code>_run_whoscored</code> <code>migration_service.py:153</code>
+(invokes
+<code>scripts/migrations/async_migrate_whoscored_new_to_postgres_v2.py</code>)</li>
+<li>→ <code>_run_sofascore</code> <code>migration_service.py:212</code>
+(invokes
+<code>scripts/migrations/async_migrate_sofascore_to_postgres_v2.py</code>)</li>
+<li>records both steps in the <code>migration_runs_audit</code> table
+(24h idempotency unless <code>force=True</code>).</li>
+</ul></li>
+<li>Side effects: writes Postgres (<code>lineups</code>,
+<code>match_statistics</code>, <code>events</code>, audit table),
+invalidates BO Redis cache.</li>
+<li>Auth/observability: admin guard.</li>
+</ul>
+<h3 id="f10-post-oddsget_parlay_odds--parlay-pricing">F10: POST
+/odds/get_parlay_odds — parlay pricing</h3>
+<ul>
+<li>Status: MODIFIED</li>
+<li>Entry: <code>infrastructure/api/rest/routers/odds.py:101</code>
+<code>compute_parlay_odds</code></li>
+<li>Pipeline: per-pick →
+<code>GetOddsForBet.get_odds_for_zap/zat/zao/team_prop</code>
+(<code>application/service/odds/odds_service.py</code>); combined
+product across legs.</li>
+<li>Net new in this PR: emits <code>OddsRequestEvent</code> per game_id
+via <code>odds_request_producer.emit(...)</code>
+<code>odds.py:181-194</code> (fire-and-forget).</li>
+<li>Side effects: Kafka produce on <code>odds.odds_requests</code>
+topic; Redis pricing cache via service layer.</li>
+<li>Auth/observability: route flow tag set in
+<code>request_context.py</code>.</li>
+</ul>
+<h3 id="f11-post-oddsget_parlay_expected_profit--ev-calculation">F11:
+POST /odds/get_parlay_expected_profit — EV calculation</h3>
+<ul>
+<li>Status: MODIFIED (same instrumentation pattern)</li>
+<li>Entry: <code>odds.py:667</code>
+<code>calculate_parlay_expected_profit</code></li>
+<li>Net new: emits <code>OddsRequestEvent</code> for every distinct
+<code>game_id</code> after computing <code>aggregate_bet_types</code>
+(<code>odds.py:837-855</code>).</li>
+<li>Side effects: Kafka produce.</li>
+</ul>
+<h3 id="f12-post-oddsget_player_odds-get_zat_odds-get_team_prop_odds-get_zao_odds-get_mom_odds-single-bet-endpoints">F12:
+POST /odds/get_player_odds, /get_zat_odds, /get_team_prop_odds,
+/get_zao_odds, /get_mom_odds (single-bet endpoints)</h3>
+<ul>
+<li>Status: MODIFIED (only by package re-org imports —
+<code>application.service.odds.odds_service</code>,
+<code>application.service.betting.live_policy</code>)</li>
+<li>Entry: <code>odds.py:240, 319, 423, 475, 531</code></li>
+<li>Pipeline: <code>GetOddsForBet.get_odds_for_&lt;type&gt;</code> →
+<code>MainOddsPipeline</code> → cache
+(<code>@flow_traced(Flow.ODDS_COMPUTE)</code> decorations on
+<code>odds_service.py:743,800,995,1050,1415</code>).</li>
+</ul>
+<h3 id="f13-get-infogamesmarket-odds--cached-market-consensus-odds">F13:
+GET /info/games/market-odds — cached market consensus odds</h3>
+<ul>
+<li>Status: MODIFIED (import path only)</li>
+<li>Entry: <code>infrastructure/api/rest/routers/info.py:354</code></li>
+<li>Pipeline: lazy import of
+<code>application.service.odds.market_odds_service.MarketOddsService</code>
+(per-game cache 5 min, pipeline cache 15 min).</li>
+<li>Side effects: Redis read/write.</li>
+<li>Observability: <code>@flow_traced(Flow.DATA_INFO)</code> on
+<code>market_odds_service.py:154</code>.</li>
+</ul>
+<h3 id="f14-ws--odds-broadcast-loop-existing">F14: WS — odds broadcast
+loop (existing)</h3>
+<ul>
+<li>Status: MODIFIED (renamed import only)</li>
+<li>Entry: app startup <code>app.py:206</code>
+<code>asyncio.create_task(run_odds_broadcast(...))</code></li>
+<li>Pipeline: subscribers driven by
+<code>infrastructure/api/websocket/manager.py</code>; runs every poll
+interval; uses <code>GetOddsForBet</code> (now
+<code>application.service.odds.odds_service</code>) to compute and
+push.</li>
+<li>Side effects: WS broadcast, Redis cache reads.</li>
+</ul>
+<h3 id="f15-kafka-consumer--oddsmarket_updates-kalshiodds_api-ingest">F15:
+Kafka consumer — <code>odds.market_updates</code> (Kalshi/odds_api
+ingest)</h3>
+<ul>
+<li>Status: MODIFIED — error/observability paths reworked (E.4,
+E.5)</li>
+<li>Entry: <code>infrastructure/kafka/consumer.py</code>
+<code>KafkaOddsConsumer</code> (started in <code>app.py</code> lifespan
+after <code>lineup_scraper_task</code>).</li>
+<li>Pipeline:
+<ul>
+<li>subscribe → <code>_consume_loop</code> → batch</li>
+<li>per-message: <code>OddsUpdate.from_json_bytes()</code> (now narrow
+<code>_DESERIALIZE_ERRORS</code> tuple <code>consumer.py:87-92</code>;
+non-listed exceptions propagate)</li>
+<li><code>_parse_game_id(...)</code> instead of bare
+<code>int(key.match_id)</code> <code>consumer.py:430</code> —
+unparseable values increment <code>kafka.match_id.parse_error</code>
+OTEL counter and log once via <code>_log_bad_match_id_once</code>
+(deduped, cap 256).</li>
+<li>unmapped <code>market_id</code> increments
+<code>kafka.odds_update.unknown_market</code> and emits one INFO via
+<code>_log_unknown_market_type_once</code>
+<code>consumer.py:502</code>.</li>
+</ul></li>
+<li>Side effects: Redis writes (<code>market:odds:{gid}</code>,
+<code>live_odds:{gid}</code> per existing logic), Postgres upserts, OTEL
+counters.</li>
+<li>Auth/observability: spans inside batch processing; counters defined
+<code>consumer.py:62-100</code>.</li>
+</ul>
+<h3 id="f16-kafka-consumer--oddslineup_updates-legacy--passive">F16:
+Kafka consumer — <code>odds.lineup_updates</code> (legacy /
+passive)</h3>
+<ul>
+<li>Status: NEW (file added) but per its own docstring &quot;no longer
+started by default&quot;
+<code>infrastructure/kafka/lineup_consumer.py:1-13</code>.</li>
+<li>Entry: <code>KafkaLineupConsumer.start()</code>
+<code>lineup_consumer.py:105</code> — not invoked by
+<code>app.py</code>.</li>
+<li>Pipeline (if started): consume <code>odds.lineup_updates</code> →
+<code>LineupUpdate.from_json_bytes</code> → <code>_upsert_lineup</code>
+upsert into <code>lineups</code> table
+(<code>lineup_consumer.py:214</code>).</li>
+<li>Side effects: would write Postgres <code>lineups</code>, has manual
+<code>kafka.lineup.process_batch</code> span
+(<code>lineup_consumer.py:154</code>).</li>
+<li>Note: the active path is now F18 (in-task DB write + Kafka publish).
+Downstream services may still consume the topic.</li>
+</ul>
+<h3 id="f17-kafka-producer--oddsodds_requests-analytics-fan-out">F17:
+Kafka producer — <code>odds.odds_requests</code> (analytics
+fan-out)</h3>
+<ul>
+<li>Status: NEW</li>
+<li>Entry: <code>OddsRequestProducer</code>
+<code>infrastructure/kafka/request_producer.py:55</code>. Started in
+<code>app.py:294</code> (<code>odds_request_producer.start()</code>),
+stopped on shutdown <code>app.py:387</code>.</li>
+<li>Producers (call sites): F10 <code>odds.py:181-194</code>, F11
+<code>odds.py:837-855</code>. Both wrapped in try/except — never fail
+the request.</li>
+<li>Side effects: Kafka produce to <code>odds.odds_requests</code>
+(key=<code>game_id</code>, value=JSON
+<code>OddsRequestEvent</code>).</li>
+<li>Observability:
+<code>tracer = trace.get_tracer(&quot;tbg.backend-odds.request-producer&quot;)</code>
+<code>request_producer.py:20</code>.</li>
+</ul>
+<h3 id="f18-background-task--run_lineup_scraper-w4">F18: Background task
+— <code>run_lineup_scraper</code> (W4)</h3>
+<ul>
+<li>Status: NEW</li>
+<li>Entry: <code>infrastructure/api/tasks.py:813</code>. Wired in
+<code>app.py:316</code> lifespan as
+<code>lineup_scraper_task</code>.</li>
+<li>Pipeline:
+<ul>
+<li><code>games_repo.get_upcoming_games(season_ids, limit=100)</code> →
+adaptive frequency filter (&gt;24h skip, 2-24h every 30 min, ≤2h or live
+every <code>LINEUP_SCRAPER_INTERVAL_SEC</code>/120s)
+<code>tasks.py:920-944</code></li>
+<li>per game → <code>scrape_lineup_from_db(session, game_id)</code>
+<code>infrastructure/workers/lineup_scraper.py:33</code> (returns
+<code>LineupUpdate</code> from current <code>lineups</code> rows, no
+external HTTP)</li>
+<li><code>LineupChangeDetector.detect(update)</code>
+<code>application/service/lineup/lineup_change_detector.py:66</code>
+(Redis-backed diff)</li>
+<li>if changed → <code>_upsert_lineup_to_db</code>
+<code>tasks.py:828</code> (writes <code>LineupModel</code> upserts) +
+<code>KafkaLineupProducer.send(update)</code>
+<code>infrastructure/kafka/lineup_producer.py:66</code></li>
+<li><code>producer.flush()</code> once per cycle if anything
+published.</li>
+</ul></li>
+<li>Side effects: Postgres <code>lineups</code>, Kafka
+<code>odds.lineup_updates</code>, Redis change-detector cache.</li>
+<li>Gate: <code>LINEUP_SCRAPER_ENABLED</code> env (default false);
+season list fed from
+<code>pipeline_configs.current_season_ids</code>.</li>
+</ul>
+<h3 id="f19-background-task--run_match_calibration_check-w2">F19:
+Background task — <code>run_match_calibration_check</code> (W2)</h3>
+<ul>
+<li>Status: NEW</li>
+<li>Entry: <code>tasks.py:1133</code>. Wired in <code>app.py:309</code>
+as <code>match_cal_task</code>.</li>
+<li>Pipeline:
+<ul>
+<li><code>games_repo.get_upcoming_games(season_ids, limit=100)</code>
+<code>tasks.py:1183</code></li>
+<li>per game →
+<code>MatchCalibrationService.calibrate_match(game_id, home_team_id, away_team_id, trigger_type=&#39;market_odds&#39;)</code>
+<code>application/service/calibration/match_calibration_service.py:549</code>
+(cooldown gate, base lambdas from <code>team_pipeline.model</code>,
+<code>_load_market_moneyline_probs</code> from Redis, divergence check,
+then writes adjustment to Redis)</li>
+<li>sleeps <code>MATCH_CALIBRATION_CHECK_INTERVAL_SEC</code> (default
+120s)</li>
+</ul></li>
+<li>Side effects: Redis writes (per-match calibration adjustment,
+cooldown key), reads Redis market odds keys
+(<code>live_odds:{gid}</code> etc.), reads team-pipeline cache.</li>
+<li>Gate: <code>MATCH_CALIBRATION_ENABLED</code> env.</li>
+</ul>
+<h3 id="f20-background-task--run_scheduled_odds_fetch-w3">F20:
+Background task — <code>run_scheduled_odds_fetch</code> (W3)</h3>
+<ul>
+<li>Status: NEW</li>
+<li>Entry:
+<code>infrastructure/kafka/scheduled_odds_fetch.py:256</code>. Wired in
+<code>app.py:288</code> as <code>odds_fetch_task</code>.</li>
+<li>Pipeline (per cycle): if env keys present,
+<code>asyncio.to_thread</code>:
+<ul>
+<li><code>_run_odds_api_fetch(market_categories)</code> → wraps
+<code>scripts/fetch_market_odds.py</code> (Odds API → Postgres)
+<code>scheduled_odds_fetch.py:130</code></li>
+<li><code>_run_kalshi_fetch()</code> → wraps
+<code>scripts/fetch_kalshi_odds.py</code> (Postgres + Redis)
+<code>scheduled_odds_fetch.py:171</code></li>
+<li><code>_run_player_prop_fetch()</code> → wraps
+<code>scripts/fetch_player_prop_odds.py</code> (Postgres + Redis)
+<code>scheduled_odds_fetch.py:210</code></li>
+<li>sleep <code>ODDS_FETCH_INTERVAL_SEC</code></li>
+</ul></li>
+<li>Side effects: writes <code>external_odds.market_odds</code>,
+<code>external_odds.player_prop_odds</code>, Redis caches.</li>
+<li>Gate: <code>ODDS_FETCH_ENABLED</code> + presence of
+<code>ODDS_API_KEY</code> / <code>KALSHI_API_KEY</code>;
+<code>ODDS_FETCH_PLAYER_PROPS_ENABLED</code> for the third leg.</li>
+</ul>
+<h3 id="f21-background-task--request-analytics-consumer-w1-part-2">F21:
+Background task — Request Analytics consumer (W1 part 2)</h3>
+<ul>
+<li>Status: NEW</li>
+<li>Entry: <code>RequestAnalyticsService.start()</code>
+<code>application/service/info/request_analytics_service.py:68</code>.
+Wired in <code>app.py:298</code> (skipped when
+<code>--disable-kafka</code>).</li>
+<li>Pipeline:
+<ul>
+<li>background thread subscribes to <code>odds.odds_requests</code>
+<code>request_analytics_service.py:141</code></li>
+<li>per batch → <code>_aggregate_event(data)</code>
+<code>request_analytics_service.py:189</code> updates Redis:
+<code>req_analytics:match:{game_id}</code> hash (HINCRBY total_requests
++ per-market), HLL <code>req_analytics:match:{game_id}:users_hll</code>,
+sorted set <code>req_analytics:user_activity</code> (ZADD), with TTLs
+24h/7d.</li>
+</ul></li>
+<li>Side effects: Redis-only writes; manual span
+<code>request_analytics.process_batch</code>
+<code>request_analytics_service.py:154</code>.</li>
+</ul>
+<h3 id="f22-background-task--exposure-snapshot-flush-w1-part-3">F22:
+Background task — Exposure snapshot flush (W1 part 3)</h3>
+<ul>
+<li>Status: NEW</li>
+<li>Entry: <code>_exposure_snapshot_loop</code> defined inline in
+<code>app.py:300</code>. Wired as <code>exposure_task</code>
+<code>app.py:325</code>.</li>
+<li>Pipeline: every 300s →
+<code>asyncio.to_thread(exposure_service.flush_snapshots)</code>
+<code>application/service/betting/exposure_service.py:52</code>.</li>
+<li>Side effects: reads Redis exposure keys, writes rows to
+<code>exposure_snapshots</code> Postgres table.</li>
+</ul>
+<h3 id="f23-startup-hook--alembic-drift-check">F23: Startup hook —
+Alembic drift check</h3>
+<ul>
+<li>Status: NEW</li>
+<li>Entry: <code>app.py:177-191</code> (top of
+<code>lifespan</code>)</li>
+<li>Pipeline: <code>check_alembic_drift()</code>
+<code>infrastructure/migrations/drift_check.py:130</code> compares each
+<code>MigrationTarget</code> (main alembic + alembic_ext_odds) head vs
+live DB <code>alembic_version</code>. On mismatch raises
+<code>AlembicDriftError</code> (re-raised in <code>lifespan</code> →
+blocks startup) when <code>ALEMBIC_DRIFT_FAIL=true</code>; otherwise
+logs.</li>
+<li>Side effects: read-only DB.</li>
+</ul>
+<hr />
+<h2 id="cross-cutting-notes">Cross-cutting notes</h2>
+<ul>
+<li><strong>Service package re-org</strong> (no flow change): every
+router import was rewritten to
+<code>application.service.{odds,betting,info,calibration,lineup}.&lt;service&gt;</code>.
+Visible in diffs to <code>info.py:9</code>, <code>odds.py:14-15</code>,
+<code>tasks.py:13</code>, <code>app.py:7</code>. All are
+import-only.</li>
+<li><strong>Calibration service location</strong>:
+<code>match_calibration_service.py</code> (1989 LOC) sits in
+<code>application/service/calibration/</code>; consumed only by F19
+today, but exposes <code>MatchCalibrationService.calibrate_match</code>
+for future synchronous calls.</li>
+<li><strong><code>MarketOddsApiService</code></strong>
+(<code>application/service/odds/market_odds_api_service.py:83</code>) is
+added but currently NOT wired to any router or task — only its DTOs are
+used (and <code>_dedup_player_props</code> referenced in tests). Treat
+as dead-code-on-arrival until a caller is added.</li>
+<li><strong>Lineup pipeline duplication</strong>:
+<code>_upsert_lineup_to_db</code> is implemented inline in
+<code>tasks.py:828</code> AND in
+<code>KafkaLineupConsumer._upsert_lineup</code>
+(<code>lineup_consumer.py:214</code>). Same SQL pattern, two copies —
+flagged for the architecture pass.</li>
+<li><strong>Disable-kafka flag</strong>: <code>--disable-kafka</code>
+cli flag now also gates F21 (RequestAnalyticsService) on top of the
+existing <code>KafkaOddsConsumer</code>. F17 (producer) still starts
+unconditionally because <code>OddsRequestProducer.start()</code> no-ops
+when <code>ODDS_REQUEST_TRACKING_ENABLED</code> is false.</li>
+</ul>
+</body>
+</html>

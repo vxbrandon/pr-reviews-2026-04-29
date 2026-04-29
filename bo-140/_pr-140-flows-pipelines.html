@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>BO #140 — Pipelines</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">@viewport { width: device-width; initial-scale: 1; }
+:root {
+--bg: #0d1117;
+--fg: #c9d1d9;
+--fg-muted: #8b949e;
+--border: #30363d;
+--link: #58a6ff;
+--code-bg: #161b22;
+--table-stripe: #161b22;
+--warn: #f0883e;
+--danger: #f85149;
+--good: #3fb950;
+--header: #f0f6fc;
+}
+@media (prefers-color-scheme: light) {
+:root {
+--bg: #ffffff;
+--fg: #1f2328;
+--fg-muted: #59636e;
+--border: #d1d9e0;
+--link: #0969da;
+--code-bg: #f6f8fa;
+--table-stripe: #f6f8fa;
+--warn: #bf8700;
+--danger: #cf222e;
+--good: #1a7f37;
+--header: #1f2328;
+}
+}
+* { box-sizing: border-box; }
+html, body {
+margin: 0;
+padding: 0;
+background: var(--bg);
+color: var(--fg);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+font-size: 16px;
+line-height: 1.6;
+-webkit-text-size-adjust: 100%;
+}
+body {
+max-width: 900px;
+margin: 0 auto;
+padding: 1.25rem 1rem 4rem;
+}
+h1, h2, h3, h4, h5, h6 {
+color: var(--header);
+margin-top: 1.6em;
+margin-bottom: 0.6em;
+line-height: 1.25;
+font-weight: 600;
+}
+h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.0rem; }
+p { margin: 0.6em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+code {
+background: var(--code-bg);
+padding: 0.15em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+font-size: 0.875em;
+word-break: break-word;
+}
+pre {
+background: var(--code-bg);
+padding: 0.85rem;
+border-radius: 6px;
+overflow-x: auto;
+font-size: 0.825em;
+line-height: 1.5;
+border: 1px solid var(--border);
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+blockquote {
+border-left: 4px solid var(--border);
+margin: 1em 0;
+padding: 0.4em 1em;
+color: var(--fg-muted);
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1em 0;
+font-size: 0.9em;
+display: block;
+overflow-x: auto;
+}
+th, td {
+border: 1px solid var(--border);
+padding: 0.4em 0.7em;
+text-align: left;
+vertical-align: top;
+}
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(2n) { background: var(--table-stripe); }
+hr {
+border: none;
+border-top: 1px solid var(--border);
+margin: 2em 0;
+}
+
+@media (max-width: 600px) {
+body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; }
+h1 { font-size: 1.45rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+pre { font-size: 0.78em; padding: 0.6rem; }
+table { font-size: 0.82em; }
+th, td { padding: 0.3em 0.5em; }
+}
+
+.review-index {
+list-style: none;
+padding: 0;
+}
+.review-index li {
+padding: 0.5em 0.7em;
+border: 1px solid var(--border);
+border-radius: 6px;
+margin: 0.4em 0;
+background: var(--code-bg);
+}
+.review-index li.master {
+border-left: 4px solid var(--good);
+font-weight: 600;
+}
+.review-index li.note {
+border-left: 4px solid var(--warn);
+font-style: italic;
+background: transparent;
+font-size: 0.9em;
+}
+.size {
+color: var(--fg-muted);
+font-size: 0.85em;
+float: right;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">BO #140 — Pipelines</h1>
+</header>
+<h1 id="pr-140--pipeline--service-flows">PR #140 — Pipeline / Service
+Flows</h1>
+<p>Inner pipeline+service flows triggered by HTTP/WS/scheduled entries.
+Branch <code>dev-coverage-and-odds-impro</code> → <code>dev</code>.</p>
+<h2 id="summary">Summary</h2>
+<ul>
+<li>New service flows: 8 (P-CAL, P-PLAYER-CAL, P-CLUSTER, P-MARKET,
+P-REFIT, P-EXP, P-LINEUP, P-SIM-CAL).</li>
+<li>Modified pipeline branches: 6 (P-FIT, P-ZAP, P-ZAP-BATCH, P-PARLAY,
+P-TEAMPROP/ZAT, P-LIVE).</li>
+<li>New <code>@traced</code> spans: 1
+(<code>simulation.simulate_match_calibrated</code>
+<code>simulation.py:43</code>).</li>
+</ul>
+<h2 id="flow-walks">Flow walks</h2>
+<h3 id="p-fit-pipeline-startup-fit--market-calibration-modified">P-FIT:
+pipeline-startup fit + market calibration (MODIFIED)</h3>
+<ul>
+<li>Trigger: DI <code>ws_dependencies.py:286</code> per group; also from
+P-REFIT.</li>
+<li><code>MainPredictionPipeline.fit_models</code>
+<code>main_pipeline.py:725</code>
+(<code>@traced pipeline.fit_models</code>) →
+<code>player_pipeline.fit_model</code>
+<code>player_action_pipeline.py:385</code> →
+<code>team_pipeline.fit_model</code>
+<code>team_model_pipeline.py:386</code>. If
+<code>use_market_calibration</code>, ordered loop over
+<code>calibration_order=[h2h,totals,spreads]</code> calling
+<code>team_pipeline.calibrate_with_market_odds/_totals_odds/_spreads_odds</code>
+<code>:768-1020</code>; per-game errors &gt;
+<code>max_game_calibration_error</code> populate
+<code>_rejected_game_ids</code> (consumed at request time). NEW:
+<code>_fit_cluster_model</code> <code>:1471</code> and
+<code>_fit_lineup_model</code> <code>:1396</code> (Redis-cached). NEW:
+<code>calibrate_player_props</code> <code>:1118</code> (binomial-error
+gradient against player model).</li>
+</ul>
+<h3 id="p-zap-single-leg-zap-probability-modified">P-ZAP: single-leg ZAP
+probability (MODIFIED)</h3>
+<ul>
+<li>Trigger: F12 → <code>pipeline.get_prob_for_zap</code>
+<code>main_pipeline.py:2024</code>
+(<code>@traced pipeline.get_prob_for_zap</code>).</li>
+<li>(1) Redis GET <code>pricing_block:{gid}:{pid}:{action}</code>
+<code>:2065-89</code> (extreme-policy sentinel; if set return
+<code>None</code>). (2) <code>PricingContext(self, gid)</code>
+<code>:2119</code> + <code>_ensure_adj()</code> once → loads
+<code>MatchCalibrationAdjustment</code> from
+<code>match_cal_adj:{gid}</code> via <code>_get_match_calibration</code>
+<code>:237</code> (TTL-cached). (3)
+<code>player_prob_fingerprint(adj, pid, action)</code> mixed into key
+(URA-T19). (4) GET <code>prob:zap:...:adj=&lt;fp&gt;</code> (TTL
+≈15min). (5) Miss → <code>_sample_player_counts</code>
+<code>:2252</code>: team_totals from P-SIM-CAL ×
+<code>player_pipeline.model.predict</code> × <code>zonal_prob</code> ×
+cluster blend × <code>lineup_weight=expected_minutes/90</code>. (6)
+<code>rng.binomial(n=team_totals, p=effective_rate)</code> vs line.</li>
+</ul>
+<h3 id="p-zap-batch-builder-all-zap-modified">P-ZAP-BATCH: builder
+all-ZAP (MODIFIED)</h3>
+<ul>
+<li>BuilderService → <code>pipeline.get_all_zap_odds_for_game</code>
+<code>batch_zap.py:690</code>
+(<code>@traced batch_zap.get_all_zap_odds_for_game</code>). Cache key
+<code>builder:all_zap:...:adj={full_adj_fingerprint}</code>
+<code>:719</code> (URA-T33). <code>_ensure_models_loaded</code> gate
+<code>:730</code> (URA-T30: returns <code>[]</code>+WARN if unfit, vs
+prior silent simulate). Single
+<code>simulate_match_calibrated(gid, n_simulations=3000, actions=all)</code>
+<code>:770</code> (was <code>simulate_match</code>, URA-T17), vectorized
+eval over <code>(player, action, line)</code>.</li>
+</ul>
+<h3 id="p-parlay-parlay-leg-pricing-modified">P-PARLAY: parlay leg
+pricing (MODIFIED)</h3>
+<ul>
+<li>Trigger: F10/F11 → <code>GetOddsForBet.get_odds_for_parlay</code>
+<code>odds_service.py:1416</code> →
+<code>_get_pipeline_parlay_odds</code> <code>:1474</code> →
+<code>pipeline.get_odds_for_parlay_bet</code>
+<code>parlay_odds.py:1592</code>
+(<code>@traced parlay.get_odds_for_parlay_bet</code>).</li>
+<li><code>parlay_validator.validate(game_ids)</code>
+<code>live_policy.py:383</code> → reject ended → split live vs pre-match
+<code>odds_service.py:1430-50</code>. Live →
+<code>_get_live_parlay_odds</code> (matches picks against
+<code>live_odds:{gid}</code> snapshot). Pre-match: build one
+<code>PricingContext</code> per game_id
+<code>parlay_odds.py:1634-55</code> (URA-T4, every leg shares one adj
+snapshot), embed <code>full_adj_fingerprint</code> per game in cache key
+<code>:1664</code> (TTL 30s). Per game
+<code>_get_odds_for_match_parlay(bets, gid, ctx=...)</code> calls
+<code>simulate_match_calibrated</code> (was <code>simulate_match</code>)
+and <code>PricingContext.get_player_rate</code> for ZAP legs.
+Cross-match product clamped at <code>max_odds_multiplier</code>.</li>
+</ul>
+<h3 id="p-sim-cal-calibrated-match-simulation-new">P-SIM-CAL: calibrated
+match simulation (NEW)</h3>
+<ul>
+<li>Used by P-ZAP, P-ZAP-BATCH, P-PARLAY, P-TEAMPROP-1.</li>
+<li><code>SimulationEngine.simulate_match_calibrated</code>
+<code>simulation.py:43</code>. Reads adj via
+<code>pipeline._get_match_calibration</code> →
+<code>team_lambda_fingerprint(adj)</code> → key
+<code>odds:sim:calibrated:{gid}:{actions}:adj={fp}_v2</code>. Per-action
+confidence-blended lambdas <code>λ_final = c·factor + (1−c)·1.0</code>
+(<code>_apply_match_cal_lambda</code> <code>main_pipeline.py:270</code>)
+feed <code>simulate_team_actions_with_lambdas</code> (vine copula
+sampling from calibrated marginals — pre-PR fed raw lambdas and
+post-hoc-multiplied). Cache JSON <code>CacheTTL.SIMULATION</code> ≈5min.
+Distinct namespace from <code>simulate_match</code>.</li>
+</ul>
+<h3 id="p-cal-per-match-calibration-sweep-new">P-CAL: per-match
+calibration sweep (NEW)</h3>
+<ul>
+<li>Trigger: F19 (<code>run_match_calibration_check</code>
+<code>tasks.py:1133</code>, every 120s).</li>
+<li><code>MatchCalibrationService.calibrate_match(gid, home, away, trigger_type)</code>
+<code>match_calibration_service.py:549</code>. Gate on
+<code>is_match_calibration_enabled</code> +
+<code>_is_on_cooldown</code>. Resolve pipeline via injected router. Base
+lambdas <code>team_pipeline.model.predict_team_mean(...,&quot;goals&quot;)</code>.
+<code>_load_market_moneyline_probs</code> from Redis
+<code>live_odds:{gid}</code> <code>:892</code> (URA-T31: missing key now
+degrades to identity factors instead of short-circuit). Compute
+<code>_divergence(model_probs, market_probs)</code>; if ≥
+<code>MATCH_CALIBRATION_DIVERGENCE_THRESHOLD</code> run
+<code>_optimise_factors</code> <code>:813</code> (scalar sq-error min);
+confidence = <code>max(floor, 1 − residual/divergence)</code>. Player
+props (P-PLAYER-CAL) and <code>_calibrate_team_props</code>
+<code>:1617</code> (corners/cards μ optimisation) run unconditionally
+(URA-T27). URA-T27 guard <code>:701</code>: if moneyline agrees AND no
+player adj AND no team adj → <code>None</code>. Else build
+<code>MatchCalibrationAdjustment(home/away_lambda_factor, confidence, player_adjustments[str_pid][action]=factor, team_adjustments)</code>;
+SET <code>match_cal_adj:{gid}</code> (TTL ~30min) + cooldown. Optional
+<code>pricing_block:*</code> sentinels via
+<code>_apply_extreme_policy</code> <code>:294</code>.</li>
+</ul>
+<h3 id="p-player-cal-per-player-prop-calibration-new">P-PLAYER-CAL:
+per-player prop calibration (NEW)</h3>
+<ul>
+<li><code>_calibrate_player_props</code>
+<code>match_calibration_service.py:1119</code>.
+<code>_load_player_props_from_redis(gid)</code> <code>:1512</code>
+(URA-T21: Redis-only, never DB). <code>resolve_unmatched_odds</code>
+maps API names → internal <code>player_id</code>. Per (player, action):
+<code>_get_fitted_r</code> <code>:966</code>, devig market via
+<code>devig_power</code>, infer implied rate, derive multiplicative
+factor; clamp <code>[0.3, 3.0]</code>; warn outside
+<code>[0.4, 2.5]</code> with structured
+<code>(pid, action, factor)</code>. Returns
+<code>{str(pid): {action: factor}}</code>.</li>
+</ul>
+<h3 id="p-teamprop--p-zat-modified">P-TEAMPROP / P-ZAT (MODIFIED)</h3>
+<ul>
+<li>F12 → <code>pipeline.get_odds_for_team_props</code>
+<code>main_pipeline.py:3323</code> and
+<code>pipeline.get_odds_for_zat</code> <code>:3373</code>.
+<code>get_probs_for_team_props</code> <code>:3104</code> cached at
+<code>team_props:{gid}:{zones}:unified_vig</code>. NEW analytical fast
+path <code>_get_team_props_analytical</code> <code>:3038</code> for
+full-pitch — Poisson outer-product after
+<code>_apply_match_cal_lambda(gid, λ, is_home)</code>
+<code>:3061-62</code> (~0.1ms vs 374ms sim). Apply
+<code>_apply_vig_odds_power</code>, filter by min/max odds. ZAT:
+<code>_get_team_action_rate × zonal_pipeline.get_combined_zonal_probs</code>;
+goals action gets <code>_apply_match_cal_lambda</code>
+<code>:3422-24</code> before zonal product.</li>
+</ul>
+<h3 id="p-live-live-odds-read-modified">P-LIVE: live odds read
+(MODIFIED)</h3>
+<ul>
+<li>F12 when <code>_is_live_priceable</code> →
+<code>_get_live_odds_from_redis</code> <code>odds_service.py:449</code>.
+Simulate-mode override returns <code>_get_cached_simulated_odds</code>
+<code>:460-64</code>. GET <code>live_odds:{gid}</code>; missing →
+<code>NO_COVERAGE</code> vs <code>PENDING</code> via
+<code>_has_historical_odds</code> (DB). Reject if
+<code>age &gt; LIVE_BETTING_POLICY.freshness_threshold_seconds</code> →
+<code>STALE</code>. <code>LiveOddsService.get_team_props</code>
+<code>live_odds_service.py:91</code> reformats moneyline/totals/spreads
+with power-vig (hold/gamma from pipeline config).</li>
+</ul>
+<h3 id="p-market-batch-market-odds-blend-new">P-MARKET: batch
+market-odds blend (NEW)</h3>
+<ul>
+<li>F13 → <code>MarketOddsService.get_market_odds_batch(game_ids)</code>
+<code>market_odds_service.py:155</code>
+(<code>@flow_traced Flow.DATA_INFO</code>). Pipelined
+<code>redis_cache.mget(market_odds:{gid})</code>; cached entries with
+<code>_game_date</code> invalidate when game crosses
+<code>_is_live_window</code> (5min before kickoff). Misses partition
+into live/pregame via <code>_lookup_game_info</code>. Live →
+<code>_fetch_live_kalshi_batch</code> <code>:401</code> reads
+<code>live_odds:{gid}</code>, <code>_is_payload_fresh</code>,
+<code>_extract_kalshi_from_payload</code>,
+<code>_apply_vig_to_summary</code>; misses <em>omitted</em> (not None)
+so Backend-Server <code>if bet_type in odds_data</code> doesn&#39;t
+TypeError. Pregame →
+<code>_compute_analytical(pipeline, gid, home, away)</code>
+<code>:552</code> (Poisson); cache write embeds <code>_game_date</code>.
+Live entries NOT written to <code>market_odds:*</code> (live_odds:{gid}
+canonical). <code>MarketOddsApiService</code>
+(<code>market_odds_api_service.py:83</code>) — DTOs used but no
+caller.</li>
+</ul>
+<h3 id="p-cluster-new">P-CLUSTER (NEW)</h3>
+<ul>
+<li>Fit (P-FIT step):
+<code>PlayerClusterFitter.fit_all_players_with_priors</code>
+<code>cluster_models/fitter.py:254</code> over <code>zonal_repo</code> →
+<code>AllPlayerClusters</code> JSON cached
+<code>cluster_model:per_player_params</code> (TTL ~3600s).</li>
+<li>Blend (P-ZAP step): <code>_get_cluster_action_rate</code>
+<code>main_pipeline.py:1790</code> returns
+<code>(rate, variance, confidence, source∈{confirmed,predicted,missing,history})</code>
+via <code>PlayerClusterPredictor.predict_from_stats_with_lineup</code>
+<code>cluster_models/predictor.py:565</code>. In
+<code>_sample_player_counts</code> <code>:2376-2433</code>: alpha =
+<code>cluster_model_lineup_alpha</code> (0.7) for
+confirmed/predicted/missing else <code>cluster_model_blend_alpha</code>
+(0.3);
+<code>effective = (1−α)·zonal·rate + α·min(cluster_rate·zonal, 1)</code>.
+Variance cached in <code>_cluster_variance_cache[pid]</code> for vig
+widening.</li>
+</ul>
+<h3 id="p-refit-blue-green-pipeline-refit-new">P-REFIT: blue-green
+pipeline refit (NEW)</h3>
+<ul>
+<li>F5 →
+<code>RefitManager.start_refit(group, force, calibrate, calibrate_player_props)</code>
+<code>refit_manager.py:67</code>. Per-group <code>threading.Lock</code>
+(lazy via <code>_locks_guard</code>); running → 409. Daemon
+<code>_refit_worker</code> → <code>_run_refit</code> <code>:144</code>:
+re-read seasons via
+<code>pipeline_config_repo.get_seasons_for_group</code> (Issue 1), build
+new <code>MainPipelineConfig</code> from
+<code>current_config.to_dict()</code> + overrides (Issue 2),
+<code>create_pipeline_fn(new_config).fit_models(force_refit=force)</code>
+(calls P-FIT). URA-T30: <code>_ensure_models_loaded()=False</code> →
+FAILED, no swap. <code>_validate_pipeline</code> <code>:273</code> runs
+<code>predict_match</code> smoke on 3 recent games
+(<code>home/away ∈ [0.1,5.0]</code>, <code>n_teams≥4</code>). Success →
+atomic <code>self.pipelines[group] = new_pipeline</code> → SWAPPED.</li>
+</ul>
+<h3 id="p-exp-exposure-snapshot-flush-new">P-EXP: exposure-snapshot
+flush (NEW)</h3>
+<ul>
+<li>F22 (<code>exposure_task</code> 300s, <code>app.py:325</code>) →
+<code>asyncio.to_thread(ExposureService.flush_snapshots)</code>
+<code>exposure_service.py:143</code>.
+<code>SCAN_ITER match=exposure:match:*</code> (cluster-safe per-node).
+Per match <code>HGETALL</code> →
+<code>(bet_count, total_stake, single_stake, parlay_stake)</code>; build
+<code>ExposureSnapshots</code> ORM row (var95/var99 placeholder 0.0);
+bulk INSERT.</li>
+</ul>
+<h3 id="p-lineup-lineup-change-detection-new">P-LINEUP: lineup-change
+detection (NEW)</h3>
+<ul>
+<li>F18 per game → <code>LineupChangeDetector.detect(new_lineup)</code>
+<code>lineup_change_detector.py:139</code>. GET Redis
+<code>lineup:{gid}</code> (24h TTL); set-diff over starters+bench
+(starter↔︎bench swaps count); on diff SET cache, return
+<code>(diff, True)</code> for caller to upsert + Kafka publish.</li>
+</ul>
+<h2 id="cross-cutting">Cross-cutting</h2>
+<ul>
+<li><code>PricingContext</code> (<code>pricing_context.py</code>)
+snapshots adj exactly once per (pipeline, game), threaded through all
+three ZAP paths + parlay — closes URA-T17/T19 staleness class.</li>
+<li><code>cache_fingerprint.py</code>
+(<code>team_lambda_fingerprint</code>,
+<code>player_prob_fingerprint</code>, <code>full_adj_fingerprint</code>)
+mixes only the adj slice each cache reads, keeping hit rate while
+preventing mid-window staleness.</li>
+<li><code>vig_policy.apply_power_vig</code> is the new single source for
+power-vig math (consumed by <code>MarketOddsService</code>,
+<code>GetOddsForBet</code>,
+<code>MainPredictionPipeline._apply_vig_odds_power</code>); deduplicates
+three prior copies.</li>
+</ul>
+</body>
+</html>

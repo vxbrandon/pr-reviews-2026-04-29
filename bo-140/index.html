@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>BO #140 — PR Review Index</title>
+  <style>
+    @viewport { width: device-width; initial-scale: 1; }
+    :root {
+      --bg: #0d1117; --fg: #c9d1d9; --fg-muted: #8b949e; --border: #30363d;
+      --link: #58a6ff; --code-bg: #161b22; --good: #3fb950; --warn: #f0883e;
+      --danger: #f85149; --header: #f0f6fc;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #ffffff; --fg: #1f2328; --fg-muted: #59636e; --border: #d1d9e0;
+        --link: #0969da; --code-bg: #f6f8fa; --good: #1a7f37; --warn: #bf8700;
+        --danger: #cf222e; --header: #1f2328;
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      font-size: 16px; line-height: 1.6; -webkit-text-size-adjust: 100%; }
+    body { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 4rem; }
+    h1 { color: var(--header); border-bottom: 1px solid var(--border); padding-bottom: 0.3em; font-size: 1.5rem; }
+    h2 { color: var(--header); font-size: 1.15rem; margin-top: 1.6em; }
+    a { color: var(--link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 0.65em 0.8em; border: 1px solid var(--border); border-radius: 8px;
+      margin: 0.5em 0; background: var(--code-bg); }
+    li.master { border-left: 4px solid var(--good); font-weight: 600; }
+    li.warn { border-left: 4px solid var(--warn); }
+    li.note { border-left: 4px solid var(--warn); font-style: italic;
+      background: transparent; font-size: 0.9em; }
+    .size { color: var(--fg-muted); font-size: 0.85em; float: right; }
+    .desc { display: block; color: var(--fg-muted); font-size: 0.85em; font-weight: normal; margin-top: 0.2em; }
+    .verdict { padding: 0.8em 1em; background: var(--code-bg); border-left: 4px solid var(--danger);
+      border-radius: 6px; margin: 1em 0; }
+    @media (max-width: 600px) { body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; } }
+  </style>
+</head>
+<body>
+  <h1>Backend-Odds PR #140 — Review</h1>
+  <p><em>Branch <code>dev-coverage-and-odds-impro</code> → <code>dev</code> · 225 commits · 330 files · +88,029 / −2,160 · audited 2026-04-29.</em></p>
+
+  <div class="verdict"><strong>Verdict: REQUEST CHANGES.</strong> 3 hard blockers (entrypoint auto-migrations, hardcoded prod creds, env-var drift) + critical CI gap (73 new unit tests not invoked by any PR-to-dev workflow).</div>
+
+  <h2>Start here</h2>
+  <ul>
+    <li class="master"><a href="2026-04-29-pr-140-review.html">Master review</a><span class="size">47 KB</span><span class="desc">TL;DR · theme tree · flows · arch · tests · risks · verdict</span></li>
+  </ul>
+
+  <h2>Flows (with arrows)</h2>
+  <ul>
+    <li><a href="_pr-140-flows.html">Flow inventory (synthesized)</a><span class="size">65 KB</span><span class="desc">Hierarchical: HTTP / WS / Tasks+Kafka / Pipelines + cross-class W1–W4 walks with ASCII arrows</span></li>
+    <li><a href="_pr-140-flows-http.html">HTTP / REST</a><span class="size">24 KB</span></li>
+    <li><a href="_pr-140-flows-ws.html">WebSocket</a><span class="size">17 KB</span></li>
+    <li><a href="_pr-140-flows-tasks.html">Scheduled + Kafka</a><span class="size">20 KB</span></li>
+    <li><a href="_pr-140-flows-pipelines.html">Pipelines / service workers</a><span class="size">18 KB</span></li>
+    <li class="note"><a href="_pr-140-flows-v1.html">v1 backup</a><span class="size">26 KB</span><span class="desc">first-pass unified report; superseded by the synthesized one above</span></li>
+  </ul>
+
+  <h2>Architecture</h2>
+  <ul>
+    <li><a href="_pr-140-arch.html">Service surface · repos · migrations · DTOs · decisions</a><span class="size">43 KB</span></li>
+  </ul>
+
+  <h2>Tests</h2>
+  <ul>
+    <li><a href="_pr-140-tests.html">Test audit (synthesized)</a><span class="size">28 KB</span><span class="desc">implemented vs missing vs CI gap</span></li>
+    <li><a href="_pr-140-tests-unit.html">Unit tests</a><span class="size">27 KB</span></li>
+    <li><a href="_pr-140-tests-integration.html">Integration / flow tests</a><span class="size">20 KB</span></li>
+    <li><a href="_pr-140-tests-gaps.html">Coverage gaps</a><span class="size">24 KB</span></li>
+  </ul>
+
+  <h2>Risks &amp; blockers</h2>
+  <ul>
+    <li class="warn"><a href="_pr-140-risk.html">Flow-correctness risk audit (redacted)</a><span class="size">29 KB</span><span class="desc">3 blockers · 6 strong concerns · 5 cross-repo flow-contract risks. Prod RDS password redacted in this HTML — see local <code>_pr-140-risk.md</code> for the original.</span></li>
+  </ul>
+</body>
+</html>

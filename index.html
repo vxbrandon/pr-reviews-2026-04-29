@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>PR Reviews — 2026-04-29</title>
+  <style>
+    @viewport { width: device-width; initial-scale: 1; }
+    :root {
+      --bg: #0d1117; --fg: #c9d1d9; --fg-muted: #8b949e; --border: #30363d;
+      --link: #58a6ff; --code-bg: #161b22; --good: #3fb950; --warn: #f0883e;
+      --danger: #f85149; --header: #f0f6fc;
+    }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #ffffff; --fg: #1f2328; --fg-muted: #59636e; --border: #d1d9e0;
+        --link: #0969da; --code-bg: #f6f8fa; --good: #1a7f37; --warn: #bf8700;
+        --danger: #cf222e; --header: #1f2328;
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      font-size: 16px; line-height: 1.6; -webkit-text-size-adjust: 100%; }
+    body { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem 4rem; }
+    h1 { color: var(--header); border-bottom: 1px solid var(--border); padding-bottom: 0.3em; font-size: 1.5rem; }
+    h2 { color: var(--header); font-size: 1.15rem; margin-top: 1.6em; }
+    a { color: var(--link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .card { padding: 1em 1.1em; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--code-bg); margin: 1em 0; }
+    .card.bo { border-left: 4px solid #58a6ff; }
+    .card.bs { border-left: 4px solid #f0883e; }
+    .card h3 { margin: 0 0 0.3em 0; font-size: 1.1rem; color: var(--header); }
+    .card .meta { color: var(--fg-muted); font-size: 0.85em; }
+    .card .verdict { color: var(--danger); font-weight: 600; font-size: 0.95em; margin: 0.5em 0; }
+    .card a.go { display: inline-block; margin-top: 0.6em; padding: 0.5em 1em;
+      background: var(--link); color: white; border-radius: 6px; font-weight: 600; }
+    .card a.go:hover { text-decoration: none; opacity: 0.9; }
+    .footer { color: var(--fg-muted); font-size: 0.85em; margin-top: 2em; border-top: 1px solid var(--border); padding-top: 1em; }
+    @media (max-width: 600px) { body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; } }
+  </style>
+</head>
+<body>
+  <h1>PR Reviews — 2026-04-29</h1>
+  <p>Hierarchical multi-agent reviews for the cross-repo <code>dev-coverage-and-odds-impro</code> branch. Two PRs share infrastructure (Kafka topics, Redis keys), so the merge order matters — see each verdict.</p>
+
+  <div class="card bo">
+    <h3>Backend-Odds #140</h3>
+    <div class="meta">225 commits · 330 files · +88,029 / −2,160 · 5 workstreams W1–W5 + audit-fix</div>
+    <div class="verdict">Verdict: REQUEST CHANGES — 3 hard blockers + critical CI gap.</div>
+    <p>Adds: odds-request analytics (W1), match calibration (W2), scheduled odds fetch (W3), lineup scraping (W4), cluster model (W5), source-aware data plane, new <code>ext_odds</code> Postgres schema (23 tables), service-folder reorg, admin/data-health/migration routers.</p>
+    <a href="bo-140/" class="go">Open BO #140 review →</a>
+  </div>
+
+  <div class="card bs">
+    <h3>Backend-Server #668</h3>
+    <div class="meta">426 files · +89,277 / −10,784 · 4 features bundled</div>
+    <div class="verdict">Verdict: REQUEST CHANGES — 4 hard / 5 soft blockers; destructive dedup migration.</div>
+    <p>Adds: SofaScore coverage v1 (17+ <code>sf_*</code> tables, 32 GET routes), odds-microservice client latency fixes, Kafka producer scaffolding (<code>odds.odds_requests</code>), security hardening (SECURE_COOKIES, OTP rate-limit).</p>
+    <a href="bs-668/" class="go">Open BS #668 review →</a>
+  </div>
+
+  <h2>Cross-repo merge order</h2>
+  <ol>
+    <li>Lock Kafka topic schemas in <code>specs/</code> (BO X1).</li>
+    <li>Merge BO #140 first (with 3 blockers fixed) — it owns the producer + Redis keys BS reads.</li>
+    <li>Verify in stage with <code>ODDS_FETCH_ENABLED=false</code> and <code>LINEUP_SCRAPER_ENABLED=false</code>.</li>
+    <li>Merge BS #668 (with 4 blockers fixed).</li>
+  </ol>
+
+  <p class="footer">
+    Audited 2026-04-29 by hierarchical multi-agent team (all leaves on Opus). Prod RDS password redacted from the BO risk doc HTML; original markdown on local disk for the team. Sub-reports linked from each PR's index.
+  </p>
+</body>
+</html>

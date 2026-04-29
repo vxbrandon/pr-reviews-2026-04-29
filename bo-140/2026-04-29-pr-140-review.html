@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>BO #140 — Master Review</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">@viewport { width: device-width; initial-scale: 1; }
+:root {
+--bg: #0d1117;
+--fg: #c9d1d9;
+--fg-muted: #8b949e;
+--border: #30363d;
+--link: #58a6ff;
+--code-bg: #161b22;
+--table-stripe: #161b22;
+--warn: #f0883e;
+--danger: #f85149;
+--good: #3fb950;
+--header: #f0f6fc;
+}
+@media (prefers-color-scheme: light) {
+:root {
+--bg: #ffffff;
+--fg: #1f2328;
+--fg-muted: #59636e;
+--border: #d1d9e0;
+--link: #0969da;
+--code-bg: #f6f8fa;
+--table-stripe: #f6f8fa;
+--warn: #bf8700;
+--danger: #cf222e;
+--good: #1a7f37;
+--header: #1f2328;
+}
+}
+* { box-sizing: border-box; }
+html, body {
+margin: 0;
+padding: 0;
+background: var(--bg);
+color: var(--fg);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+font-size: 16px;
+line-height: 1.6;
+-webkit-text-size-adjust: 100%;
+}
+body {
+max-width: 900px;
+margin: 0 auto;
+padding: 1.25rem 1rem 4rem;
+}
+h1, h2, h3, h4, h5, h6 {
+color: var(--header);
+margin-top: 1.6em;
+margin-bottom: 0.6em;
+line-height: 1.25;
+font-weight: 600;
+}
+h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.0rem; }
+p { margin: 0.6em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+code {
+background: var(--code-bg);
+padding: 0.15em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+font-size: 0.875em;
+word-break: break-word;
+}
+pre {
+background: var(--code-bg);
+padding: 0.85rem;
+border-radius: 6px;
+overflow-x: auto;
+font-size: 0.825em;
+line-height: 1.5;
+border: 1px solid var(--border);
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+blockquote {
+border-left: 4px solid var(--border);
+margin: 1em 0;
+padding: 0.4em 1em;
+color: var(--fg-muted);
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1em 0;
+font-size: 0.9em;
+display: block;
+overflow-x: auto;
+}
+th, td {
+border: 1px solid var(--border);
+padding: 0.4em 0.7em;
+text-align: left;
+vertical-align: top;
+}
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(2n) { background: var(--table-stripe); }
+hr {
+border: none;
+border-top: 1px solid var(--border);
+margin: 2em 0;
+}
+
+@media (max-width: 600px) {
+body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; }
+h1 { font-size: 1.45rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+pre { font-size: 0.78em; padding: 0.6rem; }
+table { font-size: 0.82em; }
+th, td { padding: 0.3em 0.5em; }
+}
+
+.review-index {
+list-style: none;
+padding: 0;
+}
+.review-index li {
+padding: 0.5em 0.7em;
+border: 1px solid var(--border);
+border-radius: 6px;
+margin: 0.4em 0;
+background: var(--code-bg);
+}
+.review-index li.master {
+border-left: 4px solid var(--good);
+font-weight: 600;
+}
+.review-index li.note {
+border-left: 4px solid var(--warn);
+font-style: italic;
+background: transparent;
+font-size: 0.9em;
+}
+.size {
+color: var(--fg-muted);
+font-size: 0.85em;
+float: right;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">BO #140 — Master Review</h1>
+</header>
+<h1 id="pr-140--backend-odds-dev-coverage-and-odds-impro-review">PR #140
+— Backend-Odds <code>dev-coverage-and-odds-impro</code> Review</h1>
+<blockquote>
+<p>Read this top-down. The big picture and flow inventory live in §1–§3.
+Per-area details and links into the sub-reports are §4–§5. Tests in §6.
+Risks &amp; blockers (with merge gating) in §7. Summary verdict in
+§8.</p>
+</blockquote>
+<hr />
+<h2 id="1-tldr">1. TL;DR</h2>
+<p><strong>Recommendation: REQUEST CHANGES.</strong> Substantial value
+(5 named workstreams W1–W5 + audit-fix loop + SF data-plane
+integration), but bundled with three hard blockers and a serious
+testing/CI gap. None of the blockers are deep — they are small
+mechanical fixes — so resolution before merge is realistic.</p>
+<table>
+<thead>
+<tr>
+<th>Headline</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Commits ahead of <code>dev</code></td>
+<td>225</td>
+</tr>
+<tr>
+<td>Files changed</td>
+<td>330</td>
+</tr>
+<tr>
+<td>Lines</td>
+<td>+88,029 / −2,160</td>
+</tr>
+<tr>
+<td>New flows inventoried</td>
+<td>35 NEW + 21 MODIFIED across HTTP / WS / scheduled / pipeline
+classes</td>
+</tr>
+<tr>
+<td>Migrations added</td>
+<td>6 (4 substantive + 2 merge heads); 1 NEW alembic env
+(<code>alembic_ext_odds/</code>) with greenfield <code>ext_odds</code>
+schema (23 tables)</td>
+</tr>
+<tr>
+<td>New env vars</td>
+<td>33 (in <code>.required-env</code>)</td>
+</tr>
+<tr>
+<td>New service modules</td>
+<td>11</td>
+</tr>
+<tr>
+<td>New tests</td>
+<td>79 files (<code>tests/unit/</code> is the bulk)</td>
+</tr>
+<tr>
+<td><strong>Hard blockers</strong></td>
+<td><strong>3</strong> (entrypoint default migrations, hardcoded prod
+RDS creds, env-var drift)</td>
+</tr>
+<tr>
+<td><strong>Strong concerns</strong></td>
+<td><strong>6</strong> (mostly observability/flow-correlation gaps)</td>
+</tr>
+<tr>
+<td><strong>CI gap</strong></td>
+<td>The 73 new unit tests are not invoked by any PR-to-<code>dev</code>
+workflow</td>
+</tr>
+</tbody>
+</table>
+<p>The work clusters into <strong>5 workstreams</strong> (W1–W5) plus a
+parallel audit-fix loop. Each ships its own service module, scheduled
+task, and Kafka or Redis surface — the size of the diff comes from doing
+all of them together (plus the SF coverage data plumbing) on one
+branch.</p>
+<h2 id="2-theme-tree">2. Theme tree</h2>
+<pre><code>PR #140 ─┬── ① W1 — Odds request analytics
+         │     ├── new Kafka producer  odds.odds_requests   (acks=1, linger 50ms)
+         │     ├── consumer pair       application/service/info/request_analytics_service.py
+         │     ├── REST emit sites     /get_parlay_odds, /get_parlay_expected_profit, /builder/.../all-odds
+         │     └── Redis aggregates    req_analytics:match:{gid}, req_analytics:user_activity (HLL/ZADD)
+         │
+         ├── ② W2 — Match calibration
+         │     ├── new service         calibration/match_calibration_service.py  (~2,000 LOC)
+         │     ├── scheduled loop      run_match_calibration_check (120s)
+         │     ├── Redis adj cache     match_cal_adj:{gid}  (TTL 30 min)
+         │     ├── new helper          PricingContext  (snapshots adj once per request)
+         │     └── extreme-policy alerts via Redis ZSET
+         │
+         ├── ③ W3 — Scheduled odds fetch
+         │     ├── new task            run_scheduled_odds_fetch (300s, gated)
+         │     └── 3 sequential stages  Odds API → Kalshi → player props
+         │
+         ├── ④ W4 — Lineup scraping
+         │     ├── new task            run_lineup_scraper (adaptive 120s base)
+         │     ├── new service         lineup/lineup_change_detector.py
+         │     ├── new producer        odds.lineup_updates  (idempotent, lz4)
+         │     ├── new consumer        infrastructure/kafka/lineup_consumer.py  (DEAD — never .start()&#39;d)
+         │     └── new repo            core/data/data_access/lineup_training_repository.py
+         │
+         ├── ⑤ W5 — Lineup-aware cluster model
+         │     ├── new model module    core/prediction_models/cluster_models/  (~2.5K LOC)
+         │     └── blend in P-ZAP      cluster_model_lineup_alpha (0.7 confirmed/predicted/missing) vs blend_alpha (0.3)
+         │
+         ├── ⑥ Source-aware data plane (SF coverage integration)
+         │     ├── alembic q2r3s4t5u6v7  add `source` columns + PK swap on match_statistics, player_statistics
+         │     ├── alembic s4t5u6v7w8x9  add `source` to lineups
+         │     ├── alembic r3s4t5u6v7w8  new sf_match_statistics table + DELETE zombie SF rows from match_statistics
+         │     ├── new helpers          core/data/event_source.py, lineup_source_priority.py
+         │     └── widened repos        games, match_statistics, player_statistics, mom, players, lineups
+         │
+         ├── ⑦ NEW persistence subsystem — ext_odds
+         │     ├── alembic_ext_odds/    full new env (compare_type=True, compare_server_default=True)
+         │     ├── 23 tables in `ext_odds` SCHEMA  (greenfield baseline f0a1b2c3d4e5)
+         │     └── feeds the Backend-Server live-odds reader
+         │
+         ├── ⑧ Admin / observability hardening
+         │     ├── new routers         auth, admin (cache+migration+config), data_health, pipeline_admin
+         │     ├── new service         info/data_completeness_service.py    (drives /admin/data-health)
+         │     ├── new service         info/migration_service.py             (drives /admin/migrate/{league})
+         │     ├── new service         calibration/refit_manager.py (blue-green refit saga)
+         │     └── observability       17 admin routes drop into &quot;&quot; flow (no ROUTE_TO_FLOW prefix); no @flow_traced on new services
+         │
+         ├── ⑨ Service taxonomy reorg
+         │     └── application/service/{odds, calibration, backtest, betting, lineup, info}/  (21 services, history preserved)
+         │
+         └── ⑩ Audit-fix loop output
+               ├── ~28K lines of architecture audit MD/HTML across 6 sections
+               ├── unified rate access (URA) cache-key + PricingContext fixes (T4/T17/T19/T21/T27/T30/T31/T33)
+               └── pricing-pipeline + cluster-model PRs from the audit dropped on this branch</code></pre>
+<hr />
+<h2 id="3-flows-full-hierarchical-inventory-in-outputs_pr-140-flowsmd">3.
+Flows (full hierarchical inventory in <a href="_pr-140-flows.html"><code>outputs/_pr-140-flows.md</code></a>)</h2>
+<h3 id="31-summary">3.1 Summary</h3>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th style="text-align: right;">New</th>
+<th style="text-align: right;">Modified</th>
+<th style="text-align: right;">Removed</th>
+<th style="text-align: right;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A. HTTP / REST</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td>B. WebSocket</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3 (import-only)</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3 (touched)</td>
+</tr>
+<tr>
+<td>C. Scheduled tasks + Kafka</td>
+<td style="text-align: right;">6 tasks, 2 producers, 2 consumers</td>
+<td style="text-align: right;">1 consumer</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr>
+<td>D. Pipelines / service workers</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">14</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>35 NEW, 21 MODIFIED</strong></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"><strong>~58</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-class-a--http-routes-highlights">3.2 Class A — HTTP routes
+(highlights)</h3>
+<p>The 19 new routes split: 13 admin/cache/config/migration, 1 auth
+issuer, 2 data-health, 3 pipeline-admin (assign-and-fit / post-process /
+calibrate-player-props). The 11 modified are a mix of: (a)
+parlay/builder endpoints emitting <code>OddsRequestEvent</code> for W1,
+(b) import-only renames from the service-folder reorg.</p>
+<p>Full router-by-router table in <a href="_pr-140-flows-http.html"><code>_pr-140-flows-http.md</code></a>.
+Notable walks:</p>
+<ul>
+<li><strong>F-HTTP-22 <code>POST /get_parlay_odds</code></strong> —
+emits per-leg <code>OddsRequestEvent</code>
+(<code>odds.py:181-194</code>), then routes to
+<code>GetOddsForBet.get_odds_for_&lt;type&gt;</code> and on into the
+parlay pipeline. Cited as W1 in <a href="_pr-140-flows.html"><code>_pr-140-flows.md</code></a> (cross-class
+walk W1).</li>
+<li><strong>F-HTTP-21
+<code>POST /admin/migrate/{league_code}</code></strong> —
+<code>MigrationService.migrate_league()</code> runs WhoScored→SofaScore
+in order, audited in <code>migration_runs</code>. 24h idempotency unless
+<code>force=True</code>. Cross-class walk W2.</li>
+<li><strong>F-HTTP-10
+<code>POST /admin/migration/run-targeted</code></strong> — dynamically
+loads
+<code>scripts/migrations/async_migrate_whoscored_new_to_postgres_v2.py</code>
+via <code>BackgroundTasks.add_task</code>; <strong>logs
+<code>flow=&quot;&quot;</code></strong> (route missing from
+<code>ROUTE_TO_FLOW</code>).</li>
+</ul>
+<h3 id="33-class-b--websocket">3.3 Class B — WebSocket</h3>
+<p><strong>No protocol changes.</strong> Three files touched, all
+import-only renames in <code>manager.py:14</code>,
+<code>manager_typed.py:12</code>, <code>handler.py:26</code>. One
+docs-only field rename in
+<code>docs/api/websocket_subscription_api.md:363</code>
+(<code>zao</code> → <code>zao_bets</code>). Existing handlers (subscribe
+/ builder_subscribe / spotlight / ping) unchanged. Spans unchanged. Full
+table in <a href="_pr-140-flows-ws.html"><code>_pr-140-flows-ws.md</code></a>.</p>
+<h3 id="34-class-c--scheduled-tasks--kafka">3.4 Class C — Scheduled
+tasks + Kafka</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Name</th>
+<th>Interval / trigger</th>
+<th>Env-gate</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F-TASK-A..G</td>
+<td>(existing) odds_broadcast / live_odds / spotlight / idle_cleanup /
+expected_profit / calibration / market_odds_warm</td>
+<td>various</td>
+<td>mostly always-on</td>
+<td>F-TASK-G <code>_warm_market_odds_loop</code> has <strong>no
+env-gate</strong> (<code>app.py:256-278</code>)</td>
+</tr>
+<tr>
+<td><strong>F-TASK-H</strong></td>
+<td><code>run_scheduled_odds_fetch</code> (W3)</td>
+<td>300s loop</td>
+<td><code>ODDS_FETCH_ENABLED</code></td>
+<td>sequential Odds API → Kalshi → player props</td>
+</tr>
+<tr>
+<td><strong>F-TASK-I</strong></td>
+<td><code>run_match_calibration_check</code> (W2)</td>
+<td>120s loop</td>
+<td><code>MATCH_CALIBRATION_ENABLED</code></td>
+<td>writes <code>match_cal_adj:{gid}</code></td>
+</tr>
+<tr>
+<td><strong>F-TASK-J</strong></td>
+<td><code>run_lineup_scraper</code> (W4)</td>
+<td>adaptive 120s base</td>
+<td><code>LINEUP_SCRAPER_ENABLED</code></td>
+<td>upserts <code>lineups</code>; publishes
+<code>odds.lineup_updates</code></td>
+</tr>
+<tr>
+<td><strong>F-TASK-K</strong></td>
+<td><code>_exposure_snapshot_loop</code></td>
+<td>300s (sleeps first)</td>
+<td>always-on</td>
+<td>flushes <code>exposure:match:*</code> →
+<code>ExposureSnapshots</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Lifespan teardown bug</strong>:
+<code>idle_cleanup_task.cancel()</code> runs after <code>gather()</code>
+and is never awaited (<code>web/app.py:397</code>). Minor coroutine
+leak.</p>
+<p><strong>Producers</strong>: <code>odds.lineup_updates</code>
+(idempotent, acks=all, lz4) + <code>odds.odds_requests</code> (acks=1,
+linger 50ms, analytics-grade). <strong>Consumers</strong>:
+<code>KafkaOddsConsumer</code> (modified: BATCH_SIZE 2000→200;
+narrow-except deserialize; bounded dedup + 3 OTEL counters),
+<code>RequestAnalyticsService</code> (new),
+<code>KafkaLineupConsumer</code> (defined but <strong>not
+started</strong> — dead in this PR&#39;s runtime, see §4.5).</p>
+<p>Full producer/consumer tables in <a href="_pr-140-flows-tasks.html"><code>_pr-140-flows-tasks.md</code></a>.</p>
+<h3 id="35-class-d--pipeline--service-flows-the-meat">3.5 Class D —
+Pipeline / service flows (the meat)</h3>
+<p>8 new + 6 modified pipeline branches. Highlights:</p>
+<ul>
+<li><strong>P-CAL</strong> — per-match calibration sweep.
+<code>MatchCalibrationService.calibrate_match()</code> reads
+<code>live_odds:{gid}</code>, computes divergence vs market, optimises
+home/away/player/team factors, writes
+<code>match_cal_adj:{gid}</code>.</li>
+<li><strong>P-SIM-CAL</strong> — calibrated match simulation. Distinct
+cache namespace
+<code>odds:sim:calibrated:{gid}:{actions}:adj={fingerprint}</code>.
+Replaces post-hoc lambda multiplication with calibrated marginals fed
+into the vine copula.</li>
+<li><strong>P-CLUSTER</strong> (W5) — <code>PlayerClusterFitter</code>
+produces per-player-cluster params; <code>PlayerClusterPredictor</code>
+reads them at predict-time; blend with zonal model in
+<code>_sample_player_counts</code>.</li>
+<li><strong>P-REFIT</strong> — blue-green pipeline refit.
+<code>RefitManager.start_refit()</code> runs validation
+(<code>predict_match</code> smoke on 3 recent games,
+<code>home/away ∈ [0.1, 5.0]</code>, <code>n_teams ≥ 4</code>) before
+the atomic swap.</li>
+<li><strong>P-ZAP / P-ZAP-BATCH / P-PARLAY</strong> — modified to use
+<code>PricingContext</code> (snapshots adj once per request) +
+<code>*_fingerprint</code> (mixes only the adj slice each cache reads).
+Closes the URA-T17/T19 staleness class.</li>
+</ul>
+<p>Full per-pipeline walks in <a href="_pr-140-flows-pipelines.html"><code>_pr-140-flows-pipelines.md</code></a>.
+Cross-class end-to-end walks (parlay, league migration, ingest→live
+odds, lineup scrape) in <a href="_pr-140-flows.html"><code>_pr-140-flows.md</code></a>
+§&quot;Cross-class flow walks&quot;.</p>
+<h3 id="36-headline-observability-gaps-across-all-flow-classes">3.6
+Headline observability gaps (across all flow classes)</h3>
+<ol type="1">
+<li><strong>17 admin/pipeline-admin routes drop into <code>&quot;&quot;</code>
+flow</strong> — <code>ROUTE_TO_FLOW</code> keys lack the
+<code>/admin/</code> prefix the routers are mounted under. Pre-existing
+wiring bug, but PR #140 adds 15 more orphans.</li>
+<li><strong>No <code>@flow_traced</code> on any new admin / data-health
+/ migration / calibration / exposure handler.</strong> Service entries
+<code>DataCompletenessService.check_game</code>,
+<code>MigrationService.migrate_league</code>,
+<code>RefitManager.start_refit</code>,
+<code>MatchCalibrationService.calibrate_match</code>,
+<code>ExposureService.flush_snapshots</code> all ship without flow
+decorators.</li>
+<li><strong><code>KafkaLineupConsumer</code> is wired but not
+started</strong>
+(<code>infrastructure/kafka/lineup_consumer.py:46</code>). Producer side
+is live; consumer is dead code at runtime.</li>
+<li><strong><code>MarketOddsApiService</code></strong>
+(<code>application/service/odds/market_odds_api_service.py:83</code>,
+~450 LOC + DTOs) is added but <strong>unwired</strong> — no router, no
+scheduled task, no test imports.</li>
+<li><strong><code>_warm_market_odds_loop</code> has no env gate</strong>
+— unconditional 240s Redis writes even in dev / disable-kafka mode.</li>
+<li><strong>v1 report&#39;s &quot;ralph loop wiring&quot; claim is
+unsupported</strong> — only ralph artifacts in this PR are markdown
+docs; no scheduled run.</li>
+</ol>
+<hr />
+<h2 id="4-architecture--service-surface-full-audit-in-outputs_pr-140-archmd">4.
+Architecture &amp; service surface (full audit in <a href="_pr-140-arch.html"><code>outputs/_pr-140-arch.md</code></a>)</h2>
+<h3 id="41-new-services-11">4.1 New services (11)</h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th style="text-align: right;">LOC</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MatchCalibrationService</code></td>
+<td style="text-align: right;">~2,000</td>
+<td>W2 per-match calibration. Largest new module.</td>
+</tr>
+<tr>
+<td><code>BacktestRunner</code> + <code>_backtest_scenarios</code></td>
+<td style="text-align: right;">~600</td>
+<td>Single harness + scenario translator.</td>
+</tr>
+<tr>
+<td><code>ExposureService</code></td>
+<td style="text-align: right;">210</td>
+<td>Reads <code>exposure:{market}</code> Redis hashes, persists
+snapshots.</td>
+</tr>
+<tr>
+<td><code>DataCompletenessService</code></td>
+<td style="text-align: right;">338</td>
+<td>Drives <code>/admin/data-health/*</code>. Read-only
+diagnostics.</td>
+</tr>
+<tr>
+<td><code>MigrationService</code></td>
+<td style="text-align: right;">268</td>
+<td>Orchestrates WhoScored → SofaScore migrators with audit + 24h
+idempotency.</td>
+</tr>
+<tr>
+<td><code>RequestAnalyticsService</code></td>
+<td style="text-align: right;">255</td>
+<td>W1 Kafka consumer (background thread) → Redis counters.</td>
+</tr>
+<tr>
+<td><code>LineupChangeDetector</code></td>
+<td style="text-align: right;">159</td>
+<td>W4 Redis-cached starter/bench diff.</td>
+</tr>
+<tr>
+<td><code>MarketOddsApiService</code></td>
+<td style="text-align: right;">~450 + DTOs</td>
+<td>the-odds-api consolidation. <strong>Unwired</strong>.</td>
+</tr>
+<tr>
+<td><code>extreme_factor_alerts</code></td>
+<td style="text-align: right;">small</td>
+<td>Redis ZSET-backed alert queue for extreme calibration factors.</td>
+</tr>
+<tr>
+<td><code>vig_policy</code></td>
+<td style="text-align: right;">191</td>
+<td>Pure-math vig (divisive / power / inverse). Centralises 3 prior
+copies.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-repositories">4.2 Repositories</h3>
+<table>
+<thead>
+<tr>
+<th>Repo</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LineupTrainingRepository</code></td>
+<td>NEW</td>
+<td>feature vectors for <code>FittedLineupModel.fit()</code>.</td>
+</tr>
+<tr>
+<td><code>lineup_source_priority</code></td>
+<td>NEW (helpers)</td>
+<td>Single-source-priority <code>Select</code>/<code>Subquery</code> to
+avoid <code>MultipleResultsFound</code> once both providers can
+insert.</td>
+</tr>
+<tr>
+<td><code>event_source</code></td>
+<td>NEW (helpers)</td>
+<td><code>core/data/event_source.py</code> — first-class &quot;which source
+is canonical?&quot; concept.</td>
+</tr>
+<tr>
+<td><code>GamesRepository</code> /
+<code>MatchStatisticsRepository</code> /
+<code>PlayerStatisticsRepository</code> / <code>MOMRepository</code> /
+<code>PlayersRepository</code> / <code>ZonalStatisticsRepository</code>
+/ <code>LineupRepository</code></td>
+<td>MODIFIED</td>
+<td>source-aware reads, widened PKs/UNIQUEs. <code>MOMRepository</code>
+is the largest rework (+88/−63).</td>
+</tr>
+<tr>
+<td><code>PipelineConfigRepository</code></td>
+<td>NEW (helpers)</td>
+<td>season/group lookups for the assign-and-fit saga.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-migrations-high-risk-area">4.3 Migrations (HIGH-RISK
+area)</h3>
+<h4 id="alembicversions-main-db"><code>alembic/versions/</code> (main
+DB)</h4>
+<table>
+<thead>
+<tr>
+<th>Revision</th>
+<th>Tables</th>
+<th>Risk</th>
+<th>Reversible?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>q2r3s4t5u6v7</code> add_event_source_tracking</td>
+<td><code>games</code>, <code>events</code>,
+<code>match_statistics</code>, <code>player_statistics</code></td>
+<td><strong>HIGH</strong></td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>r3s4t5u6v7w8</code> add_sf_match_statistics_table</td>
+<td>new <code>sf_match_statistics</code>; <strong>DELETE</strong> zombie
+SF rows from <code>match_statistics</code></td>
+<td><strong>MED</strong></td>
+<td>partial (DELETE irreversible by design)</td>
+</tr>
+<tr>
+<td><code>s4t5u6v7w8x9</code> add_source_to_lineups</td>
+<td><code>lineups</code></td>
+<td>MED-HIGH</td>
+<td>yes (downgrade DELETEs SF rows)</td>
+</tr>
+<tr>
+<td><code>mig_audit_202604230358</code></td>
+<td>new <code>migration_runs</code> audit table</td>
+<td>LOW</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>62a181c29a0b</code>, <code>6392e7d01782</code></td>
+<td>merge heads</td>
+<td>LOW</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Three head merges in this PR</strong> indicate parallel
+branch development. Final head is <code>6392e7d01782</code>. CONCURRENT
+index work is correctly factored (<code>autocommit_block</code> +
+<code>USING INDEX</code> constraint promotion).
+<code>alembic_soccer_data.ini</code> (−119 lines) is
+<strong>deleted</strong> — confirm no environment depends on it before
+merge.</p>
+<h4 id="alembic_ext_oddsversions-new-alembic-env"><code>alembic_ext_odds/versions/</code>
+(NEW alembic env)</h4>
+<p><code>f0a1b2c3d4e5_initial_ext_odds_schema.py</code> — hand-written
+989-line greenfield baseline of 23 tables in the new
+<code>ext_odds</code> Postgres schema. Manually constructed
+(autogenerate forbidden in the audit-fix loop).</p>
+<p>Both envs gain
+<code>compare_type=True, compare_server_default=True</code> — strict
+autogenerate fidelity going forward.</p>
+<h3 id="44-dtos--contracts">4.4 DTOs / contracts</h3>
+<p>5 small DTO clusters cross service boundaries:</p>
+<ul>
+<li><code>MarketOddsApiService</code> DTOs (Event / MarketOutcome /
+MarketSnapshot / PlayerPropOutcome / PlayerPropSnapshot)</li>
+<li><code>BuilderService</code> TypedDicts (10 types, response-shape
+contract)</li>
+<li><code>LiveOddsService</code> TypedDicts +
+<code>VigConfig</code></li>
+<li><code>MarketOddsService</code> TypedDicts (5 types)</li>
+<li><code>live_policy</code> Pydantic + Enums
+(<code>LiveOddsStatus</code>, <code>LiveMarketType</code>,
+<code>IsLiveResponse</code>,
+<code>IsLiveBatchRequest/Response</code>)</li>
+<li><code>BacktestRunner</code> dataclasses + Protocols</li>
+</ul>
+<h3 id="45-notable-architectural-decisions">4.5 Notable architectural
+decisions</h3>
+<ol type="1">
+<li><strong>Six-folder service taxonomy</strong> — flat → grouped,
+history preserved via <code>git mv</code>.</li>
+<li><strong>Two alembic histories</strong> — both must be run on deploy.
+<code>alembic_soccer_data.ini</code> is deleted.</li>
+<li><strong>New <code>ext_odds</code> Postgres schema</strong> — 23
+tables in a dedicated schema, fed by sister project
+<code>src/ext_odds_streaming/</code>. Not a refactor; a new persistence
+subsystem.</li>
+<li><strong>Source-aware data plane</strong> —
+<code>events</code>/<code>match_statistics</code>/<code>player_statistics</code>/<code>lineups</code>
+widen PKs/UNIQUEs to include <code>source</code>. Every consumer that
+did <code>scalar_one_or_none()</code> on
+<code>(game_id, player_id)</code> is at risk;
+<code>lineup_source_priority.py</code> exists specifically to
+deduplicate.</li>
+<li><strong>Calibration as a peer subsystem</strong> —
+<code>MatchCalibrationService</code> elevates ad-hoc factor adjustments
+to a layered service with its own enable flag, cooldowns, divergence
+threshold, extreme-policy alerting (clamp / passthrough /
+passthrough_with_alert).</li>
+<li><strong>Vig math centralised</strong> — <code>vig_policy.py</code>
+deduplicates 3 prior copies.</li>
+<li><strong>W1 telemetry pipeline</strong> —
+<code>RequestAnalyticsService</code> is the first time a service in
+<code>application/</code> runs an in-process consumer thread. Worth
+flagging as a layering departure (existing Kafka consumers live in
+<code>infrastructure/kafka/</code>).</li>
+<li><strong>Strict alembic autogenerate</strong> — expect noisier
+autogenerate output post-merge; review carefully.</li>
+<li><strong>CI footprint shrunk</strong> —
+<code>.github/workflows/claude-code-review.yml</code> removed (−78).
+Whatever automated review existed there is no longer running.</li>
+</ol>
+<hr />
+<h2 id="5-configuration--infra">5. Configuration &amp; infra</h2>
+<ul>
+<li><strong><code>.required-env</code></strong>: +33 vars in 5 groups
+(lineup model, scheduled odds fetch, match calibration, lineup scraper,
+odds request tracking). All <code>[optional]</code>. Most flags default
+OFF; <code>ODDS_REQUEST_TRACKING_ENABLED</code> defaults
+<strong>ON</strong>.</li>
+<li><strong><code>pyproject.toml</code></strong>: archive rename
+(<code>scripts/archive</code> → <code>scripts/_archive</code>) across
+all linter/coverage configs; new <code>integration</code> pytest marker
+(<code>--run-integration</code>).</li>
+<li><strong><code>CLAUDE.md</code></strong>: +30 lines. Adds the
+<strong>Starter-Only Assumption</strong> block, the cluster-model
+open-inconsistency, and the <strong>Redis cluster CROSSSLOT
+rule</strong> (live incident).</li>
+<li><strong>AI_DOCS / docs</strong>: ~28K lines of architecture audit
+(6-section + combined HTML), W1–W5 design docs, 19 reference docs,
+ralph-loop guides. PDFs were stripped earlier in this branch&#39;s
+review.</li>
+</ul>
+<p>Full table in <a href="_pr-140-arch.html"><code>_pr-140-arch.md</code></a> §5.</p>
+<hr />
+<h2 id="6-tests-full-audit-in-outputs_pr-140-testsmd">6. Tests (full
+audit in <a href="_pr-140-tests.html"><code>outputs/_pr-140-tests.md</code></a>)</h2>
+<h3 id="61-headline-numbers">6.1 Headline numbers</h3>
+<ul>
+<li>Test files <strong>added</strong>: 79 (73 unit, 4+1 integration, 3
+flow, 1 pr102, 1 root, 2 in-tree)</li>
+<li>Test fixtures added: 2 JSON</li>
+<li>Production source files added/modified (excl. archives, docs,
+alembic): <strong>96</strong> under <code>src/</code>.
+<strong>47</strong> added or modified &gt; 50 LOC.</li>
+<li>Production source files with <strong>no test importer</strong>:
+<strong>42</strong> (~3–5 false positives from dynamic imports)</li>
+<li>Production source files with <strong>&gt;50 added LOC and no test
+importer</strong>: <strong>14</strong></li>
+<li>New CI signals introduced: <strong>0</strong> — no new GitHub
+Actions workflow, no new pytest invocation, no coverage threshold</li>
+</ul>
+<h3 id="62-implemented-mapped-test--code">6.2 Implemented (mapped test ↔︎
+code)</h3>
+<p>Application services well covered:</p>
+<ul>
+<li><code>MatchCalibrationService</code> — 12 unit files + 1 integration
+regression</li>
+<li><code>MarketOddsApiService</code>, <code>vig_policy</code>,
+<code>DataCompletenessService</code>, <code>BacktestRunner</code> — each
+has a focused unit test</li>
+<li><code>pricing_context.py</code> and the URA fingerprint helpers — 3
+dedicated unit tests</li>
+<li><code>event_source.py</code> — 2 unit tests (resolution + selection
+config)</li>
+</ul>
+<p>Repositories: 5 of the 8 modified repos have unit tests; data-access
+layer is well covered for the source-aware widenings.</p>
+<p>Prediction models: zonal / team / mom / player / cluster all have
+unit tests; cluster has only one
+(<code>test_cluster_zone_distributions.py</code>, distribution-math
+only) for ~2.5K LOC.</p>
+<p>Infrastructure: kafka consumer + schemas have 3 unit tests for the
+new defensive deserialization. Alembic envs have safety-flag tests.
+Migrations: SF migrator has 5 unit files.</p>
+<p>Integration / flow / e2e (gated): 4 integration tests
+(<code>test_calibration_regression</code>,
+<code>test_data_availability</code>,
+<code>test_data_completeness</code>, <code>test_model_quality</code>) —
+gated behind <code>--run-integration</code>. 3 flow tests under
+<code>tests/flow_tests/</code>.</p>
+<h3 id="63-missing--high-impact">6.3 Missing — high impact</h3>
+<table>
+<thead>
+<tr>
+<th>Subsystem</th>
+<th style="text-align: right;">Disk LOC</th>
+<th>Test status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lineup-models / lineup-Kafka pipeline</strong>
+(lineup_consumer/producer/scraper/change_detector +
+lineup_models/{constants,fitted_model,schemas,params})</td>
+<td style="text-align: right;">~1,870</td>
+<td><strong>No test importer.</strong> W4 + W5 driving code lacks
+coverage end-to-end.</td>
+</tr>
+<tr>
+<td><code>scheduled_odds_fetch.py</code> (W3)</td>
+<td style="text-align: right;">350</td>
+<td>Output asserted by integration test; <strong>loop / retry / backoff
+/ poison-message paths not tested.</strong></td>
+</tr>
+<tr>
+<td><code>migration_service.py</code></td>
+<td style="text-align: right;">268</td>
+<td>Flow test monkey-patches its internals — does not exercise the real
+migrator chain.</td>
+</tr>
+<tr>
+<td><code>request_analytics_service.py</code> (W1 consumer)</td>
+<td style="text-align: right;">255</td>
+<td>One distant importer in
+<code>tests/test_odds_pricing_flows.py</code>, no focused unit.</td>
+</tr>
+<tr>
+<td><code>exposure_service.py</code></td>
+<td style="text-align: right;">210</td>
+<td>Same shape.</td>
+</tr>
+<tr>
+<td><code>web/app.py</code> startup wiring</td>
+<td style="text-align: right;">+112 / −5</td>
+<td>No assertion that lifespan tasks are registered or correctly
+cancelled.</td>
+</tr>
+<tr>
+<td><code>mom_repository.py</code></td>
+<td style="text-align: right;">601</td>
+<td>Largest single rewrite (+88 / −63) without a dedicated test.</td>
+</tr>
+<tr>
+<td><code>pipeline_admin.py</code></td>
+<td style="text-align: right;">+448 / −1</td>
+<td>Flow-test-covered for a few endpoints; bulk of new endpoints lack
+negative-path unit coverage.</td>
+</tr>
+<tr>
+<td><code>infrastructure/api/tasks.py</code></td>
+<td style="text-align: right;">+347 / −3</td>
+<td>Saga path covered; lineup-producer start/stop, scheduled-odds tick,
+and calibration-scheduling glue are not unit-pinned.</td>
+</tr>
+<tr>
+<td><code>core/utils/jwt_helper.py</code></td>
+<td style="text-align: right;">95</td>
+<td><strong>Mocked out</strong> in the only test that touches admin
+auth. Trust root unverified.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="64-quality-concerns">6.4 Quality concerns</h3>
+<ul>
+<li><strong><code>tests/pr102/test_e2e_kafka_betting_flow.py</code></strong>
+is named like a pytest file but has <strong>no
+<code>def test_*</code></strong> — pytest collects 0 from it. Either
+rename to <code>scripts/manual_qa/</code> or convert to parametrised
+pytest.</li>
+<li>The 2 modified test files are 1-line touches (rename / import-path),
+not new coverage.</li>
+<li><code>test_calibration_regression.py</code> subprocesses an
+<code>uvicorn</code> server on port 11002 with no PID-file or
+signal-based teardown guard — leak risk.</li>
+<li><code>test_admin_config_routes.py</code> does class-level Redis
+monkeypatching that bleeds across the session.</li>
+<li>Several integration tests silently no-op when DB env vars are
+unset.</li>
+<li>Lint-style guard tests (<code>test_no_dead_debug_logs.py</code>,
+<code>test_no_hardcoded_debug_ids.py</code>) pass even when behavior is
+broken.</li>
+</ul>
+<h3 id="65-the-ci-gap-single-most-important-fix-before-merge-in-this-section">6.5
+The CI gap (single most important fix-before-merge in this section)</h3>
+<p>The 73 new unit tests under <code>tests/unit/</code> are <strong>not
+invoked by any workflow on PR-to-<code>dev</code></strong>. Only
+<code>test-pipeline.yml</code> (WebSocket Docker smoke) and
+<code>flow-tests.yml</code> (<code>tests/flow_tests/</code> only) run.
+There is no coverage threshold and no dedicated
+<code>pytest tests/unit</code> job.</p>
+<p><strong>What this means</strong>: <code>make check</code> works
+locally and the 73 tests pass — but CI signals &quot;green&quot; without ever
+running them. Any subsequent regression to W2/calibration/clusters/etc.
+could merge without breaking the PR check.</p>
+<p><strong>Fix</strong>: add a <code>unit-tests.yml</code> workflow that
+runs
+<code>pytest tests/unit/ -v --cov=src/backend_odds --cov-fail-under=&lt;threshold&gt;</code>
+on PR-to-<code>dev</code>.</p>
+<hr />
+<h2 id="7-risks--blockers-full-detail-in-outputs_pr-140-riskmd">7. Risks
+&amp; blockers (full detail in <a href="_pr-140-risk.html"><code>outputs/_pr-140-risk.md</code></a>)</h2>
+<h3 id="71-hard-blockers-must-fix-before-merge">7.1 Hard blockers (must
+fix before merge)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Where</th>
+<th>Concern</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>B1</strong></td>
+<td><code>scripts/entrypoint.sh:25,43-47</code></td>
+<td><code>RUN_MIGRATIONS=true</code> default → every container restart
+runs <code>alembic upgrade head</code> for both envs. The new
+<code>q2r3s4t5u6v7</code> does <strong>row-level dupe pre-checks that
+<code>raise RuntimeError</code></strong>, then drops + re-adds the PK on
+<code>match_statistics</code> (read by every odds flow). On rolling
+deploy, a raise propagates to every replacement task = simultaneous flow
+brownout.</td>
+<td>Default <code>RUN_MIGRATIONS=false</code>; run alembic from a
+one-shot ECS task before the rollout. The repo rule
+<code>.claude/rules/migrations.md</code> already mandates this
+pattern.</td>
+</tr>
+<tr>
+<td><strong>B2</strong></td>
+<td><code>.required-env</code> drift</td>
+<td>22 new env vars used in <code>src/</code> are missing from
+<code>.required-env</code>. The deploy gate <code>validate-env.sh</code>
+warns dev/stage and <strong>blocks prod</strong> on missing
+<code>[required]</code>. Critical examples:
+<code>MATCH_CALIBRATION_FACTOR_*</code>, <code>*_PLAYER_PROP_*</code>,
+<code>*_TEAM_PROP_*</code> bounds — these gate the calibration arm of
+the live-odds flow.</td>
+<td>Add each <code>src/</code>-referenced var to
+<code>.required-env</code> as <code>[optional]</code> with the matching
+default.</td>
+</tr>
+<tr>
+<td><strong>B3</strong></td>
+<td><code>scripts/migrations/async_migrate_whoscored_new_to_postgres_v2.py:2329</code></td>
+<td><strong>Hardcoded prod RDS connection string + password as
+<code>os.getenv</code> fallback</strong> — leaks
+hostname/username/password to anyone with repo read access. The script
+is the data-flow source for WhoScored events; corruption upstream
+poisons every downstream pricing flow.</td>
+<td>Delete the fallback; require
+<code>ASYNC_SOCCERDATA_DATABASE_URL</code> to be set; rotate the
+credential in SSM. Audit
+<code>async_migrate_whoscored_new_to_postgres.py:1748</code> (older
+copy) for the same string.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-strong-concerns-should-fix-document-if-not">7.2 Strong
+concerns (should fix; document if not)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Concern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>S1</strong></td>
+<td><strong>No <code>@flow_traced</code> / <code>@traced</code>
+annotations on new flow paths</strong> —
+<code>MatchCalibrationService</code>, <code>MarketOddsApiService</code>,
+<code>DataCompletenessService</code>, <code>MigrationService</code>,
+<code>BacktestRunner</code>, <code>run_match_calibration_check</code>,
+<code>run_lineup_scraper</code>, <code>run_scheduled_odds_fetch</code>,
+<code>_exposure_snapshot_loop</code>. Grafana cannot tie bad pricing
+back to bad calibration.</td>
+</tr>
+<tr>
+<td><strong>S2</strong></td>
+<td><strong>17 admin/pipeline-admin routes missing from
+<code>ROUTE_TO_FLOW</code></strong> — every request logs
+<code>flow=&quot;&quot;</code> and outbound httpx loses the flow tag for
+cross-service correlation with Backend-Server.</td>
+</tr>
+<tr>
+<td><strong>S3</strong></td>
+<td><strong>Redis CROSSSLOT — needs reviewer eyes</strong> —
+<code>LineupChangeDetector</code> was not deeply read. If it ever does
+<code>_client.mget(keys)</code> on multiple
+<code>lineup:{game_id}</code> keys, that path will CROSSSLOT in
+stage/prod (cluster mode).</td>
+</tr>
+<tr>
+<td><strong>S4</strong></td>
+<td><strong>Unconditional <code>asyncio.create_task</code> for gated
+tasks</strong> — <code>odds_fetch_task</code> /
+<code>match_cal_task</code> / <code>lineup_scraper_task</code> /
+<code>exposure_task</code> are created at startup regardless of their
+<code>*_ENABLED</code> flag. Bodies early-return, so cosmetic — but a
+future change before the gate breaks silently.</td>
+</tr>
+<tr>
+<td><strong>S5</strong></td>
+<td><strong>Both event-source migrations DELETE on downgrade</strong> —
+<code>q2r3s4t5u6v7</code> and <code>s4t5u6v7w8x9</code>
+<code>DELETE FROM ... WHERE source = &#39;sofascore&#39;</code> on downgrade.
+Rollback after SF ingest = silent data loss on every flow that reads
+these tables. Gate behind <code>CONFIRM_DOWNGRADE_DATA_LOSS=1</code> or
+write a runbook.</td>
+</tr>
+<tr>
+<td><strong>S6</strong></td>
+<td><strong>Migration revision-id mismatch in docstring</strong> —
+<code>mig_audit_202604230358_add_migration_runs_audit_table.py:7</code>.
+Cosmetic (alembic uses the assignment), but worth fixing.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="73-cross-repo-flow-contracts">7.3 Cross-repo flow contracts</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>X1</strong></td>
+<td><strong>New Kafka topic <code>odds.lineup_updates</code></strong> —
+<code>LineupUpdate</code> schema must be locked in <code>specs/</code>
+before flag flip. Currently consumer side
+(<code>KafkaLineupConsumer</code>) is dead in this PR. If Backend-Server
+plans to consume, schema lock-in needed first.</td>
+</tr>
+<tr>
+<td><strong>X2</strong></td>
+<td><strong>Scheduled <code>odds_fetch</code> writes Redis keys upstream
+of BS live-odds flow</strong> — <code>market:odds:{gid}</code>,
+<code>live_odds:{gid}</code>, <code>player_props:{gid}</code>. Currently
+default OFF. Flipping it in <code>.env.prod</code> makes BO the upstream
+of every BS live-odds read. Need runbook (which keys, TTLs, backfill,
+rollback) before flip.</td>
+</tr>
+<tr>
+<td><strong>X3</strong></td>
+<td><strong><code>X-Flow</code> propagation depends on
+<code>ROUTE_TO_FLOW</code> completeness</strong> — same as S2 above;
+cross-service correlation breaks at the BS boundary for the missing
+routes.</td>
+</tr>
+<tr>
+<td><strong>X4</strong></td>
+<td><strong>WebSocket protocol unchanged</strong> — no breaking changes
+detected. Existing BS clients unaffected.</td>
+</tr>
+<tr>
+<td><strong>X5</strong></td>
+<td>(admin auth contract changed — moved to footnote per scope)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="74-verified-safe">7.4 Verified safe</h3>
+<ul>
+<li>Alembic chain is <strong>single-headed</strong> at
+<code>6392e7d01782</code> after merges.</li>
+<li>CONCURRENT index work uses <code>autocommit_block</code> +
+<code>USING INDEX</code> correctly.</li>
+<li><code>RedisCacheRepository.mget</code>/<code>mset</code> are
+cluster-safe loops; <code>players_repository</code> batch read routes
+through them.</li>
+<li>Starter-only assumption preserved across new
+<code>BacktestRunner</code> (<code>backtest_runner.py:111</code>
+defaults <code>starter_only=True</code>),
+<code>scripts/eval/run_eval.py:763</code>, and
+<code>scripts/debug/cluster/evaluate_cluster_model.py:89</code>.</li>
+</ul>
+<hr />
+<h2 id="8-verdict">8. Verdict</h2>
+<table>
+<thead>
+<tr>
+<th>Bucket</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Architecture &amp; layering</td>
+<td>✅ Service taxonomy reorg, vig/calibration/backtest centralisation,
+source-aware data plane all land cleanly with clear responsibility
+boundaries.</td>
+</tr>
+<tr>
+<td>Migrations</td>
+<td>⚠️ Single-headed and zero-downtime patterns are correct, but
+<strong>B1</strong> (entrypoint default) makes every container restart a
+deploy event. Two migrations DELETE on downgrade (S5).</td>
+</tr>
+<tr>
+<td>Observability</td>
+<td>❌ 17 admin routes log <code>flow=&quot;&quot;</code>; no
+<code>@flow_traced</code> on any new service or scheduled task;
+cross-service correlation breaks for the new admin routes (X3).</td>
+</tr>
+<tr>
+<td>Cross-service contracts</td>
+<td>⚠️ New Kafka topic schema (X1) and Redis-key upstream (X2) need ops
+runbook + schema lock before flag flip.</td>
+</tr>
+<tr>
+<td>Tests</td>
+<td>⚠️ 79 new tests are real coverage of
+<code>MatchCalibrationService</code>, <code>vig_policy</code>, repos,
+etc. — but <strong>lineup pipeline (~1,870 LOC) has zero
+coverage</strong>, <code>pipeline_admin.py</code> has only flow-test
+coverage, and <strong>the new unit suite is not invoked by CI on
+PR-to-dev</strong>. The CI gap is the single biggest fix-before-merge in
+this category.</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>❌ <strong>B3 hardcoded prod RDS creds</strong> must be rotated and
+removed before merge.</td>
+</tr>
+<tr>
+<td>Bug fixes / model improvements</td>
+<td>✅ URA cache-staleness fixes (T4/T17/T19/T21/T27/T30/T31/T33) are
+well thought through; <code>PricingContext</code> +
+<code>*_fingerprint</code> helpers are a clean pattern;
+cluster-model-aware ZAP blend is principled.</td>
+</tr>
+<tr>
+<td>Documentation</td>
+<td>✅ Audit MDs, W1–W5 design docs, CLAUDE.md updates (starter-only,
+CROSSSLOT rule).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Disposition</strong>: REQUEST CHANGES.</p>
+<p><strong>Suggested merge gate</strong>:</p>
+<ol type="1">
+<li>Resolve <strong>B1, B2, B3</strong> (small mechanical fixes).</li>
+<li>Add a CI workflow that actually runs <code>tests/unit/</code>.</li>
+<li>Decide on <strong>S1+S2</strong> (<code>@flow_traced</code> +
+<code>ROUTE_TO_FLOW</code>) — either ship them in this PR or stamp a
+follow-up ticket and document the gap so observability isn&#39;t silently
+degraded post-merge.</li>
+<li>Lock <code>LineupUpdate</code> Kafka schema in <code>specs/</code>
+(X1) before any prod flag flip on
+<code>LINEUP_SCRAPER_ENABLED</code>.</li>
+<li>Wire <code>KafkaLineupConsumer.start()</code> or remove the file
+(it&#39;s dead code today).</li>
+<li>Decide on <code>MarketOddsApiService</code> — wire it or delete it.
+Don&#39;t ship dead 450-LOC services.</li>
+</ol>
+<p>Once 1–2 land, the PR is mergeable and the rest can be follow-ups on
+<code>dev</code>.</p>
+<hr />
+<h2 id="appendix--sub-report-index">Appendix — sub-report index</h2>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>File</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flows (synthesized)</td>
+<td><a href="_pr-140-flows.html"><code>_pr-140-flows.md</code></a></td>
+<td>496 lines</td>
+</tr>
+<tr>
+<td>↳ HTTP child</td>
+<td><a href="_pr-140-flows-http.html"><code>_pr-140-flows-http.md</code></a></td>
+<td>13 KB</td>
+</tr>
+<tr>
+<td>↳ WebSocket child</td>
+<td><a href="_pr-140-flows-ws.html"><code>_pr-140-flows-ws.md</code></a></td>
+<td>8 KB</td>
+</tr>
+<tr>
+<td>↳ Tasks/Kafka child</td>
+<td><a href="_pr-140-flows-tasks.html"><code>_pr-140-flows-tasks.md</code></a></td>
+<td>11 KB</td>
+</tr>
+<tr>
+<td>↳ Pipelines child</td>
+<td><a href="_pr-140-flows-pipelines.html"><code>_pr-140-flows-pipelines.md</code></a></td>
+<td>10 KB</td>
+</tr>
+<tr>
+<td>↳ v1 backup</td>
+<td><a href="_pr-140-flows-v1.html"><code>_pr-140-flows-v1.md</code></a></td>
+<td>15 KB</td>
+</tr>
+<tr>
+<td>Architecture</td>
+<td><a href="_pr-140-arch.html"><code>_pr-140-arch.md</code></a></td>
+<td>27 KB</td>
+</tr>
+<tr>
+<td>Tests (synthesized)</td>
+<td><a href="_pr-140-tests.html"><code>_pr-140-tests.md</code></a></td>
+<td>33 KB</td>
+</tr>
+<tr>
+<td>↳ Unit child</td>
+<td><a href="_pr-140-tests-unit.html"><code>_pr-140-tests-unit.md</code></a></td>
+<td>16 KB</td>
+</tr>
+<tr>
+<td>↳ Integration child</td>
+<td><a href="_pr-140-tests-integration.html"><code>_pr-140-tests-integration.md</code></a></td>
+<td>12 KB</td>
+</tr>
+<tr>
+<td>Risk</td>
+<td><a href="_pr-140-risk.html"><code>_pr-140-risk.md</code></a></td>
+<td>19 KB</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

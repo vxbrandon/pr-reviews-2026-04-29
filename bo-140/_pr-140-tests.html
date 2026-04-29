@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>BO #140 — Test Audit</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">@viewport { width: device-width; initial-scale: 1; }
+:root {
+--bg: #0d1117;
+--fg: #c9d1d9;
+--fg-muted: #8b949e;
+--border: #30363d;
+--link: #58a6ff;
+--code-bg: #161b22;
+--table-stripe: #161b22;
+--warn: #f0883e;
+--danger: #f85149;
+--good: #3fb950;
+--header: #f0f6fc;
+}
+@media (prefers-color-scheme: light) {
+:root {
+--bg: #ffffff;
+--fg: #1f2328;
+--fg-muted: #59636e;
+--border: #d1d9e0;
+--link: #0969da;
+--code-bg: #f6f8fa;
+--table-stripe: #f6f8fa;
+--warn: #bf8700;
+--danger: #cf222e;
+--good: #1a7f37;
+--header: #1f2328;
+}
+}
+* { box-sizing: border-box; }
+html, body {
+margin: 0;
+padding: 0;
+background: var(--bg);
+color: var(--fg);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+font-size: 16px;
+line-height: 1.6;
+-webkit-text-size-adjust: 100%;
+}
+body {
+max-width: 900px;
+margin: 0 auto;
+padding: 1.25rem 1rem 4rem;
+}
+h1, h2, h3, h4, h5, h6 {
+color: var(--header);
+margin-top: 1.6em;
+margin-bottom: 0.6em;
+line-height: 1.25;
+font-weight: 600;
+}
+h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.0rem; }
+p { margin: 0.6em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+code {
+background: var(--code-bg);
+padding: 0.15em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+font-size: 0.875em;
+word-break: break-word;
+}
+pre {
+background: var(--code-bg);
+padding: 0.85rem;
+border-radius: 6px;
+overflow-x: auto;
+font-size: 0.825em;
+line-height: 1.5;
+border: 1px solid var(--border);
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+blockquote {
+border-left: 4px solid var(--border);
+margin: 1em 0;
+padding: 0.4em 1em;
+color: var(--fg-muted);
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1em 0;
+font-size: 0.9em;
+display: block;
+overflow-x: auto;
+}
+th, td {
+border: 1px solid var(--border);
+padding: 0.4em 0.7em;
+text-align: left;
+vertical-align: top;
+}
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(2n) { background: var(--table-stripe); }
+hr {
+border: none;
+border-top: 1px solid var(--border);
+margin: 2em 0;
+}
+
+@media (max-width: 600px) {
+body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; }
+h1 { font-size: 1.45rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+pre { font-size: 0.78em; padding: 0.6rem; }
+table { font-size: 0.82em; }
+th, td { padding: 0.3em 0.5em; }
+}
+
+.review-index {
+list-style: none;
+padding: 0;
+}
+.review-index li {
+padding: 0.5em 0.7em;
+border: 1px solid var(--border);
+border-radius: 6px;
+margin: 0.4em 0;
+background: var(--code-bg);
+}
+.review-index li.master {
+border-left: 4px solid var(--good);
+font-weight: 600;
+}
+.review-index li.note {
+border-left: 4px solid var(--warn);
+font-style: italic;
+background: transparent;
+font-size: 0.9em;
+}
+.size {
+color: var(--fg-muted);
+font-size: 0.85em;
+float: right;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">BO #140 — Test Audit</h1>
+</header>
+<h1 id="pr-140--test-coverage-audit">PR #140 — Test Coverage Audit</h1>
+<p>Read-only audit. Citations target the working tree at
+<code>/Users/tbg/Desktop/programming/Dev-Agentic/Backend-Odds</code> on
+the PR branch. This document synthesises three sub-reports listed
+above.</p>
+<blockquote>
+<p><strong>Note on sub-agent spawning.</strong> The team-lead requested
+three parallel Opus sub-agents via the Agent tool. That tool is not
+present in this environment (no Agent / Task spawn primitive is exposed
+— only SendMessage to teammates and bash). I instead produced the three
+sub-reports as separate artifacts
+(<code>_pr-140-tests-{unit,integration,gaps}.md</code>) and synthesised
+them into this file, preserving the requested structure.</p>
+</blockquote>
+<h2 id="1-headline-numbers">1. Headline numbers</h2>
+<ul>
+<li>Test files <strong>added</strong>: 79 (73 under
+<code>tests/unit/</code>, 4 under <code>tests/integration/</code> plus 1
+conftest, 3 under <code>tests/flow_tests/</code>, 1 under
+<code>tests/pr102/</code>, 1 at <code>tests/</code> root, 2 in-tree
+under <code>src/backend_odds/core/prediction_models/tests/</code>). See
+sub-report A and B.</li>
+<li>Test files <strong>modified</strong>: 2
+(<code>tests/test_market_odds_service_live_kalshi.py:16</code> and
+<code>tests/qa/player_calibration/test_player_calibration.py:481</code>,
+both 1-line touches).</li>
+<li>Test fixtures added: 2 JSON
+(<code>tests/fixtures/odds_api/upcoming_events.json</code>,
+<code>tests/unit/rate_access_baseline.json</code>).</li>
+<li>Production source files <strong>added or modified</strong> (excl.
+<code>alembic/versions</code>, <code>scripts/_archive</code>, docs):
+<strong>96 unique <code>.py</code> files</strong> under
+<code>src/</code>. 47 added or modified more than 50 lines.</li>
+<li>Production source files with <strong>no test importer</strong> (per
+the import-grep in sub-report C): <strong>42</strong> (~3-5 false
+positives due to dynamic imports).</li>
+<li>Production source files with <strong>&gt;50 added LOC and no test
+importer</strong>: <strong>14</strong>.</li>
+<li>New CI signals introduced by this PR: <strong>0</strong>. No new
+GitHub Actions workflow, no new pytest invocation, no new marker, no
+coverage threshold. See §5.</li>
+</ul>
+<h2 id="2-implemented--test--code-map">2. Implemented — test ↔︎ code
+map</h2>
+<p>The full per-test entries (assertions described, types, gating) live
+in <strong>sub-report A</strong> (unit) and <strong>sub-report
+B</strong> (integration / flow / e2e). Digest below.</p>
+<h3 id="21-application-services-sub-report-a1">2.1 Application services
+(sub-report A.1)</h3>
+<table>
+<thead>
+<tr>
+<th>test file</th>
+<th>code under test (<code>file:line</code>)</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/unit/application/test_market_odds_api_service.py:1</code></td>
+<td><code>application/service/odds/market_odds_api_service.py:1</code>
+(450 added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/application/test_vig_policy.py:1</code></td>
+<td><code>application/service/odds/vig_policy.py:1</code> (191
+added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/application/test_data_completeness_service.py:1</code></td>
+<td><code>application/service/info/data_completeness_service.py:1</code>
+(338 added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/application/test_backtest_runner.py:1</code></td>
+<td><code>application/service/backtest/backtest_runner.py:1</code> (542
+added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td>12 calibration files: <code>test_team_props_*</code>,
+<code>test_match_calibration_*</code>, <code>test_player_prop_*</code>,
+<code>test_extreme_factor_policy.py</code>,
+<code>test_calibrate_player_props_from_redis.py</code>,
+<code>test_simulate_match_calibrated.py</code>,
+<code>test_zao_calibrated.py</code>,
+<code>test_player_adjustments_propagate.py</code>,
+<code>test_team_adjustments_consumer.py</code>,
+<code>test_get_prob_for_zap_calibration.py</code>,
+<code>test_parlay_calibration_consistency.py</code>,
+<code>test_joint_calibration_demo.py</code></td>
+<td><code>application/service/calibration/match_calibration_service.py</code>
+(1989 added) +
+<code>core/prediction_models/orchestration/main_pipeline.py:get_prob_for_zap</code>
++ parlay/zao/batch_zap</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_assign_and_fit_saga.py:1</code></td>
+<td><code>infrastructure/api/tasks.py:1</code> (+347 / −3)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_admin_config_routes.py:1</code> +
+<code>tests/unit/test_runtime_flags.py:1</code></td>
+<td><code>infrastructure/dependencies/admin_auth.py:1</code> (70 added)
++ <code>core/utils/runtime_flags.py:1</code> (481 disk LOC) + admin
+router (dynamic import)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_event_source_resolution.py:1</code> +
+<code>test_source_selection_config.py:1</code></td>
+<td><code>core/data/event_source.py:1</code> (75 added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_pricing_context.py:1</code>,
+<code>test_market_odds_service_pricing_context.py</code>,
+<code>test_batch_zap_pricing_context.py</code></td>
+<td><code>core/prediction_models/orchestration/pricing_context.py</code>
+(242 disk LOC) + market-odds + batch-zap</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_ensure_models_loaded.py:1</code></td>
+<td>model-load layer</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_rate_access_enforcement.py:1</code></td>
+<td>data-access rate access (with frozen baseline fixture)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_migration_audit.py:1</code></td>
+<td><code>migration_runs_audit</code> table</td>
+<td>unit</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-repositories--data-access-sub-report-a2">2.2 Repositories
+&amp; data access (sub-report A.2)</h3>
+<table>
+<thead>
+<tr>
+<th>test file</th>
+<th>code under test (<code>file:line</code>)</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/unit/core/data/data_access/test_games_repository.py:1</code></td>
+<td><code>games_repository.py:1</code> (+71 / −2)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/data/data_access/test_match_statistics_repository.py:1</code></td>
+<td><code>match_statistics_repository.py:1</code> (+57 / −12)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/data/data_access/test_player_statistics_repository.py:1</code></td>
+<td><code>player_statistics_repository.py:1</code> (+89 / −15)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/data/data_access/test_players_repository.py:1</code></td>
+<td><code>players_repository.py:1</code> (+55 / −23)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/data/data_access/test_zonal_statistics_repository.py:1</code></td>
+<td><code>zonal_statistics_repository.py:1</code> (+24 / −4)</td>
+<td>unit</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-prediction-models-sub-report-a3">2.3 Prediction models
+(sub-report A.3)</h3>
+<table>
+<thead>
+<tr>
+<th>test file</th>
+<th>code under test (<code>file:line</code>)</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/unit/core/prediction_models/zonal_models/test_dirichlet_per_action_alpha.py:1</code></td>
+<td><code>zonal_models/dirichlet.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/zonal_models/test_force_refit_compat.py:1</code></td>
+<td><code>zonal_models/zonal_model_pipeline.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/zonal_models/test_insufficient_teams_cache_guard.py:1</code></td>
+<td><code>zonal_model_pipeline.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/zonal_models/test_zonal_model_pipeline.py:1</code></td>
+<td><code>zonal_model_pipeline.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/team_models/test_team_model_pipeline_tz.py:1</code></td>
+<td><code>team_models/team_model_pipeline.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/mom_models/test_mom_overround.py:1</code>
++ <code>test_mom_rng.py:1</code></td>
+<td><code>mom_models/mom_model.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/test_config_utc.py:1</code></td>
+<td><code>prediction_models/config.py:1</code> (+111 / −5)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/player_action_models/test_player_action_pipeline_starter_filter.py:1</code></td>
+<td><code>player_action_models/player_action_pipeline.py:181</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/player_action_models/test_no_dead_debug_logs.py:1</code>
++ <code>test_no_hardcoded_debug_ids.py:1</code></td>
+<td>source tree (lint-style)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>src/backend_odds/core/prediction_models/tests/test_cluster_zone_distributions.py:1</code>
+(370 lines)</td>
+<td><code>cluster_models/{fitter,fitted_model,predictor}.py</code> (1697
+added)</td>
+<td>unit (in-tree)</td>
+</tr>
+<tr>
+<td><code>src/backend_odds/core/prediction_models/tests/test_zonal_model.py:1</code>
+(962 lines, modified)</td>
+<td><code>zonal_models/*</code></td>
+<td>unit (in-tree)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="24-infrastructure-sub-report-a4">2.4 Infrastructure (sub-report
+A.4)</h3>
+<table>
+<thead>
+<tr>
+<th>test file</th>
+<th>code under test (<code>file:line</code>)</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/unit/infrastructure/cache/test_key_utils.py:1</code></td>
+<td><code>infrastructure/cache/key_utils.py:1</code> (49 added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/infrastructure/kafka/test_consumer_parse_game_id.py:1</code>,
+<code>test_consumer_silent_failures.py</code>,
+<code>test_schemas.py</code></td>
+<td><code>infrastructure/kafka/consumer.py</code> (+188 / −6) +
+<code>schemas.py:1</code> (+122 / −3)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/alembic/test_env_safety_flags.py:1</code></td>
+<td><code>alembic/env.py:1</code>,
+<code>alembic_ext_odds/env.py:1</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/alembic/test_ext_odds_baseline_migration.py:1</code></td>
+<td><code>alembic_ext_odds/versions/f0a1b2c3d4e5_initial_ext_odds_schema.py</code>
+(989 lines)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/migrations/test_drift_check.py:1</code></td>
+<td><code>infrastructure/migrations/drift_check.py:1</code> (243
+added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/migrations/test_sf_match_statistics_mapping.py:1</code></td>
+<td>SF → <code>sf_match_statistics</code> mapping + migration</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/migrations/test_sf_migrator_*.py</code> (5
+files)</td>
+<td>SF migrator + <code>core/data_scraping/period.py:1</code> (303
+added) + <code>sqlalchemy/types.py:1</code> (61 added)</td>
+<td>unit</td>
+</tr>
+</tbody>
+</table>
+<h3 id="25-utilities--scripts-sub-report-a5">2.5 Utilities &amp; scripts
+(sub-report A.5)</h3>
+<table>
+<thead>
+<tr>
+<th>test file</th>
+<th>code under test (<code>file:line</code>)</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/unit/core/utils/test_atomic_io.py:1</code> +
+<code>test_atomic_io_model_integration.py:1</code></td>
+<td><code>core/utils/atomic_io.py:1</code> (77 disk LOC)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/utils/test_env.py:1</code></td>
+<td><code>core/utils/env.py:1</code> (31 disk LOC)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/data_scraping/test_period_sf_empirical.py:1</code></td>
+<td><code>core/data_scraping/period.py:classify_period_marker / derive_period / build_period_segments</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/scripts/test_entrypoint.py:1</code></td>
+<td>repo CLI entrypoint</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/scripts/test_verify_pricing_pipeline.py:1</code></td>
+<td><code>scripts/odds_qa_testing/verify_pricing_pipeline.py</code></td>
+<td>unit</td>
+</tr>
+</tbody>
+</table>
+<h3 id="26-integration--flow--e2e-sub-report-b">2.6 Integration / flow /
+e2e (sub-report B)</h3>
+<table>
+<thead>
+<tr>
+<th>test file</th>
+<th>code under test (<code>file:line</code>)</th>
+<th>type</th>
+<th>gating</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/integration/test_calibration_regression.py:1</code> (692
+lines)</td>
+<td><code>match_calibration_service</code>,
+<code>main_pipeline.get_prob_for_zap</code>, ZAP cache layers</td>
+<td>integration (real Postgres + Redis + subprocess&#39;d FastAPI on port
+11002)</td>
+<td><code>--run-integration</code> + game <code>371402987</code>
+fixture</td>
+</tr>
+<tr>
+<td><code>tests/integration/test_data_availability.py:1</code> (573
+lines)</td>
+<td><code>match_calibration_service._load_*</code>,
+<code>infrastructure/kafka/scheduled_odds_fetch.py:1</code> (350
+added)</td>
+<td>integration (read-only)</td>
+<td><code>--run-integration</code> + ≥2,000 player-mapping rows</td>
+</tr>
+<tr>
+<td><code>tests/integration/test_data_completeness.py:1</code> (272
+lines)</td>
+<td><code>application/service/info/data_completeness_service.py:1</code>
+(338 added)</td>
+<td>integration (real Postgres seed + cleanup)</td>
+<td><code>--run-integration</code></td>
+</tr>
+<tr>
+<td><code>tests/integration/test_model_quality.py:1</code> (778
+lines)</td>
+<td>base models +
+<code>match_calibration_service.calibrate_match</code></td>
+<td>integration (in-process, no subprocess)</td>
+<td><code>--run-integration</code> + cached models</td>
+</tr>
+<tr>
+<td><code>tests/flow_tests/test_sf_coverage_flows.py:1</code> (286
+lines)</td>
+<td><code>pipeline_admin.py:1</code> (+448 / −1),
+<code>data_process/match_statistics.py</code> (+64 / −8)</td>
+<td>flow</td>
+<td><code>flow-tests.yml --ci</code></td>
+</tr>
+<tr>
+<td><code>tests/flow_tests/test_migrate_league_flow.py:1</code> (300
+lines)</td>
+<td><code>application/service/info/migration_service.py:1</code> (268
+added, monkey-patched)</td>
+<td>flow</td>
+<td><code>flow-tests.yml --ci</code></td>
+</tr>
+<tr>
+<td><code>tests/flow_tests/test_season_map_invalidation.py:1</code> (113
+lines)</td>
+<td>season-map plumbing</td>
+<td>flow</td>
+<td><code>flow-tests.yml --ci</code></td>
+</tr>
+<tr>
+<td><code>tests/test_odds_pricing_flows.py:1</code> (1594 lines)</td>
+<td><code>infrastructure/kafka/{request_producer,scheduled_odds_fetch}.py</code>,
+<code>lineup_models/*</code></td>
+<td>unit-style despite location</td>
+<td>uncovered by any workflow</td>
+</tr>
+<tr>
+<td><code>tests/pr102/test_e2e_kafka_betting_flow.py:1</code> (399
+lines)</td>
+<td>cross-service auth + bet + Kafka topics + Redis analytics</td>
+<td><strong>CLI script — pytest collects 0 from it</strong></td>
+<td>manual only</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-missing--high-impact">3. Missing — high impact</h2>
+<p>(Full annotated list with status / LOC / disk size in
+<strong>sub-report C</strong>.)</p>
+<ul>
+<li><strong>Lineup-models / lineup-Kafka pipeline</strong> — six modules
+(<code>lineup_consumer.py</code> 267, <code>lineup_producer.py</code>
+123, <code>lineup_scraper.py</code> 97,
+<code>lineup_change_detector.py</code> 159,
+<code>lineup_training_repository.py</code> 297,
+<code>lineup_source_priority.py</code> 99) plus
+<code>lineup_models/{constants,fitted_model,schemas,params}.py</code>
+(~830 disk LOC). **~1,870 LOC with no test importer.** Lineup events
+drive the starter-only assumption; silent corruption corrupts every
+priced ZAP.</li>
+<li><strong>Scheduled-fetch / analytics pipeline</strong> —
+<code>scheduled_odds_fetch.py</code> (350) is the only producer of
+<code>live_odds:{gid}</code> and <code>player_props:{gid}</code>;
+integration test only checks outputs, not the loop&#39;s retry / backoff /
+poison-message paths. <code>migration_service.py</code> (268) has a flow
+test that monkey-patches its internals.
+<code>request_analytics_service.py</code> (255) and
+<code>exposure_service.py</code> (210) each have one distant importer in
+<code>tests/test_odds_pricing_flows.py</code> but no focused unit.
+<code>infrastructure/web/app.py:1</code> (+112 / −5) startup wiring is
+not asserted.</li>
+<li><strong>Trust-root JWT helpers</strong> —
+<code>core/utils/jwt_helper.py</code> (95 disk LOC) is <strong>mocked
+out</strong> in the only test that touches admin auth
+(<code>tests/unit/test_admin_config_routes.py:32-34</code>). The trust
+root is unverified.</li>
+<li><strong>Largest single rewrite without a test</strong> —
+<code>core/data/data_access/mom_repository.py</code> (+88 / −63, 601
+disk LOC). MoM markets feed user-facing odds.</li>
+<li><strong><code>pipeline_admin.py</code></strong> (+448 / −1) —
+exercised via flow test for a few endpoints; bulk of new endpoints lack
+negative-path unit coverage.</li>
+<li><strong><code>infrastructure/api/tasks.py</code></strong> (+347 /
+−3) — saga path is covered by <code>test_assign_and_fit_saga.py</code>,
+but new lineup-producer start/stop, scheduled-odds tick, and
+calibration-scheduling glue are not unit-pinned.</li>
+</ul>
+<h2 id="4-missing--lower-impact">4. Missing — lower impact</h2>
+<p>(See sub-report C.3 for the full list.)</p>
+<ul>
+<li><code>core/utils/datetime_utils.py</code> (62 disk LOC) — no
+test.</li>
+<li><code>infrastructure/dependencies/ws_dependencies_copula.py</code>
+(+22 / −4) — no test.</li>
+<li><code>infrastructure/api/rest/routers/odds.py</code> (+40 / −2),
+<code>routes.py</code> (+28 / −4), <code>routers/data_health.py</code>
+(added, 111 disk), <code>routers/auth.py</code> (added, 79 disk) —
+routers untested as importers.</li>
+<li><code>infrastructure/api/websocket/{manager,manager_typed,handler}.py</code>
+— 1-line changes each; no test imports them. CLAUDE.md flags these as
+critical.</li>
+<li><code>infrastructure/web/middleware/request_context.py</code> (+3 /
+0) — <code>ROUTE_TO_FLOW</code> map. No test asserts new routes
+registered.</li>
+<li><code>infrastructure/cache/cache_utils.py</code> (+11 / 0) — no
+importer.</li>
+<li>Lint-style guard tests (<code>test_no_dead_debug_logs.py</code>,
+<code>test_no_hardcoded_debug_ids.py</code>) pass even when behaviour is
+broken.</li>
+</ul>
+<h2 id="5-quality-concerns">5. Quality concerns</h2>
+<p>(See sub-reports A.7 and B.7 for details.)</p>
+<ol type="1">
+<li><code>tests/pr102/test_e2e_kafka_betting_flow.py:1</code> is named
+like a pytest file but has no <code>def test_*</code> — pytest collects
+0 from it. Either rename to <code>scripts/manual_qa/</code> or convert
+to parametrised pytest with <code>@pytest.mark.e2e</code>.</li>
+<li>The two modified test files are 1-line touches (rename /
+import-path), not new coverage.</li>
+<li><code>tests/integration/test_calibration_regression.py:237-273</code>
+spawns a child Python process. Cleanup is
+<code>os.killpg(os.getpgid(...))</code> but no <code>try/finally</code>
+around the launch — non-pytest exceptions can leak the child. The 32-s
+<code>SLEEP_AFTER_ADJ_CHANGE_SEC</code> makes the suite ~2 min;
+flaky-by-time on slow runners.</li>
+<li>Skip-paths in two integration tests use
+<code>if not url or &quot;invalid&quot; in url</code> — fragile guard that depends
+on <code>conftest.py</code>&#39;s <code>unit-test.invalid</code>
+choice.</li>
+<li><code>tests/unit/test_admin_config_routes.py:29-34</code>
+neutralises <code>RedisCacheRepository</code> methods directly on the
+class at module-import time. Persists across the pytest session — risks
+cross-test contamination under <code>pytest-xdist</code>.</li>
+<li><code>tests/integration/test_data_availability.py</code> depends on
+≥2,000 <code>odds_api_player_mapping</code> rows and silently skips when
+missing.</li>
+<li><code>tests/flow_tests/test_migrate_league_flow.py:13-16</code>
+monkey-patches the migration-service internals; orchestration is
+covered, real branches are not.</li>
+<li>The match-calibration unit cluster mocks DB session and
+<code>predict_team_mean</code>. CLAUDE rule
+(<code>.claude/rules/testing.md</code>) forbids DB mocks for
+<em>integration</em> tests; unit tests are fine, but there&#39;s a coverage
+trough between mocked unit and subprocess-based integration.</li>
+<li><strong>No coverage threshold enforced.</strong>
+<code>pyproject.toml [tool.coverage]</code> is configured but no CI step
+runs <code>pytest --cov</code> or asserts a fail-under.</li>
+</ol>
+<h2 id="6-ci-signal">6. CI signal</h2>
+<p>Workflows in <code>.github/workflows/</code>:</p>
+<table>
+<thead>
+<tr>
+<th>workflow</th>
+<th>trigger</th>
+<th>runs <code>pytest tests/unit/</code>?</th>
+<th>runs <code>pytest tests/integration/</code>?</th>
+<th>runs <code>pytest tests/flow_tests/</code>?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test-pipeline.yml:1</code></td>
+<td>push/PR to <code>dev</code></td>
+<td>no — only <code>tests/run_test.sh</code> (WebSocket Docker
+smoke)</td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>flow-tests.yml:1</code></td>
+<td>push/PR to <code>dev</code></td>
+<td>no</td>
+<td>no</td>
+<td><strong>yes</strong> —
+<code>bash tests/flow_tests/run_flow_tests.sh --ci</code></td>
+</tr>
+<tr>
+<td><code>run-server.yml:1</code></td>
+<td>manual</td>
+<td>no</td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>claude.yml:1</code></td>
+<td>issue-comment</td>
+<td>no</td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>notify-docs.yml</code></td>
+<td>docs only</td>
+<td>no</td>
+<td>no</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<p>Practical consequences:</p>
+<ul>
+<li>The 73 unit tests added under <code>tests/unit/</code> (the bulk of
+the new coverage) are <strong>not exercised by any workflow on the
+PR-to-<code>dev</code> path</strong>. An import error or assertion
+failure in <code>tests/unit/</code> will not fail CI.</li>
+<li>The 4 integration tests under <code>tests/integration/</code> are
+gated by <code>--run-integration</code> (not passed by any workflow).
+Local-developer-only.</li>
+<li><code>tests/test_odds_pricing_flows.py</code> (1594 lines) lives at
+<code>tests/</code> root and is also not invoked by any workflow.</li>
+<li><code>tests/pr102/test_e2e_kafka_betting_flow.py</code> is a CLI
+script (no <code>def test_*</code>); not in any workflow.</li>
+<li>The green badge confirms only (a) the WebSocket Docker stack still
+boots, and (b) the flow tests pass under Docker. It does
+<strong>not</strong> confirm that the 73 new unit tests run, parse, or
+pass.</li>
+</ul>
+<h2 id="7-bottom-line">7. Bottom line</h2>
+<ul>
+<li>The PR adds substantial useful tests in absolute terms (~24k LOC of
+test code with thoughtful structure).</li>
+<li>The match-calibration service (1989 lines) gets the densest coverage
+across ~15 unit files and 1 integration regression — best-defended area
+in the PR.</li>
+<li>The cluster models (~2,500 lines added across 5 files) get a single
+in-tree test (370 lines) focused on cluster-zone distribution math; the
+predictor&#39;s full surface and the fitter&#39;s persistence/seed paths are not
+pinned.</li>
+<li>The Kafka lineup pipeline (~1,870 added LOC) has <strong>zero unit
+tests</strong>; only <code>tests/test_odds_pricing_flows.py</code>
+exercises a small mocked slice.</li>
+<li><strong>The single most important fix-before-merge: the 73 new unit
+tests under <code>tests/unit/</code> are not invoked by any CI
+workflow.</strong></li>
+</ul>
+<h2 id="8-top-recommendations">8. Top recommendations</h2>
+<p>(From sub-report C.6.)</p>
+<ol type="1">
+<li><strong>Gate the new unit suite in CI.</strong> Add a minimal step
+to a workflow on the PR-to-<code>dev</code> path:
+<pre><code>- run: PYTHONPATH=src pytest tests/unit -m &quot;not integration and not live and not e2e&quot;</code></pre>
+Add <code>tests/test_odds_pricing_flows.py</code> to that invocation or
+move it under <code>tests/unit/</code>.</li>
+<li><strong>Add a focused unit test for
+<code>scheduled_odds_fetch.run_scheduled_odds_fetch</code></strong> —
+empty-payload skip, retry on transient Kafka error, poison-message log +
+continue, heartbeat write.</li>
+<li><strong>Add unit tests for <code>KafkaLineupConsumer</code> /
+<code>KafkaLineupProducer</code></strong> — round-trip a representative
+event, assert the <code>is_starter</code> filter is honoured, assert
+message-format drift surfaces as an exception (not a silent drop).</li>
+<li><strong>Replace the JWT mock in
+<code>tests/unit/test_admin_config_routes.py:32-34</code> with a real
+round-trip against <code>jwt_helper.py</code></strong> — sign, verify,
+expiry. Or add <code>tests/unit/test_jwt_helper.py</code>.</li>
+</ol>
+</body>
+</html>

@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>BO #140 — HTTP Flows</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">@viewport { width: device-width; initial-scale: 1; }
+:root {
+--bg: #0d1117;
+--fg: #c9d1d9;
+--fg-muted: #8b949e;
+--border: #30363d;
+--link: #58a6ff;
+--code-bg: #161b22;
+--table-stripe: #161b22;
+--warn: #f0883e;
+--danger: #f85149;
+--good: #3fb950;
+--header: #f0f6fc;
+}
+@media (prefers-color-scheme: light) {
+:root {
+--bg: #ffffff;
+--fg: #1f2328;
+--fg-muted: #59636e;
+--border: #d1d9e0;
+--link: #0969da;
+--code-bg: #f6f8fa;
+--table-stripe: #f6f8fa;
+--warn: #bf8700;
+--danger: #cf222e;
+--good: #1a7f37;
+--header: #1f2328;
+}
+}
+* { box-sizing: border-box; }
+html, body {
+margin: 0;
+padding: 0;
+background: var(--bg);
+color: var(--fg);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+font-size: 16px;
+line-height: 1.6;
+-webkit-text-size-adjust: 100%;
+}
+body {
+max-width: 900px;
+margin: 0 auto;
+padding: 1.25rem 1rem 4rem;
+}
+h1, h2, h3, h4, h5, h6 {
+color: var(--header);
+margin-top: 1.6em;
+margin-bottom: 0.6em;
+line-height: 1.25;
+font-weight: 600;
+}
+h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.0rem; }
+p { margin: 0.6em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+code {
+background: var(--code-bg);
+padding: 0.15em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+font-size: 0.875em;
+word-break: break-word;
+}
+pre {
+background: var(--code-bg);
+padding: 0.85rem;
+border-radius: 6px;
+overflow-x: auto;
+font-size: 0.825em;
+line-height: 1.5;
+border: 1px solid var(--border);
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+blockquote {
+border-left: 4px solid var(--border);
+margin: 1em 0;
+padding: 0.4em 1em;
+color: var(--fg-muted);
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1em 0;
+font-size: 0.9em;
+display: block;
+overflow-x: auto;
+}
+th, td {
+border: 1px solid var(--border);
+padding: 0.4em 0.7em;
+text-align: left;
+vertical-align: top;
+}
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(2n) { background: var(--table-stripe); }
+hr {
+border: none;
+border-top: 1px solid var(--border);
+margin: 2em 0;
+}
+
+@media (max-width: 600px) {
+body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; }
+h1 { font-size: 1.45rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+pre { font-size: 0.78em; padding: 0.6rem; }
+table { font-size: 0.82em; }
+th, td { padding: 0.3em 0.5em; }
+}
+
+.review-index {
+list-style: none;
+padding: 0;
+}
+.review-index li {
+padding: 0.5em 0.7em;
+border: 1px solid var(--border);
+border-radius: 6px;
+margin: 0.4em 0;
+background: var(--code-bg);
+}
+.review-index li.master {
+border-left: 4px solid var(--good);
+font-weight: 600;
+}
+.review-index li.note {
+border-left: 4px solid var(--warn);
+font-style: italic;
+background: transparent;
+font-size: 0.9em;
+}
+.size {
+color: var(--fg-muted);
+font-size: 0.85em;
+float: right;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">BO #140 — HTTP Flows</h1>
+</header>
+<h1 id="pr-140--http--rest-flows">PR #140 — HTTP / REST Flows</h1>
+<p>Branch: <code>dev-coverage-and-odds-impro</code>. file:line
+references are PR head.</p>
+<h2 id="summary">Summary</h2>
+<ul>
+<li>New routes: 19</li>
+<li>Modified routes: 11 (instrumentation or import-only)</li>
+<li>Routes missing <code>flow_traced</code> on service entry: 17 (all
+admin/auth)</li>
+<li>Routes missing <code>ROUTE_TO_FLOW</code> entry: 17 (admin paths
+drop into the <code>&quot;&quot;</code> flow)</li>
+<li>Newly registered routers in <code>app.py</code>: 0 (all mounted via
+<code>rest/routes.py</code>)</li>
+</ul>
+<p><code>auth.router</code> and <code>data_health.router</code> are new
+routers; both are registered in
+<code>infrastructure/api/rest/routes.py:34, 44</code>.
+<code>app.py</code> change is import-only — the only
+<code>app.include_router</code> calls are still <code>rest_router</code>
+(<code>app.py:430</code>) and <code>ws_router</code>
+(<code>app.py:431</code>).</p>
+<p>Note on <code>ROUTE_TO_FLOW</code>: keys for admin/pipeline_admin
+routes lack the <code>/admin</code> prefix the router is actually
+mounted under (e.g. <code>(&quot;POST&quot;,&quot;/pipelines/{name}/refit&quot;)</code> vs
+the live URL <code>/admin/pipelines/...</code>). The two
+<code>data-health</code> keys are the only admin entries that include
+<code>/admin/</code> and therefore resolve. This is a pre-existing
+wiring bug exposed further by this PR but worth flagging — every
+admin/pipeline-admin handler logs with <code>flow=&quot;&quot;</code>.</p>
+<h2 id="routes-grouped-by-router">Routes (grouped by router)</h2>
+<h3 id="infrastructureapirestroutersauthpy--new-file-added-in-pr"><code>infrastructure/api/rest/routers/auth.py</code>
+— NEW FILE (added in PR)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Status</th>
+<th>file:line</th>
+<th>Service call</th>
+<th>Flow decorator</th>
+<th>ROUTE_TO_FLOW</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td>/auth/admin/login</td>
+<td>NEW</td>
+<td>auth.py:35</td>
+<td><code>get_admin_password()</code>,
+<code>create_access_token()</code> (jwt_helper)</td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/auth/admin/logout</td>
+<td>NEW</td>
+<td>auth.py:74</td>
+<td>none — clears cookie</td>
+<td>none</td>
+<td>missing</td>
+</tr>
+</tbody>
+</table>
+<p>Auth: public; sets <code>admin_token</code> HttpOnly cookie. No JWT
+guard (it&#39;s the issuer).</p>
+<h3 id="infrastructureapirestroutersdata_healthpy--new-file"><code>infrastructure/api/rest/routers/data_health.py</code>
+— NEW FILE</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Status</th>
+<th>file:line</th>
+<th>Service call</th>
+<th>Flow decorator</th>
+<th>ROUTE_TO_FLOW</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td>/admin/data-health/games/{game_id}</td>
+<td>NEW</td>
+<td>data_health.py:61</td>
+<td><code>DataCompletenessService.check_game</code>
+(<code>application/service/info/data_completeness_service.py:70</code>)</td>
+<td>none</td>
+<td>present (<code>request_context.py:123</code>,
+<code>admin.operations</code>)</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/admin/data-health/incomplete</td>
+<td>NEW</td>
+<td>data_health.py:84</td>
+<td><code>DataCompletenessService.list_incomplete_games</code>
+(<code>data_completeness_service.py</code>)</td>
+<td>none</td>
+<td>present (<code>request_context.py:124</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Auth: shared <code>Depends(verify_admin_token)</code> via mount
+(<code>rest/routes.py:44</code>).</p>
+<h3 id="infrastructureapirestroutersadminpy--modified-mostly-net-new-routes"><code>infrastructure/api/rest/routers/admin.py</code>
+— MODIFIED (mostly net-new routes)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Status</th>
+<th>file:line</th>
+<th>Service call</th>
+<th>Flow decorator</th>
+<th>ROUTE_TO_FLOW</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td>/admin/cache/invalidate-lineup/{game_id}</td>
+<td>NEW</td>
+<td>admin.py:113</td>
+<td><code>RepositoryFactory.lineups.clear_cache_for_game</code></td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/admin/cache/invalidate-predicted-lineup/{game_id}</td>
+<td>NEW</td>
+<td>admin.py:142</td>
+<td><code>predicted_lineups.clear_cache_for_game</code></td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/admin/cache/invalidate-missing-players/{game_id}</td>
+<td>NEW</td>
+<td>admin.py:161</td>
+<td><code>missing_players.clear_cache_for_game</code></td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/admin/cache/invalidate-game/{game_id}</td>
+<td>NEW</td>
+<td>admin.py:176</td>
+<td>repo + pipeline lookup caches + Redis pattern delete</td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/admin/cache/sizes</td>
+<td>NEW</td>
+<td>admin.py:273</td>
+<td>repo <code>cache_size()</code> reads</td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/admin/migration/run-targeted</td>
+<td>NEW</td>
+<td>admin.py:446</td>
+<td><code>BackgroundTasks.add_task(_run_targeted_migration_in_process)</code>
+(admin.py:356, calls
+<code>scripts/migrations/async_migrate_whoscored_new_to_postgres_v2.py</code>)</td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/admin/migration/{job_id}</td>
+<td>NEW</td>
+<td>admin.py:490</td>
+<td>in-memory <code>_migration_jobs</code> dict (admin.py:338)</td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/admin/config</td>
+<td>NEW</td>
+<td>admin.py:536</td>
+<td><code>list_runtime_flags()</code></td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/admin/config/{name}</td>
+<td>NEW</td>
+<td>admin.py:546</td>
+<td><code>set_runtime_flag()</code> (Redis)</td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td>/admin/config/{name}</td>
+<td>NEW</td>
+<td>admin.py:573</td>
+<td><code>clear_runtime_flag()</code></td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/admin/config/ui</td>
+<td>NEW</td>
+<td>admin.py:593</td>
+<td>Jinja2 template <code>admin_config.html</code></td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/admin/qa/bypass_game_time</td>
+<td>UNCHANGED</td>
+<td>admin.py:47</td>
+<td>–</td>
+<td>–</td>
+<td>present (as <code>odds.override</code>)</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/admin/qa/bypass_game_time</td>
+<td>UNCHANGED</td>
+<td>admin.py:57</td>
+<td>–</td>
+<td>–</td>
+<td>present</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td>/admin/config/{zone_group}</td>
+<td>UNCHANGED</td>
+<td>admin.py:70</td>
+<td>–</td>
+<td>–</td>
+<td>present (collides path-prefix with new
+<code>/admin/config/{name}</code> — disambiguated only by Pydantic body
+shape)</td>
+</tr>
+</tbody>
+</table>
+<p>Auth: router-level <code>Depends(verify_admin_token)</code> via mount
+(<code>rest/routes.py:40</code>); the <code>/config*</code> block
+additionally re-asserts the dep on each handler
+(admin.py:538,548,575,596).</p>
+<h3 id="infrastructureapirestrouterspipeline_adminpy--modified-3-new-routes--1-modified"><code>infrastructure/api/rest/routers/pipeline_admin.py</code>
+— MODIFIED (3 new routes + 1 modified)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Status</th>
+<th>file:line</th>
+<th>Service call</th>
+<th>Flow decorator</th>
+<th>ROUTE_TO_FLOW</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td>/admin/pipelines/{name}/assign-and-fit</td>
+<td>NEW</td>
+<td>pipeline_admin.py:187</td>
+<td><code>repo.add_season</code> + <code>RefitManager.start_refit</code>
++ saga rollback</td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/admin/pipelines/{name}/refit</td>
+<td>MODIFIED (added <code>calibrate_player_props</code> query)</td>
+<td>pipeline_admin.py:377</td>
+<td><code>RefitManager.start_refit(name, force, calibrate, calibrate_player_props)</code>
+(<code>application/service/calibration/refit_manager.py</code>)</td>
+<td>none</td>
+<td>partial — entry exists at
+<code>(&quot;POST&quot;,&quot;/pipelines/{name}/refit&quot;)</code> so it does NOT match
+<code>/admin/pipelines/...</code></td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/admin/pipelines/{name}/post-process</td>
+<td>NEW</td>
+<td>pipeline_admin.py:436</td>
+<td><code>MatchStatisticsProcessor</code>,
+<code>PlayerStatisticsProcessor</code>,
+<code>ZonalStatisticsProcessor</code>,
+<code>TeamZonalStatisticsProcessor</code> (sync, bulk DB writes)</td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/admin/pipelines/{name}/calibrate-player-props</td>
+<td>NEW</td>
+<td>pipeline_admin.py:508</td>
+<td><code>RefitManager.start_refit(force=False, calibrate_player_props=True)</code></td>
+<td>none</td>
+<td>partial — same prefix-mismatch as <code>/refit</code></td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/admin/sources/actions</td>
+<td>NEW</td>
+<td>pipeline_admin.py:417</td>
+<td>returns <code>SOURCE_ACTIONS</code> constant</td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/admin/reload-season-map</td>
+<td>UNCHANGED but adjacent</td>
+<td>pipeline_admin.py:335</td>
+<td><code>_reload_routing_map()</code></td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/admin/migrate/{league_code}</td>
+<td>NEW</td>
+<td>pipeline_admin.py:659</td>
+<td><code>MigrationService.migrate_league</code>
+(<code>application/service/info/migration_service.py:89</code>) →
+<code>_run_whoscored</code> (l.153) → <code>_run_sofascore</code>
+(l.212) → <code>migration_runs_audit</code> table</td>
+<td>none</td>
+<td>missing</td>
+</tr>
+<tr>
+<td>GET/PUT/POST/DELETE</td>
+<td>/admin/pipelines, /admin/pipelines/{name},
+/admin/pipelines/{name}/config, /admin/pipelines/{name}/seasons,
+/admin/seasons{,/unassigned}, /admin/refit/status{,/{name}}</td>
+<td>UNCHANGED</td>
+<td>pipeline_admin.py:113-360</td>
+<td>–</td>
+<td>–</td>
+<td>partial (entries exist without <code>/admin/</code> prefix)</td>
+</tr>
+</tbody>
+</table>
+<p>Auth: router-level admin guard via mount
+(<code>rest/routes.py:42</code>).</p>
+<h3 id="infrastructureapirestroutersoddspy--modified-instrumentation-only"><code>infrastructure/api/rest/routers/odds.py</code>
+— MODIFIED (instrumentation only)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Status</th>
+<th>file:line</th>
+<th>Service call</th>
+<th>Flow decorator</th>
+<th>ROUTE_TO_FLOW</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td>/get_parlay_odds</td>
+<td>MODIFIED — emits <code>OddsRequestEvent</code> per leg</td>
+<td>odds.py:101 (emit at 181-194)</td>
+<td><code>GetOddsForBet.get_odds_for_&lt;type&gt;</code>
+(<code>application/service/odds/odds_service.py:743/800/995/1050/1415</code>)
++ Kafka <code>odds_request_producer.emit</code></td>
+<td>service has <code>@flow_traced(Flow.ODDS_COMPUTE)</code></td>
+<td>present</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/get_parlay_expected_profit</td>
+<td>MODIFIED — emits per game_id</td>
+<td>odds.py:667 (emit at 837-855)</td>
+<td>same service entries + producer</td>
+<td>service-level <code>flow_traced</code></td>
+<td>present</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/get_player_odds</td>
+<td>MODIFIED (import path only)</td>
+<td>odds.py:240</td>
+<td><code>odds_service.get_odds_for_zap</code>
+<code>@flow_traced(Flow.ODDS_COMPUTE)</code>
+(<code>odds_service.py:743</code>)</td>
+<td>service</td>
+<td>present</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/get_zat_odds</td>
+<td>MODIFIED (import)</td>
+<td>odds.py:319</td>
+<td><code>get_odds_for_zat</code> <code>flow_traced</code>
+(<code>odds_service.py:800</code>)</td>
+<td>service</td>
+<td>present</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/get_team_prop_odds</td>
+<td>MODIFIED (import)</td>
+<td>odds.py:423</td>
+<td><code>get_odds_for_team_prop</code> <code>flow_traced</code>
+(<code>odds_service.py:1050</code>)</td>
+<td>service</td>
+<td>present</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/get_zao_odds</td>
+<td>MODIFIED (import)</td>
+<td>odds.py:475</td>
+<td><code>get_odds_for_zao</code> <code>flow_traced</code>
+(<code>odds_service.py:995</code>)</td>
+<td>service</td>
+<td>present</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/get_mom_odds</td>
+<td>MODIFIED (import)</td>
+<td>odds.py:531</td>
+<td><code>get_odds_for_mom</code> <code>flow_traced</code>
+(<code>odds_service.py:1415</code>)</td>
+<td>service</td>
+<td>present</td>
+</tr>
+</tbody>
+</table>
+<p>Net-new HTTP behaviour in this file is fire-and-forget Kafka emit
+(<code>request_producer.py:55</code>); the producer is started in
+<code>app.py:294</code> and stopped at <code>app.py:387</code>.</p>
+<h3 id="infrastructureapirestroutersbuilderpy--modified"><code>infrastructure/api/rest/routers/builder.py</code>
+— MODIFIED</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Status</th>
+<th>file:line</th>
+<th>Service call</th>
+<th>Flow decorator</th>
+<th>ROUTE_TO_FLOW</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST</td>
+<td>/builder/game/{game_id}/all-odds</td>
+<td>MODIFIED — emits <code>OddsRequestEvent(&quot;all_odds&quot;)</code> after
+computing</td>
+<td>builder.py:233 (emit <code>builder.py:294-307</code> per diff)</td>
+<td><code>BuilderService.get_all_odds_for_game</code> +
+<code>IdMappingRepository</code> +
+<code>odds_request_producer.emit</code></td>
+<td>none on builder service</td>
+<td>present (<code>odds.compute</code>)</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/builder/config, /builder/actions, /builder/config/{zone_group}</td>
+<td>UNCHANGED</td>
+<td>builder.py:106,124,142</td>
+<td>–</td>
+<td>–</td>
+<td>present</td>
+</tr>
+</tbody>
+</table>
+<h3 id="infrastructureapirestroutersinfopy--modified-import-path-only"><code>infrastructure/api/rest/routers/info.py</code>
+— MODIFIED (import path only)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Status</th>
+<th>file:line</th>
+<th>Service call</th>
+<th>Flow decorator</th>
+<th>ROUTE_TO_FLOW</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td>/info/games/market-odds</td>
+<td>MODIFIED (import only)</td>
+<td>info.py:354</td>
+<td><code>MarketOddsService.get_market_odds</code>
+<code>@flow_traced(Flow.DATA_INFO)</code>
+(<code>application/service/odds/market_odds_service.py:154</code>)</td>
+<td>service</td>
+<td>present</td>
+</tr>
+<tr>
+<td>(other /info/* routes)</td>
+<td>UNCHANGED — single-line import edit at info.py:9</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="infrastructureapirestrouterslivepy--modified-import-path-only-no-behaviour-change"><code>infrastructure/api/rest/routers/live.py</code>
+— MODIFIED (import path only, no behaviour change)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Status</th>
+<th>file:line</th>
+<th>Service call</th>
+<th>Flow decorator</th>
+<th>ROUTE_TO_FLOW</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td>/live/is_live/{game_id}</td>
+<td>UNCHANGED</td>
+<td>live.py:58</td>
+<td><code>LiveBettingService</code> (now
+<code>application/service/betting/live_betting_service.py</code>)</td>
+<td>none</td>
+<td>present</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>/live/is_live_batch</td>
+<td>UNCHANGED</td>
+<td>live.py:75</td>
+<td>same</td>
+<td>none</td>
+<td><strong>missing</strong> (pre-existing gap, not introduced by this
+PR)</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>/live/available_markets/{game_id}</td>
+<td>UNCHANGED</td>
+<td>live.py:100</td>
+<td>same</td>
+<td>none</td>
+<td>present</td>
+</tr>
+<tr>
+<td>PUT/DELETE</td>
+<td>/live/override/{game_id}, GET /live/overrides, PUT/GET
+/live/simulate, GET /live/policy</td>
+<td>UNCHANGED</td>
+<td>live.py:144,157,170,191,232,242</td>
+<td><code>live_policy.LIVE_BETTING_POLICY</code> + override store</td>
+<td>none</td>
+<td>present</td>
+</tr>
+</tbody>
+</table>
+<h3 id="infrastructureapirestroutersparameterspy--modified-import-path-only"><code>infrastructure/api/rest/routers/parameters.py</code>
+— MODIFIED (import path only)</h3>
+<p>All routes unchanged behaviourally. ROUTE_TO_FLOW entries already
+present.</p>
+<h2 id="flow-walks-for-non-trivial-new-flows">Flow walks (for
+non-trivial new flows)</h2>
+<h3 id="f-http-1-targeted-migration-bs--bo">F-HTTP-1: Targeted migration
+(BS → BO)</h3>
+<ul>
+<li>Entry: <code>infrastructure/api/rest/routers/admin.py:446</code>
+<code>POST /admin/migration/run-targeted</code></li>
+<li>Steps:
+<ol type="1">
+<li>validate <code>game_ids</code> non-empty
+(<code>admin.py:465</code>)</li>
+<li>mint <code>job_id</code>, register
+<code>_migration_jobs[job_id]</code>
+(<code>admin.py:468-477</code>)</li>
+<li><code>BackgroundTasks.add_task(_run_targeted_migration_in_process, ...)</code>
+(<code>admin.py:479</code>)</li>
+<li>background fn dynamically loads
+<code>scripts/migrations/async_migrate_whoscored_new_to_postgres_v2.py</code>
+(<code>admin.py:381-392</code>) and runs migration
+<code>main(Namespace(...))</code></li>
+<li>on success calls cache invalidation helpers (per docstring
+<code>admin.py:457</code>)</li>
+</ol></li>
+<li>Side effects: writes Postgres (<code>lineups</code>,
+<code>predicted_lineup_players</code>, <code>missing_players</code>,
+<code>match_statistics</code> etc.), Redis pattern-delete on
+<code>mom_odds:*</code>, <code>prob:zap:*</code>,
+<code>match_cal:*</code></li>
+<li>Status: NEW. No <code>flow_traced</code>; flow tag would be empty in
+logs.</li>
+</ul>
+<h3 id="f-http-2-league-migration-facade">F-HTTP-2: League migration
+facade</h3>
+<ul>
+<li>Entry: <code>pipeline_admin.py:659</code>
+<code>POST /admin/migrate/{league_code}</code></li>
+<li>Steps:
+<ol type="1">
+<li>resolve <code>MigrationService</code> →
+<code>migrate_league(league_code, days_back, include_whoscored, include_sofascore, force)</code>
+(<code>application/service/info/migration_service.py:89</code>)</li>
+<li><code>_run_whoscored</code> (<code>migration_service.py:153</code>)
+— invokes WhoScored migrator script, records run in
+<code>migration_runs_audit</code></li>
+<li><code>_run_sofascore</code> (<code>migration_service.py:212</code>)
+— gated on WhoScored success unless <code>force=True</code></li>
+<li>24h idempotency via audit table</li>
+</ol></li>
+<li>Side effects: large Postgres writes, Redis cache invalidations on
+completion</li>
+<li>Status: NEW.</li>
+</ul>
+<h3 id="f-http-3-assign-and-fit-saga">F-HTTP-3: Assign-and-fit saga</h3>
+<ul>
+<li>Entry: <code>pipeline_admin.py:187</code>
+<code>POST /admin/pipelines/{name}/assign-and-fit</code></li>
+<li>Steps:
+<ol type="1">
+<li>idempotency probe — return <code>noop</code> if season already in
+group + last refit <code>swapped</code>
+(<code>pipeline_admin.py:213-230</code>)</li>
+<li>snapshot prior assignment for rollback
+(<code>_find_any_assignment</code>
+<code>pipeline_admin.py:237</code>)</li>
+<li><code>repo.add_season(...)</code> upsert
+(<code>pipeline_admin.py:240-248</code>)</li>
+<li><code>RefitManager.start_refit(name, force, calibrate, calibrate_player_props)</code>
+(<code>pipeline_admin.py:259</code>); 409 →
+<code>_rollback_assignment</code>
+(<code>pipeline_admin.py:269</code>)</li>
+<li><code>_wait_for_refit_terminal(...)</code> poll loop until terminal
+status or timeout → 504 + rollback</li>
+<li>on <code>failed</code> → rollback + structured error response; on
+success → <code>_reload_routing_map()</code></li>
+</ol></li>
+<li>Side effects: Postgres <code>pipeline_group_seasons</code>,
+in-process model cache swap, in-memory <code>SEASON_TO_GROUP</code>
+reload</li>
+<li>Status: NEW.</li>
+</ul>
+<h3 id="f-http-4-auth-login-issuer">F-HTTP-4: Auth login (issuer)</h3>
+<ul>
+<li>Entry: <code>auth.py:35</code>
+<code>POST /auth/admin/login</code></li>
+<li>Steps: validate body password against
+<code>get_admin_password()</code>
+(<code>core/utils/jwt_helper.py</code>) →
+<code>create_access_token({&quot;sub&quot;:&quot;admin&quot;,&quot;role&quot;:&quot;admin&quot;})</code> →
+<code>JSONResponse</code> + <code>Set-Cookie admin_token</code>
+(HttpOnly, samesite=lax, secure=False)</li>
+<li>Notes: <code>secure=False</code> is intentional per docstring (TLS
+terminates upstream); duplicates Backend-Server&#39;s
+<code>/auth/admin/login</code> so the same JWT works against either
+service.</li>
+<li>Status: NEW.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>BS #668 — Architecture</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">@viewport { width: device-width; initial-scale: 1; }
+:root {
+--bg: #0d1117;
+--fg: #c9d1d9;
+--fg-muted: #8b949e;
+--border: #30363d;
+--link: #58a6ff;
+--code-bg: #161b22;
+--table-stripe: #161b22;
+--warn: #f0883e;
+--danger: #f85149;
+--good: #3fb950;
+--header: #f0f6fc;
+}
+@media (prefers-color-scheme: light) {
+:root {
+--bg: #ffffff;
+--fg: #1f2328;
+--fg-muted: #59636e;
+--border: #d1d9e0;
+--link: #0969da;
+--code-bg: #f6f8fa;
+--table-stripe: #f6f8fa;
+--warn: #bf8700;
+--danger: #cf222e;
+--good: #1a7f37;
+--header: #1f2328;
+}
+}
+* { box-sizing: border-box; }
+html, body {
+margin: 0;
+padding: 0;
+background: var(--bg);
+color: var(--fg);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+font-size: 16px;
+line-height: 1.6;
+-webkit-text-size-adjust: 100%;
+}
+body {
+max-width: 900px;
+margin: 0 auto;
+padding: 1.25rem 1rem 4rem;
+}
+h1, h2, h3, h4, h5, h6 {
+color: var(--header);
+margin-top: 1.6em;
+margin-bottom: 0.6em;
+line-height: 1.25;
+font-weight: 600;
+}
+h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.0rem; }
+p { margin: 0.6em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+code {
+background: var(--code-bg);
+padding: 0.15em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+font-size: 0.875em;
+word-break: break-word;
+}
+pre {
+background: var(--code-bg);
+padding: 0.85rem;
+border-radius: 6px;
+overflow-x: auto;
+font-size: 0.825em;
+line-height: 1.5;
+border: 1px solid var(--border);
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+blockquote {
+border-left: 4px solid var(--border);
+margin: 1em 0;
+padding: 0.4em 1em;
+color: var(--fg-muted);
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1em 0;
+font-size: 0.9em;
+display: block;
+overflow-x: auto;
+}
+th, td {
+border: 1px solid var(--border);
+padding: 0.4em 0.7em;
+text-align: left;
+vertical-align: top;
+}
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(2n) { background: var(--table-stripe); }
+hr {
+border: none;
+border-top: 1px solid var(--border);
+margin: 2em 0;
+}
+
+@media (max-width: 600px) {
+body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; }
+h1 { font-size: 1.45rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+pre { font-size: 0.78em; padding: 0.6rem; }
+table { font-size: 0.82em; }
+th, td { padding: 0.3em 0.5em; }
+}
+
+.review-index {
+list-style: none;
+padding: 0;
+}
+.review-index li {
+padding: 0.5em 0.7em;
+border: 1px solid var(--border);
+border-radius: 6px;
+margin: 0.4em 0;
+background: var(--code-bg);
+}
+.review-index li.master {
+border-left: 4px solid var(--good);
+font-weight: 600;
+}
+.review-index li.note {
+border-left: 4px solid var(--warn);
+font-style: italic;
+background: transparent;
+font-size: 0.9em;
+}
+.size {
+color: var(--fg-muted);
+font-size: 0.85em;
+float: right;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">BS #668 — Architecture</h1>
+</header>
+<h1 id="arch-specialist--synthesis-mid-level">Arch Specialist —
+Synthesis (Mid Level)</h1>
+<blockquote>
+<p>Synthesized from 4 leaf reports under <code>pr-668-leaves/</code>: <a href="pr-668-leaves/arch-services.html"><code>arch-services.md</code></a>,
+<a href="pr-668-leaves/arch-repositories.html"><code>arch-repositories.md</code></a>,
+<a href="pr-668-leaves/arch-migrations.html"><code>arch-migrations.md</code></a>,
+<a href="pr-668-leaves/arch-dtos-config.html"><code>arch-dtos-config.md</code></a>.</p>
+</blockquote>
+<h2 id="tldr">TL;DR</h2>
+<p>Three new top-level namespaces (<code>services/sofascore</code>,
+<code>services/admin</code>, <code>domain/identity</code>,
+<code>integrations/</code>, <code>infrastructure/kafka/</code>); two
+heavily-modified existing services (<code>GameInfoService</code>,
+<code>UserBetService</code>); 22 alembic migrations (16 net-new tables +
+6 merge heads + one <strong>destructive</strong> dedup); 8 new env vars
+(5 in <code>.required-env</code>, 8 in <code>.env.example</code> — drift
+on the ODDS_SERVICE_* set). The architecture follows the project&#39;s DDD
+layering with one notable exception: admin-side workflows use
+module-level mutable state plus daemon threads, not the async UoW
+pattern.</p>
+<h2 id="1-services">1. Services</h2>
+<h3 id="11-new-namespaces">1.1 New namespaces</h3>
+<table>
+<thead>
+<tr>
+<th>Namespace</th>
+<th>Purpose</th>
+<th>Files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>services/admin/</code></td>
+<td>Admin in-process job tracker + league-onboard service</td>
+<td>3 files</td>
+</tr>
+<tr>
+<td><code>services/sofascore/</code></td>
+<td>Read API for <code>/info/sofascore/*</code> (32 routes) + ID
+resolver</td>
+<td>3 files</td>
+</tr>
+</tbody>
+</table>
+<p><code>SofascoreDataService</code> exposes ~22 read methods, all
+delegate to <code>SofascoreDataRepository</code>.
+<code>SofascoreIdResolver</code> handles the dual-input pattern (every
+route accepts UUID OR sf_id transparently).</p>
+<h3 id="12-modified-services">1.2 Modified services</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Headline change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>services/statistics/game_info_service.py</code></td>
+<td>New <code>_compute_live_status_map</code> with partition + batched
+HTTP + time-based fallback</td>
+</tr>
+<tr>
+<td><code>services/bets/user_bet_service.py</code></td>
+<td>New <code>_emit_bet_placed_event</code> (Kafka topic
+<code>odds.user_bets</code>)</td>
+</tr>
+<tr>
+<td><code>services/notifications/event_processing_service.py</code></td>
+<td>Removed <code>_process_withdrawal_completed</code> +
+WITHDRAWAL_COMPLETED elif branch</td>
+</tr>
+<tr>
+<td><code>services/transactions/transaction_service.py</code></td>
+<td>Bug-3 fix — <code>create_manual_withdrawal</code> is now an instance
+method (was <code>@staticmethod</code> with <code>self</code>)</td>
+</tr>
+<tr>
+<td><code>services/withdrawals/withdrawal_service.py</code></td>
+<td>Modified — payment-metrics path retained</td>
+</tr>
+<tr>
+<td><code>services/notifications/{game_selection,process_outbox,queue_outbox}_service.py</code></td>
+<td>Modified</td>
+</tr>
+<tr>
+<td><code>services/{referrals,social}/...</code></td>
+<td>Modified</td>
+</tr>
+</tbody>
+</table>
+<p>Detail: see <a href="pr-668-leaves/arch-services.html"><code>arch-services.md</code></a>.</p>
+<h3 id="13-architectural-conformance">1.3 Architectural conformance</h3>
+<ul>
+<li>✅ Application services depend on domain + repo ports.</li>
+<li>✅ Identity abstractions live in <code>domain/identity/</code> with
+no infrastructure deps.</li>
+<li>✅ Kafka schemas are <code>@dataclass</code> (not Pydantic) —
+deliberately decoupled from web layer.</li>
+<li>⚠️ <strong><code>@flow_traced(Flow.X)</code> decoration on new
+services not verified</strong> — should be confirmed as part of
+merge.</li>
+<li>⚠️ <code>services/admin/league_onboard_service.py</code> uses
+module-level mutable state + sync DB inside daemon threads — diverges
+from the async UoW pattern used elsewhere (see risk leaf).</li>
+</ul>
+<h2 id="2-repositories--uow--orm">2. Repositories + UoW + ORM</h2>
+<h3 id="21-new-repository">2.1 New repository</h3>
+<p><code>infrastructure/repositories/sofascore/sofascore_data_repository.py</code>
+— single read-side repo for all SofaScore routes. Async SQLAlchemy
+session, ORM-based queries against <code>sofascore_models.py</code>.</p>
+<h3 id="22-modified-repositories">2.2 Modified repositories</h3>
+<p><code>bets/{betslipbets,leg}_repository.py</code>,
+<code>promotions/promotion_repository.py</code>,
+<code>social/league_repository.py</code>,
+<code>statistics/team_info_repo.py</code>. Small changes; details not
+enumerated in this leaf.</p>
+<h3 id="23-orm-first-compliance">2.3 ORM-first compliance</h3>
+<p><code>.claude/rules/orm-first.md</code> listed model gaps for the SF
++ WS work in PRs #654 and #656. <strong>All gaps are filled in this
+PR.</strong> Verified ORM classes for:</p>
+<pre><code>sofascore_models.py:
+  • SfTeamSquad           (line 987)
+  • SfTeamPerformance     (line 1014)
+  • SfMatchOddsFull       (line 1075)
+  • ScrapeRun             (line 1113)
+  • EnrichmentRun         (line 1158)
+  • SfEnrichmentMatchState (line 1222)
+
+whoscored_models.py:
+  • WhPlayerResolutionAudit
+  • WhoscoredRun</code></pre>
+<p>Detail: see <a href="pr-668-leaves/arch-repositories.html"><code>arch-repositories.md</code></a>.</p>
+<h2 id="3-migrations">3. Migrations</h2>
+<h3 id="31-inventory">3.1 Inventory</h3>
+<p>22 new alembic files. Composition:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Count</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DDL (table create + column add)</td>
+<td>13</td>
+<td>Largest is
+<code>20260324_add_sofascore_tables_and_columns</code></td>
+</tr>
+<tr>
+<td>DDL + DML (destructive)</td>
+<td>1</td>
+<td><code>20260420_dedup_competitions_add_unique</code></td>
+</tr>
+<tr>
+<td>DML (data fix)</td>
+<td>1</td>
+<td><code>20260417_fix_england_national_league_sf_tid</code></td>
+</tr>
+<tr>
+<td>Schema-extend (FK / column / config)</td>
+<td>1</td>
+<td><code>20260427_add_missing_sf_fks</code>,
+<code>20260428_add_config_to_audit_runs</code></td>
+</tr>
+<tr>
+<td>Merge heads (no-op)</td>
+<td>6</td>
+<td>Reflects parallel feature branches</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-headline-migration-20260420_dedup_competitions_add_unique">3.2
+Headline migration:
+<code>20260420_dedup_competitions_add_unique</code></h3>
+<pre><code>upgrade():
+   # Step 0: create competitions_dedup_audit (forensic table) — IF NOT EXISTS
+   # Step 1: identify dupe groups via _comp_canonical TEMP TABLE
+   #         canonical pick: (sf_unique_tournament_id IS NOT NULL) DESC, last_updated DESC NULLS LAST, competition_id ASC
+   # Step 2: insert &quot;plan_dedup_orphan&quot; rows into audit BEFORE mutating
+   # Step 3: re-point tournament_calendar.competition_id to canonical
+   # Step 4: merge duplicate tournament_calendar rows (keep one per (canonical, sf_season_id, wh_season_id))
+   # Step 5: cascade-delete orphan competitions
+   # Step 6: ADD UNIQUE constraints on known_name + (wh_tournament_id WHERE NOT NULL)
+
+downgrade():
+   # drops UNIQUE constraints + drops audit table
+   # does NOT restore deleted rows — recovery requires DB restore</code></pre>
+<h3 id="33-ordering-invariant">3.3 Ordering invariant</h3>
+<p><code>20260427_add_missing_sf_fks</code> MUST run AFTER
+<code>20260420_dedup_competitions</code> (otherwise the new FKs would
+violate against duplicate <code>competitions</code> rows). Enforced via
+the merge-heads chain.</p>
+<h3 id="34-orm-coverage">3.4 ORM coverage</h3>
+<p>All 16 net-new tables have ORM classes in this PR. ✅ See §2.3.</p>
+<h3 id="35-stale-column-rule-compliance">3.5 Stale-column rule
+compliance</h3>
+<p>No migration in this PR drops a non-<code>_deprecated</code> column.
+✅</p>
+<p>Detail: see <a href="pr-668-leaves/arch-migrations.html"><code>arch-migrations.md</code></a>.</p>
+<h2 id="4-dtos--config">4. DTOs / config</h2>
+<h3 id="41-schemas">4.1 Schemas</h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Items</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Request (Pydantic, inline in routes)</td>
+<td><code>SfEnrichRequest</code>, <code>SfOnboardRequest</code>,
+<code>OnboardAction</code>, <code>TriggerJobRequest</code>,
+<code>TriggerJobResponse</code>, <code>JobResponse</code>,
+<code>JobStatus</code>, <code>MAX_RESULT_LENGTH</code></td>
+</tr>
+<tr>
+<td>Request (Pydantic, file)</td>
+<td><code>LeagueOnboardRequest</code>, <code>OnboardStatus</code>,
+<code>LEAGUE_PRESETS</code> in
+<code>application/schemas/requests/league_onboard_schemas.py</code></td>
+</tr>
+<tr>
+<td>Response (Pydantic, file)</td>
+<td><code>application/schemas/responses/sofascore/{__init__, info, league, match, player, team}.py</code>
+— <strong>NOT wired</strong> via <code>response_model=</code></td>
+</tr>
+<tr>
+<td>Microservice DTOs</td>
+<td><code>IsLiveBatchRequest</code>,
+<code>LiveStatusBatchResponse</code></td>
+</tr>
+<tr>
+<td>Kafka events (<code>@dataclass</code>)</td>
+<td><code>BetPlacedEvent</code>, <code>OddsRequestEvent</code></td>
+</tr>
+<tr>
+<td>Cross-service contracts (<code>TypedDict</code>)</td>
+<td><code>TargetedMigrationRequest</code>,
+<code>MigrationJobResponse</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-config-object-additions">4.2 Config object additions</h3>
+<p><code>config/core/app.py</code>:</p>
+<ul>
+<li><code>LiveCheckMode</code> enum (ALWAYS, WINDOW).</li>
+<li><code>LIVE_CHECK_MODE</code>, <code>LIVE_CHECK_WINDOW_BEFORE</code>,
+<code>LIVE_CHECK_WINDOW_AFTER</code>.</li>
+<li><code>SECURE_COOKIES = (ENV == &quot;prod&quot;)</code>.</li>
+</ul>
+<h3 id="43-env-var-changes">4.3 Env-var changes</h3>
+<table>
+<thead>
+<tr>
+<th>Var(s)</th>
+<th>In <code>.env.example</code>?</th>
+<th>In <code>.required-env</code>?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LIVE_CHECK_*</code> (3)</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>KAFKA_*</code> (5)</td>
+<td>❌ (defaults in code)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><code>ODDS_SERVICE_SYNC_*</code> (8)</td>
+<td>✅</td>
+<td><strong>❌ — drift</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The 8 <code>ODDS_SERVICE_*</code> vars in <code>.env.example</code>
+are missing from <code>.required-env</code>, so SSM validation will not
+catch drift at deploy time. Risk specialist flag.</p>
+<h3 id="44-integrations-package-new">4.4 Integrations package (NEW)</h3>
+<p><code>src/backend_server/integrations/</code> — distinct from
+<code>infrastructure/microservices/</code>. Convention emerging:</p>
+<ul>
+<li><code>infrastructure/microservices/</code> — established RPC client
+(existing odds RPC, request/response DTOs).</li>
+<li><code>integrations/</code> — cross-service &quot;back-channel&quot; clients
+(BS pushing data into BO via admin endpoints; hand-mirrored TypedDict
+contracts).</li>
+</ul>
+<h3 id="45-domain-identity-package-new">4.5 Domain identity package
+(NEW)</h3>
+<p><code>src/backend_server/domain/identity/</code> — 7 files providing
+cross-provider ID abstractions (WhoScored ↔︎ SofaScore ↔︎ internal UUIDs).
+Critical for the SF coverage feature; consumed by both
+<code>services/sofascore/sofascore_id_resolver.py</code> and the scraper
+sinks.</p>
+<h3 id="46-logging-formatter-relocation-drift">4.6 Logging-formatter
+relocation (drift)</h3>
+<ul>
+<li>New location:
+<code>src/backend_server/core/utils/logging_formatter.py</code>.</li>
+<li><code>src/backend_server/app.py:54</code> — updated.</li>
+<li><code>src/scheduler/main.py:34</code> — <strong>NOT
+updated</strong>, still imports from old path. Will fail at scheduler
+startup unless a backwards-compat re-export exists at the old path. Risk
+specialist flag.</li>
+</ul>
+<p>Detail: see <a href="pr-668-leaves/arch-dtos-config.html"><code>arch-dtos-config.md</code></a>.</p>
+<h2 id="5-cross-cutting-architectural-notes">5. Cross-cutting
+architectural notes</h2>
+<table>
+<thead>
+<tr>
+<th>Note</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Admin job pattern</strong></td>
+<td>All three admin background workflows
+(<code>/admin/sofascore/enrich</code>,
+<code>/admin/sofascore/onboard</code>,
+<code>/admin/leagues/onboard</code>) use
+<code>threading.Thread(daemon=True)</code> + module-level
+<code>_jobs</code> dict. Status is lost on uvicorn worker restart.
+Inconsistent with the request-path async UoW pattern.</td>
+</tr>
+<tr>
+<td><strong>Kafka decoupling</strong></td>
+<td><code>@dataclass</code> events plus a singleton producer keep Kafka
+concerns out of the web/domain layers. Producer is fire-and-forget by
+design — <code>produce</code> never raises.</td>
+</tr>
+<tr>
+<td><strong>Routes-without-response-models</strong></td>
+<td>32 SofaScore data routes lack <code>response_model=</code>. Schemas
+exist; just not wired. Not a regression but a missed contract
+guarantee.</td>
+</tr>
+<tr>
+<td><strong>Hand-mirrored cross-service DTO</strong></td>
+<td><code>_odds_admin_contracts.py</code> is a calculated trade-off — a
+TypedDict per BS↔︎BO admin endpoint, with an inline note proposing
+promotion to <code>specs/</code> if a second consumer appears.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>BO #140 — Unit Tests</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">@viewport { width: device-width; initial-scale: 1; }
+:root {
+--bg: #0d1117;
+--fg: #c9d1d9;
+--fg-muted: #8b949e;
+--border: #30363d;
+--link: #58a6ff;
+--code-bg: #161b22;
+--table-stripe: #161b22;
+--warn: #f0883e;
+--danger: #f85149;
+--good: #3fb950;
+--header: #f0f6fc;
+}
+@media (prefers-color-scheme: light) {
+:root {
+--bg: #ffffff;
+--fg: #1f2328;
+--fg-muted: #59636e;
+--border: #d1d9e0;
+--link: #0969da;
+--code-bg: #f6f8fa;
+--table-stripe: #f6f8fa;
+--warn: #bf8700;
+--danger: #cf222e;
+--good: #1a7f37;
+--header: #1f2328;
+}
+}
+* { box-sizing: border-box; }
+html, body {
+margin: 0;
+padding: 0;
+background: var(--bg);
+color: var(--fg);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+font-size: 16px;
+line-height: 1.6;
+-webkit-text-size-adjust: 100%;
+}
+body {
+max-width: 900px;
+margin: 0 auto;
+padding: 1.25rem 1rem 4rem;
+}
+h1, h2, h3, h4, h5, h6 {
+color: var(--header);
+margin-top: 1.6em;
+margin-bottom: 0.6em;
+line-height: 1.25;
+font-weight: 600;
+}
+h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.0rem; }
+p { margin: 0.6em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+code {
+background: var(--code-bg);
+padding: 0.15em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+font-size: 0.875em;
+word-break: break-word;
+}
+pre {
+background: var(--code-bg);
+padding: 0.85rem;
+border-radius: 6px;
+overflow-x: auto;
+font-size: 0.825em;
+line-height: 1.5;
+border: 1px solid var(--border);
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+blockquote {
+border-left: 4px solid var(--border);
+margin: 1em 0;
+padding: 0.4em 1em;
+color: var(--fg-muted);
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1em 0;
+font-size: 0.9em;
+display: block;
+overflow-x: auto;
+}
+th, td {
+border: 1px solid var(--border);
+padding: 0.4em 0.7em;
+text-align: left;
+vertical-align: top;
+}
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(2n) { background: var(--table-stripe); }
+hr {
+border: none;
+border-top: 1px solid var(--border);
+margin: 2em 0;
+}
+
+@media (max-width: 600px) {
+body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; }
+h1 { font-size: 1.45rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+pre { font-size: 0.78em; padding: 0.6rem; }
+table { font-size: 0.82em; }
+th, td { padding: 0.3em 0.5em; }
+}
+
+.review-index {
+list-style: none;
+padding: 0;
+}
+.review-index li {
+padding: 0.5em 0.7em;
+border: 1px solid var(--border);
+border-radius: 6px;
+margin: 0.4em 0;
+background: var(--code-bg);
+}
+.review-index li.master {
+border-left: 4px solid var(--good);
+font-weight: 600;
+}
+.review-index li.note {
+border-left: 4px solid var(--warn);
+font-style: italic;
+background: transparent;
+font-size: 0.9em;
+}
+.size {
+color: var(--fg-muted);
+font-size: 0.85em;
+float: right;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">BO #140 — Unit Tests</h1>
+</header>
+<h1 id="sub-report-a--unit-tests">Sub-report A — Unit tests</h1>
+<p>Read-only mapping of every unit test file the PR adds or modifies to
+the production module(s) it exercises. All file:line citations target
+the working tree at
+<code>/Users/tbg/Desktop/programming/Dev-Agentic/Backend-Odds</code> on
+the PR branch.</p>
+<h2 id="tally">Tally</h2>
+<ul>
+<li>Added: 73 unit-test files (counting <code>__init__.py</code> package
+markers as 0).</li>
+<li>Modified: 0 (the 2 modified test files in this PR live outside
+<code>tests/unit/</code> and are covered in sub-report B).</li>
+<li>Empty package <code>__init__.py</code> files added under
+<code>tests/unit/</code>: 14 (structural only — no test bodies).</li>
+<li>Fixtures added:
+<code>tests/unit/rate_access_baseline.json</code>.</li>
+</ul>
+<h2 id="a1-application-services">A.1 Application services</h2>
+<table>
+<thead>
+<tr>
+<th>test file</th>
+<th>tests added</th>
+<th>code under test (<code>file:line</code>)</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/unit/application/test_market_odds_api_service.py:1</code></td>
+<td>parses <code>tests/fixtures/odds_api/upcoming_events.json</code>;
+mocks <code>LiveOddsAPI</code>/<code>HistoricalOddsAPI</code>; covers
+<code>fetch_upcoming_events</code>, <code>OddsApiAuthError</code>,
+<code>OddsApiRateLimitError</code> paths</td>
+<td><code>src/backend_odds/application/service/odds/market_odds_api_service.py:1</code>
+(450 added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/application/test_vig_policy.py:1</code></td>
+<td>golden snapshots over <code>vig_margin ∈ {0.05, 0.16}</code> × odds
+grid for <code>apply_divisive_vig</code>, <code>apply_power_vig</code>,
+<code>invert_power_vig</code></td>
+<td><code>src/backend_odds/application/service/odds/vig_policy.py:1</code>
+(191 added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/application/test_data_completeness_service.py:1</code></td>
+<td>per-rule unit tests with hand-rolled <code>_FakeSession</code> that
+pattern-matches on SQL prefixes</td>
+<td><code>src/backend_odds/application/service/info/data_completeness_service.py:1</code>
+(338 added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/application/test_backtest_runner.py:1</code></td>
+<td>exercises <code>BacktestRunner</code> with
+<code>_FakeMainPipelineConfig</code>; patches
+<code>_build_pipeline_config</code> to avoid Redis/DB</td>
+<td><code>src/backend_odds/application/service/backtest/backtest_runner.py:1</code>
+(542 added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_team_props_calibration_service.py:1</code></td>
+<td>seeds corner/card markets, asserts
+<code>_calibrate_team_props</code> factor direction, clamp bounds,
+DB-error swallow, <code>predict_team_mean=None</code> skip</td>
+<td><code>src/backend_odds/application/service/calibration/match_calibration_service.py</code>
+(1989 added module)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_team_props_calibration_parity.py:1</code></td>
+<td>parity between corner &amp; card calibration paths (same factor on
+equivalent input)</td>
+<td>same</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_match_calibration_unbounded_fit.py:1</code></td>
+<td>URA-T14: drives unbounded L-BFGS-B 2-D fit; asserts (A) gap-closing
+on 30/60% market vs base, (B) determinism within 1e-6, (C)
+extreme-factor structured WARN, (D) single <code>minimize</code> call
+(regression on coord-descent), (E) env-var bound
+<code>MATCH_CALIBRATION_FACTOR_MAX=2.0</code> truncates optimum</td>
+<td><code>match_calibration_service._optimise_factors</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_match_calibration_fitted_r.py:1</code></td>
+<td>URA-T15: locks fitted moneyline residual into pricing</td>
+<td><code>match_calibration_service</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_calibrate_player_props_from_redis.py:1</code></td>
+<td>round-trips <code>player_props:{gid}</code> payload shape into
+<code>_load_player_props_from_redis</code></td>
+<td><code>match_calibration_service._load_player_props_from_redis</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_extreme_factor_policy.py:1</code></td>
+<td>URA-T41: <code>clamp</code> (default), <code>skip</code>,
+<code>passthrough_with_alert</code> (with 1000-entry sorted-set cap),
+<code>block_pricing</code> (sentinel honoured by
+<code>get_prob_for_zap</code>)</td>
+<td><code>src/backend_odds/application/service/odds/extreme_factor_alerts.py:1</code>
+(140 added) + <code>match_calibration_service</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_player_prop_factor_clamp.py:1</code></td>
+<td>T29 <code>[0.3, 3.0]</code> clamp boundaries
+(inclusive/exclusive)</td>
+<td><code>match_calibration_service</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_player_prop_decoupled_calibration.py:1</code></td>
+<td>per-action calibration is independent (one action&#39;s factor doesn&#39;t
+bleed into another)</td>
+<td><code>match_calibration_service</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_player_prop_end_to_end.py:1</code></td>
+<td>end-to-end input → adjustment → priced odds</td>
+<td><code>match_calibration_service</code> + main_pipeline</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_player_adjustments_propagate.py:1</code></td>
+<td>adjustments flow into
+<code>main_pipeline.get_prob_for_zap</code></td>
+<td><code>match_calibration_service</code> +
+<code>main_pipeline.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_player_prop_fetch_wrapper.py:1</code></td>
+<td>wrapper around scheduled-odds fetch (logging, error handling)</td>
+<td>calibration helper</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_team_adjustments_consumer.py:1</code></td>
+<td>round-trip on team-adjust consumer</td>
+<td><code>match_calibration_service</code> + downstream</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_simulate_match_calibrated.py:1</code></td>
+<td>calibrated Monte-Carlo simulation outputs</td>
+<td>pipeline + <code>match_calibration_service</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_zao_calibrated.py:1</code></td>
+<td>ZAO odds when calibration is applied</td>
+<td><code>core/prediction_models/orchestration/zao_odds.py</code> +
+match_calibration</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_assign_and_fit_saga.py:1</code></td>
+<td>saga over assign + fit (covers
+<code>infrastructure/api/tasks.py</code> saga branch)</td>
+<td><code>src/backend_odds/infrastructure/api/tasks.py</code> (347
+added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_admin_config_routes.py:1</code></td>
+<td>URA-T40 admin runtime-flag routes (GET/POST/DELETE + HTML UI); JWT
+auth dependency overridden, Redis monkey-patched at module load</td>
+<td><code>src/backend_odds/infrastructure/dependencies/admin_auth.py:1</code>
+(70 added) + <code>infrastructure/api/rest/routers/admin.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_runtime_flags.py:1</code></td>
+<td>runtime-flag store CRUD with fake Redis</td>
+<td><code>src/backend_odds/core/utils/runtime_flags.py</code> (added,
+481 lines on disk)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_event_source_resolution.py:1</code></td>
+<td>source-priority resolution for <code>event_source</code> table</td>
+<td><code>src/backend_odds/core/data/event_source.py:1</code> (75
+added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_source_selection_config.py:1</code></td>
+<td>config-driven event-source selection</td>
+<td><code>event_source.py</code> + repos</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_pricing_context.py:1</code></td>
+<td><code>PricingContext</code> dataclass invariants</td>
+<td><code>core/prediction_models/orchestration/pricing_context.py</code>
+(added, 242 lines on disk)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_market_odds_service_pricing_context.py:1</code></td>
+<td><code>PricingContext</code> propagation through market-odds
+service</td>
+<td><code>application/service/odds/market_odds_service.py</code>
+(renamed/modified)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_batch_zap_pricing_context.py:1</code></td>
+<td>batch ZAP context plumbing</td>
+<td><code>core/prediction_models/orchestration/batch_zap.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_player_mapping.py:1</code></td>
+<td>player-name → internal id mapping helper</td>
+<td>repo helpers</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_get_prob_for_zap_calibration.py:1</code></td>
+<td><code>get_prob_for_zap</code> honours adjustment + pricing-block
+sentinel</td>
+<td><code>main_pipeline.get_prob_for_zap</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_parlay_calibration_consistency.py:1</code></td>
+<td>parlay path uses same calibration as singles</td>
+<td><code>orchestration/parlay_odds.py</code> +
+<code>main_pipeline.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_ensure_models_loaded.py:1</code></td>
+<td>URA-T29 ensure-models guard (early-fail when artifacts missing)</td>
+<td>dependencies / model-load layer</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_rate_access_enforcement.py:1</code></td>
+<td>URA rate-access baseline pinned via
+<code>tests/unit/rate_access_baseline.json</code></td>
+<td><code>core/data/data_access/*</code> rate access</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_joint_calibration_demo.py:1</code></td>
+<td>joint calibration demo path</td>
+<td><code>match_calibration_service</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_migration_audit.py:1</code></td>
+<td>exercises <code>migration_runs_audit</code> table interactions</td>
+<td>alembic-side audit table + <code>MigrationService</code>-adjacent
+code</td>
+<td>unit</td>
+</tr>
+</tbody>
+</table>
+<h2 id="a2-repositories--data-access">A.2 Repositories &amp; data
+access</h2>
+<table>
+<thead>
+<tr>
+<th>test file</th>
+<th>tests added</th>
+<th>code under test (<code>file:line</code>)</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/unit/core/data/data_access/test_games_repository.py:1</code></td>
+<td>repo methods against <code>unit-test.invalid</code> URL (no real DB
+connection)</td>
+<td><code>src/backend_odds/core/data/data_access/games_repository.py:1</code>
+(+71/-2)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/data/data_access/test_match_statistics_repository.py:1</code></td>
+<td>new fields, action coverage including <code>dribbles</code></td>
+<td><code>match_statistics_repository.py:1</code> (+57/-12)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/data/data_access/test_player_statistics_repository.py:1</code></td>
+<td>new fields, action coverage</td>
+<td><code>player_statistics_repository.py:1</code> (+89/-15)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/data/data_access/test_players_repository.py:1</code></td>
+<td>players repository</td>
+<td><code>players_repository.py:1</code> (+55/-23)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/data/data_access/test_zonal_statistics_repository.py:1</code></td>
+<td>zonal-stats reads</td>
+<td><code>zonal_statistics_repository.py:1</code> (+24/-4)</td>
+<td>unit</td>
+</tr>
+</tbody>
+</table>
+<h2 id="a3-prediction-models">A.3 Prediction models</h2>
+<table>
+<thead>
+<tr>
+<th>test file</th>
+<th>tests added</th>
+<th>code under test (<code>file:line</code>)</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/unit/core/prediction_models/zonal_models/test_dirichlet_per_action_alpha.py:1</code></td>
+<td>per-action α (URA-T18 fix)</td>
+<td><code>zonal_models/dirichlet.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/zonal_models/test_force_refit_compat.py:1</code></td>
+<td>force-refit cache-compat path</td>
+<td><code>zonal_models/zonal_model_pipeline.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/zonal_models/test_insufficient_teams_cache_guard.py:1</code></td>
+<td>guard against thin training data</td>
+<td><code>zonal_model_pipeline.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/zonal_models/test_zonal_model_pipeline.py:1</code></td>
+<td>overall pipeline shape</td>
+<td><code>zonal_model_pipeline.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/team_models/test_team_model_pipeline_tz.py:1</code></td>
+<td>timezone handling in team-model pipeline</td>
+<td><code>team_models/team_model_pipeline.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/mom_models/test_mom_overround.py:1</code></td>
+<td>overround math</td>
+<td><code>mom_models/mom_model.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/mom_models/test_mom_rng.py:1</code></td>
+<td>RNG determinism</td>
+<td><code>mom_models/mom_model.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/test_config_utc.py:1</code></td>
+<td>config UTC normalisation</td>
+<td><code>prediction_models/config.py:1</code> (+111/-5)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/player_action_models/test_player_action_pipeline_starter_filter.py:1</code></td>
+<td>locks the starter-only assumption (CLAUDE.md mandatory rule)</td>
+<td><code>player_action_models/player_action_pipeline.py:181</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/player_action_models/test_no_dead_debug_logs.py:1</code></td>
+<td>grep-style: no <code>print()</code> / dead debug logs in prod
+code</td>
+<td>source tree</td>
+<td>unit (lint-style)</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/prediction_models/player_action_models/test_no_hardcoded_debug_ids.py:1</code></td>
+<td>grep-style: no hardcoded player/game IDs</td>
+<td>source tree</td>
+<td>unit (lint-style)</td>
+</tr>
+</tbody>
+</table>
+<p>In-tree (lives under <code>src/</code>, also a unit suite):</p>
+<table>
+<thead>
+<tr>
+<th>test file</th>
+<th>tests added</th>
+<th>code under test (<code>file:line</code>)</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/backend_odds/core/prediction_models/tests/test_cluster_zone_distributions.py:1</code>
+(370 lines)</td>
+<td>per-cluster zone distributions; cluster-zonal joint prediction
+(Change 1 + Change 2 in cluster models work)</td>
+<td><code>cluster_models/fitter.py:1</code> (698 added),
+<code>cluster_models/fitted_model.py:1</code> (282 added),
+<code>cluster_models/predictor.py:1</code> (717 added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>src/backend_odds/core/prediction_models/tests/test_zonal_model.py:1</code>
+(modified, 962 lines)</td>
+<td>full zonal-model pipeline coverage</td>
+<td><code>zonal_models/*</code></td>
+<td>unit</td>
+</tr>
+</tbody>
+</table>
+<h2 id="a4-infrastructure-kafka--cache--migrations--alembic">A.4
+Infrastructure (Kafka / cache / migrations / alembic)</h2>
+<table>
+<thead>
+<tr>
+<th>test file</th>
+<th>tests added</th>
+<th>code under test (<code>file:line</code>)</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/unit/infrastructure/cache/test_key_utils.py:1</code></td>
+<td>cluster-safe key helpers</td>
+<td><code>src/backend_odds/infrastructure/cache/key_utils.py:1</code>
+(49 added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/infrastructure/kafka/test_consumer_parse_game_id.py:1</code></td>
+<td><code>parse_game_id</code> edge cases</td>
+<td><code>infrastructure/kafka/consumer.py</code> (+188/-6)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/infrastructure/kafka/test_consumer_silent_failures.py:1</code></td>
+<td>consumer must not raise on poisoned messages</td>
+<td><code>consumer.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/infrastructure/kafka/test_schemas.py:1</code></td>
+<td>schema round-trip</td>
+<td><code>infrastructure/kafka/schemas.py:1</code> (+122/-3)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/alembic/test_env_safety_flags.py:1</code></td>
+<td>both <code>alembic/env.py</code> +
+<code>alembic_ext_odds/env.py</code> set <code>compare_type=True</code>
+and <code>compare_server_default=True</code> in offline + online
+paths</td>
+<td><code>alembic/env.py:1</code>,
+<code>alembic_ext_odds/env.py:1</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/alembic/test_ext_odds_baseline_migration.py:1</code></td>
+<td>smoke for the 989-line baseline migration</td>
+<td><code>alembic_ext_odds/versions/f0a1b2c3d4e5_initial_ext_odds_schema.py</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/migrations/test_drift_check.py:1</code></td>
+<td>hermetic alembic config in tmp dir + sqlite engine; locks
+<code>check_alembic_drift</code> (audit A.5)</td>
+<td><code>src/backend_odds/infrastructure/migrations/drift_check.py:1</code>
+(243 added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/migrations/test_sf_match_statistics_mapping.py:1</code></td>
+<td>SF → <code>sf_match_statistics</code> field mapping</td>
+<td><code>core/data/data_process/match_statistics.py</code> (+64/-8) +
+migration</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/migrations/test_sf_migrator_period.py:1</code> (374
+lines)</td>
+<td>period derivation in SF migrator</td>
+<td><code>core/data_scraping/period.py:1</code> (303 added) +
+<code>sqlalchemy/types.py:1</code> (61 added)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/migrations/test_sf_migrator_own_goal.py:1</code></td>
+<td>own-goal handling</td>
+<td>SF migrator</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/migrations/test_sf_migrator_no_incident_events.py:1</code></td>
+<td>empty-incidents path</td>
+<td>SF migrator</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/migrations/test_sf_migrator_fallback.py:1</code></td>
+<td>fallback when SF missing</td>
+<td>SF migrator</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/migrations/test_sf_migrator_batching_and_lock.py:1</code></td>
+<td>batch-lock semantics for <code>match_lock</code> table</td>
+<td>SF migrator + match_lock alembic version</td>
+<td>unit</td>
+</tr>
+</tbody>
+</table>
+<h2 id="a5-utilities--scripts">A.5 Utilities &amp; scripts</h2>
+<table>
+<thead>
+<tr>
+<th>test file</th>
+<th>tests added</th>
+<th>code under test (<code>file:line</code>)</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/unit/core/utils/test_atomic_io.py:1</code></td>
+<td>atomic write / fsync / rename</td>
+<td><code>src/backend_odds/core/utils/atomic_io.py:1</code> (added, 77
+lines)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/utils/test_atomic_io_model_integration.py:1</code></td>
+<td>model save sites use atomic_io</td>
+<td><code>atomic_io.py</code> + model save callers</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/core/utils/test_env.py:1</code></td>
+<td>env-helper coercion</td>
+<td><code>src/backend_odds/core/utils/env.py:1</code> (added, 31
+lines)</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/data_scraping/test_period_sf_empirical.py:1</code></td>
+<td>empirical SF period strings (<code>HT/FT/ET/PEN</code> plus
+mixed-case)</td>
+<td><code>core/data_scraping/period.py:classify_period_marker</code>,
+<code>derive_period</code>, <code>build_period_segments</code></td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/scripts/test_entrypoint.py:1</code></td>
+<td>CLI entrypoint contract</td>
+<td>repo entrypoint</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/scripts/test_verify_pricing_pipeline.py:1</code></td>
+<td>rematch detection, fetch freshness, divergence threshold</td>
+<td><code>scripts/odds_qa_testing/verify_pricing_pipeline.py</code></td>
+<td>unit</td>
+</tr>
+</tbody>
+</table>
+<h2 id="a6-conftest--fixture-infrastructure-relevant-for-understanding-hermeticism">A.6
+Conftest + fixture infrastructure (relevant for understanding
+hermeticism)</h2>
+<ul>
+<li><code>tests/unit/conftest.py:14-16</code> — sets
+<code>DATABASE_URL</code> to
+<code>postgresql://unit-test:unit-test@unit-test.invalid:5432/unit-test</code>
+so the data-access package <code>__init__</code> doesn&#39;t crash. Real DB
+connections fail loud.</li>
+<li><code>tests/unit/__init__.py</code> — empty package marker
+(added).</li>
+<li>13 additional empty <code>__init__.py</code> files added to mirror
+<code>tests/unit/</code> to the <code>src/backend_odds/</code> tree
+(<code>alembic/</code>, <code>application/</code>, <code>core/</code>,
+<code>core/data/</code>, <code>core/data/data_access/</code>,
+<code>core/prediction_models/</code>,
+<code>core/prediction_models/player_action_models/</code>,
+<code>core/prediction_models/zonal_models/</code>,
+<code>core/utils/</code>, <code>data_scraping/</code>,
+<code>infrastructure/</code>, <code>infrastructure/cache/</code>,
+<code>infrastructure/kafka/</code>, <code>migrations/</code>).</li>
+</ul>
+<h2 id="a7-style--quality-observations-on-the-unit-suite">A.7 Style /
+quality observations on the unit suite</h2>
+<ol type="1">
+<li><code>tests/unit/test_admin_config_routes.py:29-34</code> rewrites
+<code>RedisCacheRepository.__init__</code>/<code>get</code>/<code>set</code>/<code>delete</code>
+directly on the class at module-import time. This persists for the rest
+of the pytest session — any subsequent test in the same process that
+uses <code>RedisCacheRepository</code> will see the neutered class.
+Should be scoped via <code>monkeypatch</code> fixture or a
+<code>conftest.py</code> autouse with explicit teardown.</li>
+<li><code>tests/unit/core/prediction_models/player_action_models/test_no_dead_debug_logs.py:1</code>
+and <code>test_no_hardcoded_debug_ids.py:1</code> are grep-style
+(assert-on-file-content) tests. Useful as guard rails but they pass even
+if behaviour is broken.</li>
+<li><code>tests/unit/application/test_backtest_runner.py:62-70</code>
+patches <code>_build_pipeline_config</code> at module boundary to avoid
+<code>MainPipelineConfig.__init__()</code> touching Redis. The patch is
+correctly scoped to the test module, but tests under
+<code>tests/unit/test_assign_and_fit_saga.py</code> and
+<code>tests/unit/test_extreme_factor_policy.py</code> use
+<code>importlib.reload</code>-style patterns that risk leaking module
+state across tests; verify under <code>pytest-xdist</code>.</li>
+<li>The whole match-calibration unit cluster (~15 files) mocks
+<code>predict_team_mean</code> and the SQLAlchemy session with
+<code>MagicMock</code>. CLAUDE rule
+(<code>.claude/rules/testing.md</code>) forbids DB mocks for
+<em>integration</em> tests; unit tests are fine, but the only end-to-end
+tests that wire this calibration into a real pipeline live in
+<code>tests/integration/</code> and require
+<code>--run-integration</code> (see sub-report B).</li>
+<li>The <code>tests/unit/rate_access_baseline.json</code> fixture (12
+lines) is a frozen baseline. Tests that assert against it must
+regenerate when rate-access intentionally changes; commit-message
+discipline matters.</li>
+</ol>
+</body>
+</html>

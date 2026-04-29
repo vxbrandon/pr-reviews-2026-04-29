@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>BS #668 — Test Audit</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">@viewport { width: device-width; initial-scale: 1; }
+:root {
+--bg: #0d1117;
+--fg: #c9d1d9;
+--fg-muted: #8b949e;
+--border: #30363d;
+--link: #58a6ff;
+--code-bg: #161b22;
+--table-stripe: #161b22;
+--warn: #f0883e;
+--danger: #f85149;
+--good: #3fb950;
+--header: #f0f6fc;
+}
+@media (prefers-color-scheme: light) {
+:root {
+--bg: #ffffff;
+--fg: #1f2328;
+--fg-muted: #59636e;
+--border: #d1d9e0;
+--link: #0969da;
+--code-bg: #f6f8fa;
+--table-stripe: #f6f8fa;
+--warn: #bf8700;
+--danger: #cf222e;
+--good: #1a7f37;
+--header: #1f2328;
+}
+}
+* { box-sizing: border-box; }
+html, body {
+margin: 0;
+padding: 0;
+background: var(--bg);
+color: var(--fg);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+font-size: 16px;
+line-height: 1.6;
+-webkit-text-size-adjust: 100%;
+}
+body {
+max-width: 900px;
+margin: 0 auto;
+padding: 1.25rem 1rem 4rem;
+}
+h1, h2, h3, h4, h5, h6 {
+color: var(--header);
+margin-top: 1.6em;
+margin-bottom: 0.6em;
+line-height: 1.25;
+font-weight: 600;
+}
+h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.0rem; }
+p { margin: 0.6em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+code {
+background: var(--code-bg);
+padding: 0.15em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+font-size: 0.875em;
+word-break: break-word;
+}
+pre {
+background: var(--code-bg);
+padding: 0.85rem;
+border-radius: 6px;
+overflow-x: auto;
+font-size: 0.825em;
+line-height: 1.5;
+border: 1px solid var(--border);
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+blockquote {
+border-left: 4px solid var(--border);
+margin: 1em 0;
+padding: 0.4em 1em;
+color: var(--fg-muted);
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1em 0;
+font-size: 0.9em;
+display: block;
+overflow-x: auto;
+}
+th, td {
+border: 1px solid var(--border);
+padding: 0.4em 0.7em;
+text-align: left;
+vertical-align: top;
+}
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(2n) { background: var(--table-stripe); }
+hr {
+border: none;
+border-top: 1px solid var(--border);
+margin: 2em 0;
+}
+
+@media (max-width: 600px) {
+body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; }
+h1 { font-size: 1.45rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+pre { font-size: 0.78em; padding: 0.6rem; }
+table { font-size: 0.82em; }
+th, td { padding: 0.3em 0.5em; }
+}
+
+.review-index {
+list-style: none;
+padding: 0;
+}
+.review-index li {
+padding: 0.5em 0.7em;
+border: 1px solid var(--border);
+border-radius: 6px;
+margin: 0.4em 0;
+background: var(--code-bg);
+}
+.review-index li.master {
+border-left: 4px solid var(--good);
+font-weight: 600;
+}
+.review-index li.note {
+border-left: 4px solid var(--warn);
+font-style: italic;
+background: transparent;
+font-size: 0.9em;
+}
+.size {
+color: var(--fg-muted);
+font-size: 0.85em;
+float: right;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">BS #668 — Test Audit</h1>
+</header>
+<h1 id="tests-specialist--synthesis-mid-level">Tests Specialist —
+Synthesis (Mid Level)</h1>
+<blockquote>
+<p>Synthesized from 3 leaf reports under <code>pr-668-leaves/</code>: <a href="pr-668-leaves/tests-unit.html"><code>tests-unit.md</code></a>, <a href="pr-668-leaves/tests-integration.html"><code>tests-integration.md</code></a>,
+<a href="pr-668-leaves/tests-coverage-gaps.html"><code>tests-coverage-gaps.md</code></a>.</p>
+</blockquote>
+<h2 id="tldr">TL;DR</h2>
+<p>PR #668 adds <strong>62 test files / ~10,705 LOC</strong>: strong
+coverage of new SF data layer, named bug fixes, and
+<code>_compute_live_status_map</code>. Significant gaps in Kafka emit
+verification, cross-service <code>odds_service_client</code>,
+response-model enforcement, and migration safety. PR description
+checklist is <strong>all blank</strong> including the explicit &quot;backtest
+with previous dev launch&quot; box.</p>
+<h2 id="1-coverage-at-a-glance">1. Coverage at a glance</h2>
+<table>
+<thead>
+<tr>
+<th>Bucket</th>
+<th>Files</th>
+<th>LOC</th>
+<th>Marker</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/unit/sofascore/</code></td>
+<td>14</td>
+<td>~4,648</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/whoscored/</code></td>
+<td>4</td>
+<td>~878</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/{audit,admin,mappings,sinks}/</code></td>
+<td>6</td>
+<td>small</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_critical_bug_fixes.py</code></td>
+<td>1</td>
+<td>211</td>
+<td>unit (AST-based)</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_security_fixes.py</code></td>
+<td>1</td>
+<td>213</td>
+<td>unit (AST + behaviour)</td>
+</tr>
+<tr>
+<td><code>tests/info/unit/</code> (added files)</td>
+<td>4</td>
+<td>~539</td>
+<td>unit</td>
+</tr>
+<tr>
+<td><code>tests/flow_tests/sofascore/</code></td>
+<td>3</td>
+<td>1,013</td>
+<td><code>@pytest.mark.flow</code></td>
+</tr>
+<tr>
+<td><code>tests/flow_tests/admin/test_sofascore_routes.py</code></td>
+<td>1</td>
+<td>209</td>
+<td><code>@pytest.mark.flow</code></td>
+</tr>
+<tr>
+<td><code>tests/flow_tests/run_cross_service_sf.sh</code></td>
+<td>1 (shell)</td>
+<td>n/a</td>
+<td>manual / CI orchestration</td>
+</tr>
+<tr>
+<td><code>tests/qa_test/odds-pricing-main/</code></td>
+<td>12+ shell + 2 Python</td>
+<td>n/a</td>
+<td>operational verification (not pytest)</td>
+</tr>
+<tr>
+<td><code>tests/{notification,payment,fixtures}/</code></td>
+<td>3 (small)</td>
+<td>small</td>
+<td>mixed</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-test-to-code-mapping-high-value-rows">2. Test-to-code mapping
+(high-value rows)</h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OddsClient.get_live_status_batch</code></td>
+<td><code>test_odds_client_live_batch.py</code></td>
+</tr>
+<tr>
+<td><code>GameInfoService._compute_live_status_map</code></td>
+<td><code>test_live_status_batch.py</code>,
+<code>test_game_info_service_live_status.py</code></td>
+</tr>
+<tr>
+<td><code>auth_routes</code> <code>SECURE_COOKIES</code> cookie
+hardening</td>
+<td><code>test_security_fixes.py</code> §1</td>
+</tr>
+<tr>
+<td><code>/info/debug/teams_with_games</code> admin guard</td>
+<td><code>test_security_fixes.py</code> §2</td>
+</tr>
+<tr>
+<td>OTP / password-reset rate limit</td>
+<td><code>test_security_fixes.py</code> §3</td>
+</tr>
+<tr>
+<td><code>orchestrator_v3</code> dangling <code>count</code>
+reference</td>
+<td><code>test_critical_bug_fixes.py</code> Bug 1 (AST)</td>
+</tr>
+<tr>
+<td><code>postmatch_refresh.SeasonNames.from_date()</code></td>
+<td><code>test_critical_bug_fixes.py</code> Bug 2</td>
+</tr>
+<tr>
+<td><code>transaction_service.create_manual_withdrawal</code>
+static→instance</td>
+<td><code>test_critical_bug_fixes.py</code> Bug 3 (AST)</td>
+</tr>
+<tr>
+<td><code>BetNotificationTracking</code> FK target</td>
+<td><code>test_critical_bug_fixes.py</code> Bug 4</td>
+</tr>
+<tr>
+<td>Admin SF enrich/onboard/status routes</td>
+<td><code>flow_tests/admin/test_sofascore_routes.py</code></td>
+</tr>
+<tr>
+<td><code>/info/sofascore/*</code> data routes</td>
+<td><code>flow_tests/sofascore/test_sf_data_routes.py</code></td>
+</tr>
+<tr>
+<td>End-to-end SF onboarding</td>
+<td><code>flow_tests/sofascore/test_onboard_flow.py</code></td>
+</tr>
+<tr>
+<td>Multi-stage SF coverage flow</td>
+<td><code>flow_tests/sofascore/test_sf_coverage_e2e.py</code> (632
+LOC)</td>
+</tr>
+<tr>
+<td><code>LeagueOnboarder</code></td>
+<td><code>tests/unit/sofascore/test_league_onboard.py</code>,
+<code>test_league_onboard_service.py</code>,
+<code>tests/unit/admin/test_league_onboard_readiness.py</code></td>
+</tr>
+<tr>
+<td><code>SofascoreIdResolver</code></td>
+<td><code>test_sofascore_id_resolver.py</code></td>
+</tr>
+<tr>
+<td><code>season_parser</code>, field mapping, schema drift, name
+matcher</td>
+<td>individual <code>tests/unit/sofascore/test_*.py</code> files</td>
+</tr>
+<tr>
+<td><code>match_state</code> SF lifecycle</td>
+<td><code>test_match_state.py</code>,
+<code>test_match_state_integration.py</code></td>
+</tr>
+<tr>
+<td><code>SingleInstanceLock</code></td>
+<td><code>tests/unit/whoscored/test_orchestrator_v3_lock.py</code></td>
+</tr>
+<tr>
+<td>WS error taxonomy</td>
+<td><code>tests/unit/whoscored/test_errors.py</code></td>
+</tr>
+<tr>
+<td>WS player resolver</td>
+<td><code>tests/unit/whoscored/test_player_resolver.py</code></td>
+</tr>
+<tr>
+<td>WS audit</td>
+<td><code>tests/unit/audit/test_whoscored_audit.py</code></td>
+</tr>
+<tr>
+<td><code>match_sink</code> player dedup</td>
+<td><code>tests/unit/sinks/test_match_sink_player_dedup.py</code></td>
+</tr>
+<tr>
+<td>WH status normalization</td>
+<td><code>tests/unit/sinks/test_wh_status_normalization.py</code></td>
+</tr>
+<tr>
+<td>Provider-mapping consolidation</td>
+<td><code>tests/unit/mappings/test_consolidate_provider_mappings.py</code></td>
+</tr>
+<tr>
+<td>Cross-service BS↔︎BO sync</td>
+<td><code>tests/qa_test/odds-pricing-main/layer{1-6}/*.sh</code>
+(operational)</td>
+</tr>
+</tbody>
+</table>
+<p>Detail: see <a href="pr-668-leaves/tests-unit.html"><code>tests-unit.md</code></a> §B
+and <a href="pr-668-leaves/tests-integration.html"><code>tests-integration.md</code></a>
+§A.</p>
+<h2 id="3-coverage-gaps-prioritized">3. Coverage gaps (prioritized)</h2>
+<p>From <a href="pr-668-leaves/tests-coverage-gaps.html"><code>tests-coverage-gaps.md</code></a>:</p>
+<ol type="1">
+<li><strong>Kafka emit verification</strong> —
+<code>KafkaProducer.produce</code> happy path,
+<code>_delivery_callback</code>, both <code>_emit_*_event</code> call
+sites (<code>OddsClient.get_parlay_odds</code>,
+<code>UserBetService</code> post-confirm). Fire-and-forget hides
+regressions.</li>
+<li><strong><code>odds_service_client</code> end-to-end</strong> —
+<code>sync_lineup_updates_to_odds_service</code>,
+<code>_post_targeted_migration</code>,
+<code>_fetch_recently_scraped_wh_game_ids</code>, both <code>http</code>
+and <code>subprocess</code> modes. Only the
+<code>qa_test/odds-pricing-main/*.sh</code> cover, and those are not
+pytest.</li>
+<li><strong><code>/admin/sofascore/onboard</code> action paths</strong>
+— only STATUS covered. LINK / LINK_ALL / DISCOVER / CREATE untested at
+route level.</li>
+<li><strong>Response-model enforcement on
+<code>/info/sofascore/*</code></strong> — 32 routes return raw dicts
+despite schemas existing.</li>
+<li><strong><code>/admin/leagues/onboard*</code> flow registry</strong>
+— 5 routes missing from <code>ROUTE_TO_FLOW</code>. No drift test in
+CI.</li>
+<li><strong><code>prelive_lineups_imminent</code> 90s tier</strong> —
+argument shape, <code>enable_slack=False</code>, post-step sync hook not
+unit-tested.</li>
+<li><strong><code>sf_enrich --tier {…}</code> selection</strong> — only
+constants are asserted; runtime tier-to-pipeline-set mapping is not
+exercised.</li>
+<li><strong><code>20260420_dedup_competitions_add_unique</code>
+migration</strong> — destructive; no upgrade-downgrade-upgrade fixture
+test.</li>
+<li><strong><code>WITHDRAWAL_COMPLETED</code> removal safety</strong> —
+no test asserts no producer still writes the type or no consumer relies
+on it.</li>
+<li><strong>Background-thread ContextVar propagation</strong> — daemon
+threads in <code>_run_sf_*_sync</code> lose <code>request_id_ctx</code>
+/ <code>flow_ctx</code>. No test asserts log fields.</li>
+<li><strong><code>_odds_admin_contracts</code> shape drift</strong> —
+hand-mirrored TypedDict; no automated drift detection vs
+Backend-Odds.</li>
+<li><strong>Audit-row write happy paths</strong> —
+<code>scrape_runs</code>, <code>enrichment_runs</code>,
+<code>whoscored_runs</code> rows; column shape not asserted.</li>
+</ol>
+<h2 id="4-quality-concerns">4. Quality concerns</h2>
+<ul>
+<li>AST-based bug-fix tests catch regression-by-revert but not
+regression-by-different-code-path.</li>
+<li>632-LOC <code>test_sf_coverage_e2e.py</code> is large and may be
+slow / flaky on stub creds; needs verification it follows the
+skip-on-stub pattern from <code>.claude/rules/flow-tests.md</code>.</li>
+<li><code>tests/qa_test/odds-pricing-main/*.sh</code> are valuable for
+manual QA but are NOT regression coverage in CI (not pytest, not picked
+up by <code>flow-tests-mac.yml</code>).</li>
+<li>Mock-heavy unit tests on <code>_compute_live_status_map</code> are
+appropriate per the testing rule (don&#39;t mock the database is for
+integration tests only).</li>
+</ul>
+<h2 id="5-pr-description-checklist-per-project-rule">5. PR description
+checklist (per project rule)</h2>
+<p>All 4 boxes blank, including:</p>
+<pre><code>[ ] Unit tests added/updated
+[ ] Integration tests added/updated
+[ ] Manual QA performed
+[ ] Edge cases considered
+[ ] ⚠️ IMPORTANT: Backtest with previous dev launch ⚠️</code></pre>
+<p>Per <code>.claude/rules/flow-tests.md</code>, a green local flow-test
+runner output should be pasted into the PR description. Currently
+absent.</p>
+<h2 id="6-risk-shortlist-for-the-merge-gate">6. Risk shortlist for the
+merge gate</h2>
+<p>If the PR can address only ~3 gaps before merge, prioritize:</p>
+<ol type="1">
+<li>Add <code>/admin/leagues/onboard*</code> to
+<code>ROUTE_TO_FLOW</code> and verify
+<code>./scripts/check-flow-drift.sh</code> passes.</li>
+<li>Fixture-DB upgrade-downgrade-upgrade test for
+<code>20260420_dedup_competitions_add_unique</code>.</li>
+<li>Wire <code>response_model=</code> on at least the highest-traffic
+<code>/info/sofascore/*</code> routes (match data, player profile, team
+performance).</li>
+</ol>
+</body>
+</html>

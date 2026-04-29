@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>BS #668 — Risks</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">@viewport { width: device-width; initial-scale: 1; }
+:root {
+--bg: #0d1117;
+--fg: #c9d1d9;
+--fg-muted: #8b949e;
+--border: #30363d;
+--link: #58a6ff;
+--code-bg: #161b22;
+--table-stripe: #161b22;
+--warn: #f0883e;
+--danger: #f85149;
+--good: #3fb950;
+--header: #f0f6fc;
+}
+@media (prefers-color-scheme: light) {
+:root {
+--bg: #ffffff;
+--fg: #1f2328;
+--fg-muted: #59636e;
+--border: #d1d9e0;
+--link: #0969da;
+--code-bg: #f6f8fa;
+--table-stripe: #f6f8fa;
+--warn: #bf8700;
+--danger: #cf222e;
+--good: #1a7f37;
+--header: #1f2328;
+}
+}
+* { box-sizing: border-box; }
+html, body {
+margin: 0;
+padding: 0;
+background: var(--bg);
+color: var(--fg);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+font-size: 16px;
+line-height: 1.6;
+-webkit-text-size-adjust: 100%;
+}
+body {
+max-width: 900px;
+margin: 0 auto;
+padding: 1.25rem 1rem 4rem;
+}
+h1, h2, h3, h4, h5, h6 {
+color: var(--header);
+margin-top: 1.6em;
+margin-bottom: 0.6em;
+line-height: 1.25;
+font-weight: 600;
+}
+h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.0rem; }
+p { margin: 0.6em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+code {
+background: var(--code-bg);
+padding: 0.15em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+font-size: 0.875em;
+word-break: break-word;
+}
+pre {
+background: var(--code-bg);
+padding: 0.85rem;
+border-radius: 6px;
+overflow-x: auto;
+font-size: 0.825em;
+line-height: 1.5;
+border: 1px solid var(--border);
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+blockquote {
+border-left: 4px solid var(--border);
+margin: 1em 0;
+padding: 0.4em 1em;
+color: var(--fg-muted);
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1em 0;
+font-size: 0.9em;
+display: block;
+overflow-x: auto;
+}
+th, td {
+border: 1px solid var(--border);
+padding: 0.4em 0.7em;
+text-align: left;
+vertical-align: top;
+}
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(2n) { background: var(--table-stripe); }
+hr {
+border: none;
+border-top: 1px solid var(--border);
+margin: 2em 0;
+}
+
+@media (max-width: 600px) {
+body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; }
+h1 { font-size: 1.45rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+pre { font-size: 0.78em; padding: 0.6rem; }
+table { font-size: 0.82em; }
+th, td { padding: 0.3em 0.5em; }
+}
+
+.review-index {
+list-style: none;
+padding: 0;
+}
+.review-index li {
+padding: 0.5em 0.7em;
+border: 1px solid var(--border);
+border-radius: 6px;
+margin: 0.4em 0;
+background: var(--code-bg);
+}
+.review-index li.master {
+border-left: 4px solid var(--good);
+font-weight: 600;
+}
+.review-index li.note {
+border-left: 4px solid var(--warn);
+font-style: italic;
+background: transparent;
+font-size: 0.9em;
+}
+.size {
+color: var(--fg-muted);
+font-size: 0.85em;
+float: right;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">BS #668 — Risks</h1>
+</header>
+<h1 id="risk-specialist--synthesis-mid-level-flow-correctness-focus">Risk
+Specialist — Synthesis (Mid Level, Flow-Correctness Focus)</h1>
+<blockquote>
+<p>Synthesized from 4 leaves under <code>pr-668-leaves/</code>: <a href="pr-668-leaves/risk-migrations.html"><code>risk-migrations.md</code></a>,
+<a href="pr-668-leaves/risk-observability-env.html"><code>risk-observability-env.md</code></a>,
+<a href="pr-668-leaves/risk-flow-correctness.html"><code>risk-flow-correctness.md</code></a>,
+<a href="pr-668-leaves/risk-cross-repo.html"><code>risk-cross-repo.md</code></a>.</p>
+<p>Per user direction, the previous
+<code>risk-auth-payment-concurrency</code> leaf was dropped. Auth
+posture for the BS→BO admin call is correct (JWT minted via
+<code>_mint_admin_jwt</code> with <code>role=admin</code>, 5-min
+lifetime). Payment-specific concerns (WITHDRAWAL_COMPLETED outbox
+in-flight) are folded into <code>risk-flow-correctness.md</code> §E as a
+flow concern.</p>
+</blockquote>
+<h2 id="tldr">TL;DR</h2>
+<p><strong>4 hard blockers, 7 soft blockers</strong> — the same count as
+before but the priorities have shifted. The headline flow-correctness
+risks are: (1) <code>request_id</code> / <code>X-Flow</code> NOT
+propagated on the BS→BO admin call; (2) 5 admin routes missing from
+<code>ROUTE_TO_FLOW</code>; (3) ContextVar loss in admin daemon threads;
+(4) logging_formatter import path drift in scheduler. None of these are
+correctness-fatal — they break observability, not data flow — but they
+all undermine the structured-logging story the rest of the codebase
+relies on.</p>
+<h2 id="1-hard-blockers-fix-before-merge">1. Hard blockers (fix before
+merge)</h2>
+<h3 id="11-adminleaguesonboard--5-routes-missing-from-route_to_flow-high--observability-rule">1.1
+<code>/admin/leagues/onboard*</code> × 5 routes missing from
+<code>ROUTE_TO_FLOW</code> (HIGH — observability rule)</h3>
+<p><code>flow_context.ROUTE_TO_FLOW</code>
+(<code>infrastructure/middleware/flow_context.py</code>) lacks entries
+for:</p>
+<pre><code>POST   /admin/leagues/onboard
+GET    /admin/leagues/onboard
+GET    /admin/leagues/onboard/{job_id}
+DELETE /admin/leagues/onboard/{job_id}
+POST   /admin/leagues/onboard/preset/{preset_name}</code></pre>
+<p>Effect: <code>flow_ctx</code> is None for these requests; logs lack
+<code>flow</code> field; cross-service <code>X-Flow</code> header is
+omitted on any downstream call. Pre-commit drift hook
+<code>./scripts/check-flow-drift.sh</code> exits 1.</p>
+<p>Fix: 5 lines.</p>
+<p>Source: <a href="pr-668-leaves/risk-observability-env.html"><code>risk-observability-env.md</code></a>
+§A, <a href="pr-668-leaves/risk-flow-correctness.html"><code>risk-flow-correctness.md</code></a>
+§A.1.</p>
+<h3 id="12-request_id--x-flow-not-propagated-to-bo-on-admin-call-high--flow-correctness">1.2
+<code>request_id</code> / <code>X-Flow</code> not propagated to BO on
+admin call (HIGH — flow correctness)</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># integrations/odds_service_client.py:103-109</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _admin_auth_headers() <span class="op">-&gt;</span> <span class="bu">dict</span>[<span class="bu">str</span>, <span class="bu">str</span>]:</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    token <span class="op">=</span> _mint_admin_jwt()</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {<span class="st">&quot;Authorization&quot;</span>: <span class="ss">f&quot;Bearer </span><span class="sc">{</span>token<span class="sc">}</span><span class="ss">&quot;</span>} <span class="cf">if</span> token <span class="cf">else</span> {}</span></code></pre></div>
+<p>This is the only header dict sent to
+<code>BO /odds/admin/migration/run-targeted</code>. Compare with
+<code>OddsClient._propagation_headers()</code> which forwards all 7
+ContextVar-derived headers via
+<code>get_propagation_headers()</code>.</p>
+<p>Effect: BS scheduler tick with
+<code>request_id_ctx=abc123, flow_ctx=data.live_fetch</code> triggers a
+POST to BO that lands in BO&#39;s logs without the <code>X-Request-ID</code>
+header. Cross-service trace breaks at the scheduler→BO boundary. The
+<code>OddsRequestEvent</code> Kafka emit IS correctly correlated, but
+the targeted-migration HTTP call is not.</p>
+<p>Fix:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _admin_auth_headers() <span class="op">-&gt;</span> <span class="bu">dict</span>[<span class="bu">str</span>, <span class="bu">str</span>]:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    headers <span class="op">=</span> get_propagation_headers()</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    token <span class="op">=</span> _mint_admin_jwt()</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> token:</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        headers[<span class="st">&quot;Authorization&quot;</span>] <span class="op">=</span> <span class="ss">f&quot;Bearer </span><span class="sc">{</span>token<span class="sc">}</span><span class="ss">&quot;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> headers</span></code></pre></div>
+<p>Source: <a href="pr-668-leaves/risk-flow-correctness.html"><code>risk-flow-correctness.md</code></a>
+§A.4.</p>
+<h3 id="13-srcschedulermainpy34-imports-old-logging_formatter-path-high--scheduler-may-break">1.3
+<code>src/scheduler/main.py:34</code> imports old
+<code>logging_formatter</code> path (HIGH — scheduler may break)</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># scheduler/main.py:34 (UNCHANGED)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> backend_server.logging_formatter <span class="im">import</span> configure_logging   ← OLD path</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># app.py:54 (UPDATED) and middleware/request_id.py:7 (UPDATED)</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> backend_server.core.utils.logging_formatter <span class="im">import</span> configure_logging   ← NEW path</span></code></pre></div>
+<p>Per <code>.claude/rules/deploy.md</code>
+<code>main + scheduler</code> deploy together — a broken scheduler
+blocks the deploy. Either update the import or add a backwards-compat
+shim at the old path.</p>
+<p>Source: <a href="pr-668-leaves/risk-observability-env.html"><code>risk-observability-env.md</code></a>
+§E.</p>
+<h3 id="14-20260420_dedup_competitions_add_unique-not-smoke-tested-on-stage-high--destructive">1.4
+<code>20260420_dedup_competitions_add_unique</code> not smoke-tested on
+stage (HIGH — destructive)</h3>
+<p>Deletes orphan rows, re-points <code>tournament_calendar</code> FKs,
+merges duplicate calendar rows, then adds UNIQUE constraints.
+Audit-table mitigates traceability, but downgrade does NOT restore
+deleted rows — recovery requires DB restore.</p>
+<p>Migration docstring also notes a follow-up
+<code>base_sink._resolve_legacy_id</code> PR is required to keep the
+JSON mapping in sync. <strong>The follow-up is NOT in this PR</strong>.
+Mid-flight scrape after dedup migration but before
+<code>base_sink</code> follow-up could fail to resolve
+<code>competition_id</code> for some leagues.</p>
+<p>Source: <a href="pr-668-leaves/risk-migrations.html"><code>risk-migrations.md</code></a>
+§B, <a href="pr-668-leaves/risk-flow-correctness.html"><code>risk-flow-correctness.md</code></a>
+§D.1.</p>
+<h3 id="15-pr-description-checklist-all-blank-hard--rule-violation">1.5
+PR description checklist all blank (HARD — rule violation)</h3>
+<pre><code>[ ] Unit tests added/updated
+[ ] Integration tests added/updated
+[ ] Manual QA performed
+[ ] Edge cases considered
+[ ] ⚠️ IMPORTANT: Backtest with previous dev launch ⚠️</code></pre>
+<p>The &quot;Backtest with previous dev launch&quot; item is explicitly required
+by the project template.</p>
+<p>Source: <a href="pr-668-leaves/risk-observability-env.html"><code>risk-observability-env.md</code></a>
+§H.</p>
+<h2 id="2-soft-blockers-strongly-recommended">2. Soft blockers (strongly
+recommended)</h2>
+<h3 id="21-contextvar-loss-in-admin-daemon-threads-med--flow-correctness">2.1
+ContextVar loss in admin daemon threads (MED — flow correctness)</h3>
+<p>Three admin endpoints spawn
+<code>threading.Thread(daemon=True)</code> without
+<code>contextvars.copy_context()</code>:</p>
+<pre><code>POST /admin/sofascore/enrich         → _run_sf_enrich_sync
+POST /admin/sofascore/onboard        → _run_sf_onboard_sync
+POST /admin/leagues/onboard{,/preset/{name}}  → _run_onboard_workflow</code></pre>
+<p>Logs from these threads lack <code>request_id</code>,
+<code>flow</code>, <code>user_id</code>. Trace correlation breaks at the
+thread boundary.</p>
+<p>Fix:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> contextvars</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>ctx <span class="op">=</span> contextvars.copy_context()</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>threading.Thread(target<span class="op">=</span><span class="kw">lambda</span>: ctx.run(_run_sf_<span class="op">*</span>_sync, <span class="op">*</span>args), daemon<span class="op">=</span><span class="va">True</span>).start()</span></code></pre></div>
+<p>Source: <a href="pr-668-leaves/risk-flow-correctness.html"><code>risk-flow-correctness.md</code></a>
+§A.3.</p>
+<h3 id="22-new-sf--admin-services-not-decorated-with-flow_traced-med">2.2
+New SF / admin services NOT decorated with <code>@flow_traced</code>
+(MED)</h3>
+<p><code>grep &#39;@flow_traced&#39; application/services/sofascore/*.py application/services/admin/*.py</code>
+returns 0. Per CLAUDE.md &quot;How to: Add a new API endpoint&quot; step 4, every
+service entry point should be decorated. Other services
+(<code>bets/user_bet_service.py</code>,
+<code>chat/chat_service.py</code>) consistently use it.</p>
+<p>Effect: middleware sets <code>flow_ctx</code> so log-line tagging
+works, but service-method-level OTEL spans are missing for the new
+routes.</p>
+<p>Source: <a href="pr-668-leaves/risk-flow-correctness.html"><code>risk-flow-correctness.md</code></a>
+§A.2.</p>
+<h3 id="23-odds_service_sync_-env-var-drift-med">2.3
+<code>ODDS_SERVICE_SYNC_*</code> env-var drift (MED)</h3>
+<p>8 vars in <code>.env.example</code>, <strong>0</strong> in
+<code>.required-env</code>. SSM validation will not catch a
+misconfigured <code>ODDS_SERVICE_URL</code> in prod (default points to
+<code>localhost:8101</code>).</p>
+<p>Source: <a href="pr-668-leaves/risk-observability-env.html"><code>risk-observability-env.md</code></a>
+§F.</p>
+<h3 id="24-bo-endpoint-deploy-ordering-med--cross-repo">2.4 BO endpoint
+deploy ordering (MED — cross-repo)</h3>
+<table>
+<thead>
+<tr>
+<th>Required before</th>
+<th>Symptom otherwise</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BO <code>/live/is_live_batch</code> shipped</td>
+<td><code>is_live</code> checks silently fall back to time-based;
+live-betting tile correctness regresses</td>
+</tr>
+<tr>
+<td>BO <code>/odds/admin/migration/run-targeted</code> shipped</td>
+<td>Targeted-migration POST 404s (logged warning); BO stays stale on
+lineups</td>
+</tr>
+<tr>
+<td>BO Kafka consumers ready</td>
+<td>Events queue in topic until consumed</td>
+</tr>
+</tbody>
+</table>
+<p>Source: <a href="pr-668-leaves/risk-cross-repo.html"><code>risk-cross-repo.md</code></a>
+§C.</p>
+<h3 id="25-withdrawal_completed-outbox-in-flight-rows-med">2.5
+<code>WITHDRAWAL_COMPLETED</code> outbox in-flight rows (MED)</h3>
+<p><code>notif_outbox</code> rows with
+<code>event_type=&#39;withdrawal_completed&#39;</code> and
+<code>status&lt;&gt;&#39;sent&#39;</code> will fall through the
+<code>else</code> branch logging &quot;Unknown event type&quot;. Pre-deploy SQL
+check + decide policy.</p>
+<p>Source: <a href="pr-668-leaves/risk-flow-correctness.html"><code>risk-flow-correctness.md</code></a>
+§E.</p>
+<h3 id="26-hand-mirrored-typeddict-drift-med--cross-repo">2.6
+Hand-mirrored TypedDict drift (MED — cross-repo)</h3>
+<p><code>integrations/_odds_admin_contracts.py</code> is a hand-mirrored
+copy of BO&#39;s admin endpoint shapes. No automated drift detection. The
+day this PR merges, manually diff against BO&#39;s actual handler
+signatures.</p>
+<p>Source: <a href="pr-668-leaves/risk-cross-repo.html"><code>risk-cross-repo.md</code></a>
+§A.1.</p>
+<h3 id="27-bs-side-cross-tick-deduplication-relies-on-bo-med">2.7
+BS-side cross-tick deduplication relies on BO (MED)</h3>
+<p><code>_fetch_recently_scraped_wh_game_ids(window=15min)</code>
+re-queries the same window on every tick. At 90s
+<code>prelive_lineups_imminent</code> cadence, ~90% of
+<code>game_ids</code> overlap with the previous tick. BS does not dedupe
+— relies on BO <code>/odds/admin/migration/run-targeted</code> being
+idempotent on the <code>game_ids</code> list. Cross-repo question for
+the BO team.</p>
+<p>Source: <a href="pr-668-leaves/risk-flow-correctness.html"><code>risk-flow-correctness.md</code></a>
+§C.4.</p>
+<h2 id="3-operational-notes-track-post-merge">3. Operational notes
+(track post-merge)</h2>
+<table>
+<thead>
+<tr>
+<th>Note</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Multi-instance scheduler scale-out unsafe for
+<code>SingleInstanceLock</code></td>
+<td>Lock is process-local. Two scheduler ECS tasks would both fire
+scrape jobs concurrently. Sinks tolerate via ON CONFLICT, BO tolerance
+unverified.</td>
+</tr>
+<tr>
+<td>Background-thread admin job persistence</td>
+<td>Module-level <code>_jobs</code> dict is lost on uvicorn worker
+restart and is per-worker. Cross-worker GET .../jobs/{job_id} may 404.
+Follow-up: Redis/DB.</td>
+</tr>
+<tr>
+<td><code>prelive_lineups_imminent</code> 90s cadence</td>
+<td>~960 BS→BO requests/day. Verify BO load capacity. Add Grafana panel
+for <code>enrichment_runs.status=&#39;failed&#39; WHERE tier=&#39;live&#39;</code>
+(Slack disabled for this tier).</td>
+</tr>
+<tr>
+<td><code>OddsClient.DEFAULT_TIMEOUT 30s→5s</code></td>
+<td>Latency spikes on BO surface more
+<code>OddsMicroserviceRequestError</code> on parlay/market endpoints (no
+time-based fallback for those).</td>
+</tr>
+<tr>
+<td>Public <code>/info/sofascore/*</code> × 32 routes</td>
+<td>Unauthenticated; no rate-limit. SofaScore upstream quota and DB read
+capacity exposure. Follow-up: rate-limit if abuse appears.</td>
+</tr>
+<tr>
+<td>89k-line PR is hard to revert atomically</td>
+<td>Stage-rollout order: SF data routes → admin SF routes → BO sync flag
+→ Kafka producer flag.</td>
+</tr>
+<tr>
+<td>Multiple alembic merge-heads</td>
+<td>Verify <code>alembic heads</code> returns ONE head from clean DB
+before merge.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-websocket-protocol-stability--non-issue">4. WebSocket protocol
+stability — non-issue</h2>
+<p>PR #668 introduces zero WebSocket flows. Cross-repo WS contract risk
+vs Backend-Odds is non-existent for this PR.</p>
+<p>Source: <a href="pr-668-leaves/risk-flow-correctness.html"><code>risk-flow-correctness.md</code></a>
+§B.</p>
+<h2 id="5-migration-safety-as-it-affects-flows">5. Migration safety as
+it affects flows</h2>
+<table>
+<thead>
+<tr>
+<th>Migration</th>
+<th>Affected flow(s)</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>20260420_dedup_competitions_add_unique</code></td>
+<td><code>/info/get_games_in_date_range</code>,
+<code>/info/sofascore/league/*</code>, scraper
+<code>BaseSink._resolve_legacy_id</code></td>
+<td>HIGH (depends on follow-up <code>base_sink</code> PR)</td>
+</tr>
+<tr>
+<td><code>20260427_add_missing_sf_fks</code></td>
+<td>scrape pipelines (FK violations)</td>
+<td>LOW once dedup completes</td>
+</tr>
+<tr>
+<td><code>20260324_add_sofascore_tables_and_columns</code></td>
+<td><code>/info/sofascore/*</code></td>
+<td>LOW (new tables; null reads handled)</td>
+</tr>
+<tr>
+<td>Other DDL (10+)</td>
+<td>none directly</td>
+<td>LOW</td>
+</tr>
+</tbody>
+</table>
+<p>Source: <a href="pr-668-leaves/risk-flow-correctness.html"><code>risk-flow-correctness.md</code></a>
+§F.</p>
+<h2 id="6-todofixme-debt-added">6. TODO/FIXME debt added</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>scraper_job_registry.py</code></td>
+<td><code>TODO: when run_targeted_match_pipeline gains minutes-granularity filtering, tighten this to a 30-min window.</code>
+(<code>prelive_lineups_imminent</code>)</td>
+</tr>
+<tr>
+<td><code>scraper_job_registry.py</code></td>
+<td>Two <code>FIXME(task-5/6)</code> comments noting pre-existing broken
+<code>dq_audit</code> / <code>bet_audit</code> imports. Explicitly NOT
+fixed in this PR.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-pre-existing-risk-surfaced-not-introduced">7. Pre-existing
+risk surfaced (not introduced)</h2>
+<ul>
+<li><code>.env.example</code> contains real-looking Stream API secret +
+Slack tokens (committed in <code>643f376e</code>). Out of scope for this
+PR but worth rotating.</li>
+</ul>
+<h2 id="8-action-plan-priority-order">8. Action plan (priority
+order)</h2>
+<ol type="1">
+<li><strong>Add 5 entries to <code>ROUTE_TO_FLOW</code></strong> for
+<code>/admin/leagues/onboard*</code>. <em>(HARD)</em></li>
+<li><strong>Add propagation headers to BS→BO admin call</strong> —
+modify <code>_admin_auth_headers()</code> to merge
+<code>get_propagation_headers()</code>. <em>(HARD — flow
+correctness)</em></li>
+<li><strong>Update <code>src/scheduler/main.py:34</code></strong> to new
+<code>logging_formatter</code> path, OR add a re-export shim.
+<em>(HARD)</em></li>
+<li><strong>Smoke-test
+<code>20260420_dedup_competitions_add_unique</code></strong> on
+stage-snapshot DB (upgrade → check audit table → downgrade → upgrade),
+AND coordinate with the follow-up <code>base_sink</code> PR.
+<em>(HARD)</em></li>
+<li><strong>Fill the PR description checklist</strong> with green-test
+paste + backtest evidence. <em>(HARD)</em></li>
+<li><strong>Wrap admin daemon threads with
+<code>contextvars.copy_context()</code></strong>. <em>(SOFT)</em></li>
+<li><strong>Add <code>@flow_traced</code> to new SF + admin service
+methods</strong>. <em>(SOFT)</em></li>
+<li><strong>Add <code>ODDS_SERVICE_SYNC_*</code> to
+<code>.required-env</code></strong> with <code>[optional]</code>
+markers. <em>(SOFT)</em></li>
+<li><strong>Confirm BO endpoint readiness</strong> via cross-team comms
+before each flag flip. <em>(SOFT)</em></li>
+<li><strong>Verify <code>Flow.DATA_SOFASCORE</code> and
+<code>Flow.ADMIN_SCRAPER</code></strong> exist in
+<code>core/observability/flows.py</code> AND in
+<code>specs/flow-registry.json</code>. <em>(SOFT)</em></li>
+<li><strong>Pre-deploy SQL check</strong> on in-flight
+<code>notif_outbox.event_type=&#39;withdrawal_completed&#39;</code> rows.
+<em>(SOFT)</em></li>
+<li><strong>Manual contract diff</strong> of
+<code>_odds_admin_contracts.py</code> vs BO&#39;s handler signatures on
+merge day. <em>(SOFT)</em></li>
+<li><strong>Verify <code>alembic heads</code> returns one head</strong>
+post-rebase. <em>(SOFT)</em></li>
+<li><strong>Verify BO is idempotent</strong> on the
+<code>game_ids</code> list at
+<code>/odds/admin/migration/run-targeted</code>. <em>(SOFT — cross-repo
+question)</em></li>
+</ol>
+</body>
+</html>

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>BO #140 — WebSocket Flows</title>
+  <style>
+
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">@viewport { width: device-width; initial-scale: 1; }
+:root {
+--bg: #0d1117;
+--fg: #c9d1d9;
+--fg-muted: #8b949e;
+--border: #30363d;
+--link: #58a6ff;
+--code-bg: #161b22;
+--table-stripe: #161b22;
+--warn: #f0883e;
+--danger: #f85149;
+--good: #3fb950;
+--header: #f0f6fc;
+}
+@media (prefers-color-scheme: light) {
+:root {
+--bg: #ffffff;
+--fg: #1f2328;
+--fg-muted: #59636e;
+--border: #d1d9e0;
+--link: #0969da;
+--code-bg: #f6f8fa;
+--table-stripe: #f6f8fa;
+--warn: #bf8700;
+--danger: #cf222e;
+--good: #1a7f37;
+--header: #1f2328;
+}
+}
+* { box-sizing: border-box; }
+html, body {
+margin: 0;
+padding: 0;
+background: var(--bg);
+color: var(--fg);
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+font-size: 16px;
+line-height: 1.6;
+-webkit-text-size-adjust: 100%;
+}
+body {
+max-width: 900px;
+margin: 0 auto;
+padding: 1.25rem 1rem 4rem;
+}
+h1, h2, h3, h4, h5, h6 {
+color: var(--header);
+margin-top: 1.6em;
+margin-bottom: 0.6em;
+line-height: 1.25;
+font-weight: 600;
+}
+h1 { font-size: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25em; }
+h3 { font-size: 1.15rem; }
+h4 { font-size: 1.0rem; }
+p { margin: 0.6em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+ul, ol { padding-left: 1.5em; }
+li { margin: 0.2em 0; }
+code {
+background: var(--code-bg);
+padding: 0.15em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+font-size: 0.875em;
+word-break: break-word;
+}
+pre {
+background: var(--code-bg);
+padding: 0.85rem;
+border-radius: 6px;
+overflow-x: auto;
+font-size: 0.825em;
+line-height: 1.5;
+border: 1px solid var(--border);
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+blockquote {
+border-left: 4px solid var(--border);
+margin: 1em 0;
+padding: 0.4em 1em;
+color: var(--fg-muted);
+}
+table {
+border-collapse: collapse;
+width: 100%;
+margin: 1em 0;
+font-size: 0.9em;
+display: block;
+overflow-x: auto;
+}
+th, td {
+border: 1px solid var(--border);
+padding: 0.4em 0.7em;
+text-align: left;
+vertical-align: top;
+}
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(2n) { background: var(--table-stripe); }
+hr {
+border: none;
+border-top: 1px solid var(--border);
+margin: 2em 0;
+}
+
+@media (max-width: 600px) {
+body { padding: 0.75rem 0.6rem 3rem; font-size: 15px; }
+h1 { font-size: 1.45rem; }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.05rem; }
+pre { font-size: 0.78em; padding: 0.6rem; }
+table { font-size: 0.82em; }
+th, td { padding: 0.3em 0.5em; }
+}
+
+.review-index {
+list-style: none;
+padding: 0;
+}
+.review-index li {
+padding: 0.5em 0.7em;
+border: 1px solid var(--border);
+border-radius: 6px;
+margin: 0.4em 0;
+background: var(--code-bg);
+}
+.review-index li.master {
+border-left: 4px solid var(--good);
+font-weight: 600;
+}
+.review-index li.note {
+border-left: 4px solid var(--warn);
+font-style: italic;
+background: transparent;
+font-size: 0.9em;
+}
+.size {
+color: var(--fg-muted);
+font-size: 0.85em;
+float: right;
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">BO #140 — WebSocket Flows</h1>
+</header>
+<h1 id="pr-140--websocket-flows">PR #140 — WebSocket Flows</h1>
+<p>Branch: <code>dev-coverage-and-odds-impro</code> → <code>dev</code>.
+Live WS endpoint: <code>/ws/{client_id}</code>
+(<code>infrastructure/api/websocket/ws_routes.py:14</code>).</p>
+<h2 id="summary">Summary</h2>
+<ul>
+<li>New subscription channels: 0</li>
+<li>New server push types: 0</li>
+<li>Protocol-breaking changes: 1 (docs-only example field rename
+<code>zao</code> → <code>zao_bets</code>; verified no code emits a
+top-level <code>zao</code> key)</li>
+</ul>
+<p>PR #140 changes only <strong>import paths</strong> inside the WS
+module (service package re-org). No connection-lifecycle,
+message-routing, span, or schema code was modified. The WS
+subscription/broadcast flow listed as F14 in
+<code>_pr-140-flows-v1.md</code> (run_odds_broadcast loop) is unchanged
+behaviorally.</p>
+<h2 id="connection-lifecycle">Connection lifecycle</h2>
+<ul>
+<li>No changes in PR #140. Existing flow (for context):
+<ul>
+<li><code>ConnectionManager.connect</code> opens
+<code>tracer.start_as_current_span(&quot;websocket.connect&quot;)</code> and seeds
+connection state with <code>spotlight_subscribed=False</code>,
+<code>subscribed_season_ids=[]</code>,
+<code>subscribed_season_names=[]</code>
+(<code>manager.py:70-81</code>).</li>
+<li><code>ConnectionManager.disconnect</code> wraps cleanup in
+<code>websocket.disconnect</code> span
+(<code>manager.py:100</code>).</li>
+<li>No auth on <code>/ws/{client_id}</code> — <code>client_id</code> is
+taken straight from URL path (<code>ws_routes.py:14</code>).</li>
+<li>Ping/pong: client sends <code>{&quot;action&quot;:&quot;ping&quot;}</code>; server
+replies <code>{&quot;type&quot;:&quot;pong&quot;,&quot;timestamp&quot;:&quot;...&quot;}</code>
+(<code>handler.py:185-187</code>, <code>handler.py:335</code>). No
+server-initiated heartbeat.</li>
+</ul></li>
+</ul>
+<h2 id="subscription-channels-subscribe--unsubscribe">Subscription
+channels (subscribe / unsubscribe)</h2>
+<p>Routed by <code>action</code> field in
+<code>WebSocketHandler.handle_message</code>
+(<code>handler.py:152-191</code>). All five branches existed pre-PR; PR
+did not touch this dispatch.</p>
+<table>
+<thead>
+<tr>
+<th>Channel name</th>
+<th>Handler</th>
+<th>file:line</th>
+<th>Status</th>
+<th>Service called</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>subscribe</code> (game odds: zap/zat/zao/team_prop/mom)</td>
+<td><code>WebSocketHandler.handle_subscribe</code></td>
+<td><code>handler.py:213</code></td>
+<td>unchanged</td>
+<td><code>ConnectionManager.update_subscription</code>
+<code>manager.py:518</code> → <code>GetOddsForBet</code>
+(<code>application.service.odds.odds_service</code>)</td>
+</tr>
+<tr>
+<td><code>subscribe</code> (<code>is_builder</code> /
+<code>is_builder_leaders</code> branch)</td>
+<td><code>WebSocketHandler.handle_builder_subscribe</code></td>
+<td><code>handler.py:256</code></td>
+<td>unchanged</td>
+<td><code>BuilderService.generate_quick_picks</code>
+(<code>application.service.odds.builder_service</code>) — import path
+renamed <code>handler.py:26</code></td>
+</tr>
+<tr>
+<td><code>unsubscribe</code></td>
+<td><code>WebSocketHandler.handle_unsubscribe</code></td>
+<td><code>handler.py:314</code></td>
+<td>unchanged</td>
+<td><code>ConnectionManager.remove_subscription</code>; replies
+<code>{type:&quot;unsubscribed&quot;, game_id}</code> <code>manager.py</code> /
+<code>handler.py:325</code></td>
+</tr>
+<tr>
+<td><code>subscribe_spotlight</code></td>
+<td><code>WebSocketHandler.handle_subscribe_spotlight</code></td>
+<td><code>handler.py:338</code></td>
+<td>unchanged</td>
+<td><code>ConnectionManager.subscribe_spotlight</code>
+<code>manager.py:968</code> (uses
+<code>manager.odd_service.get_spotlight_odds</code>)</td>
+</tr>
+<tr>
+<td><code>unsubscribe_spotlight</code></td>
+<td><code>WebSocketHandler.handle_unsubscribe_spotlight</code></td>
+<td><code>handler.py:382</code></td>
+<td>unchanged</td>
+<td><code>ConnectionManager.unsubscribe_spotlight</code>
+<code>manager.py:1035</code></td>
+</tr>
+<tr>
+<td><code>ping</code></td>
+<td><code>WebSocketHandler.handle_ping</code></td>
+<td><code>handler.py:327</code></td>
+<td>unchanged</td>
+<td>none</td>
+</tr>
+<tr>
+<td>any other <code>action</code> value</td>
+<td>inline default branch</td>
+<td><code>handler.py:188-191</code></td>
+<td>unchanged</td>
+<td>replies
+<code>{type:&quot;error&quot;, message:&quot;Unknown action: ...&quot;}</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="server-push-types">Server push types</h2>
+<p>All emitted via <code>ConnectionManager.send_personal_message</code>
+→ <code>websocket.send_json</code> (<code>manager.py:122-139</code>). No
+new types added in PR #140.</p>
+<table>
+<thead>
+<tr>
+<th>Message type</th>
+<th>Producer</th>
+<th>file:line</th>
+<th>Triggered by</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>odds_update</code></td>
+<td><code>ConnectionManager.send_odds_update</code></td>
+<td><code>manager.py:416</code></td>
+<td>broadcast loop / <code>update_subscription</code>
+<code>manager.py:377</code></td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>auto_disconnected</code></td>
+<td><code>ConnectionManager</code> (broadcast &amp; spotlight
+paths)</td>
+<td><code>manager.py:312</code>, <code>manager.py:385</code>,
+<code>manager.py:951</code></td>
+<td>inactivity detector</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>odds_update_error</code></td>
+<td>broadcast error path</td>
+<td><code>manager.py:334</code>, <code>manager.py:395</code></td>
+<td>exception during per-client broadcast</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>unsubscribed</code></td>
+<td><code>handle_unsubscribe</code></td>
+<td><code>handler.py:325</code></td>
+<td>client <code>unsubscribe</code> action</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>pong</code></td>
+<td><code>handle_ping</code></td>
+<td><code>handler.py:335</code></td>
+<td>client <code>ping</code> action</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>subscription_error</code></td>
+<td><code>handle_subscribe</code> except</td>
+<td><code>handler.py:254</code></td>
+<td>bad subscribe payload / missing <code>game_id</code></td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>builder_error</code></td>
+<td><code>handle_builder_subscribe</code> errors</td>
+<td><code>handler.py:267, 273, 278, 311</code></td>
+<td>invalid <code>zone_group</code> / <code>zones</code> /
+exception</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>spotlight_subscribed</code> /
+<code>spotlight_unsubscribed</code></td>
+<td><code>handle_subscribe_spotlight</code> /
+<code>..._unsubscribe</code></td>
+<td><code>handler.py:368</code>, <code>handler.py:393</code></td>
+<td>spotlight ops</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>error</code> (generic)</td>
+<td>dispatcher / spotlight fallthrough</td>
+<td><code>handler.py:190, 200, 374, 397</code></td>
+<td>unknown action / handler exception</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>player id or team id not found</code></td>
+<td><code>update_subscription</code> validation</td>
+<td><code>manager.py:637</code></td>
+<td>bad <code>player_id_or_team_id</code></td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>subscription_limit</code></td>
+<td><code>update_subscription</code> cap</td>
+<td><code>manager.py:659</code></td>
+<td>per-client subscription cap exceeded</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>odds_error</code> / <code>initial_odds_error</code></td>
+<td><code>update_subscription</code> exception</td>
+<td><code>manager.py:756</code>, <code>manager.py:773</code></td>
+<td>initial-odds compute fail</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>initial_spotlight_error</code></td>
+<td><code>subscribe_spotlight</code> exception</td>
+<td><code>manager.py:1031</code></td>
+<td>spotlight fetch fail</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td>(builder push) <code>builder_quick_picks</code> payload</td>
+<td><code>send_builder_odds_update</code> via
+<code>handle_builder_subscribe</code></td>
+<td><code>handler.py:303-307</code></td>
+<td>builder subscribe</td>
+<td>unchanged</td>
+</tr>
+</tbody>
+</table>
+<h2 id="manual-otel-spans">Manual OTEL spans</h2>
+<p>Per repo CLAUDE.md, the WS handler creates manual spans. PR #140 adds
+<strong>none</strong>. Existing spans (verified at PR head):</p>
+<ul>
+<li><code>websocket.connection</code> <code>handler.py:84</code></li>
+<li><code>websocket.process_message</code>
+<code>handler.py:157</code></li>
+<li><code>@traced(&quot;websocket.subscribe&quot;)</code>
+<code>handler.py:213</code></li>
+<li><code>@traced(&quot;websocket.builder_subscribe&quot;)</code>
+<code>handler.py:256</code></li>
+<li><code>@traced(&quot;websocket.unsubscribe&quot;)</code>
+<code>handler.py:314</code></li>
+<li><code>@traced(&quot;websocket.ping&quot;)</code>
+<code>handler.py:327</code></li>
+<li><code>@traced(&quot;websocket.subscribe_spotlight&quot;)</code>
+<code>handler.py:338</code></li>
+<li><code>@traced(&quot;websocket.unsubscribe_spotlight&quot;)</code>
+<code>handler.py:382</code></li>
+<li><code>websocket.connect</code> / <code>websocket.disconnect</code> /
+<code>websocket.broadcast</code> /
+<code>websocket.update_subscription</code> /
+<code>websocket.broadcast_spotlight</code>
+(<code>manager.py:70, 100, 166, 518, 920</code>)</li>
+</ul>
+<h2 id="cross-cuts-to-services">Cross-cuts to services</h2>
+<p>PR-touched lines (3 import-only edits):</p>
+<ul>
+<li><code>manager.py:14</code> <code>GetOddsForBet</code> import →
+<code>application.service.odds.odds_service</code></li>
+<li><code>manager_typed.py:12</code> same rename (file dormant, see
+Risk)</li>
+<li><code>handler.py:26</code> <code>BuilderService</code> import →
+<code>application.service.odds.builder_service</code></li>
+</ul>
+<h2 id="flow-walks">Flow walks</h2>
+<h3 id="f-ws-1-game-odds-subscribe-unchanged-path-illustrating-service-rename-impact">F-WS-1:
+Game odds subscribe (unchanged path, illustrating service rename
+impact)</h3>
+<ol type="1">
+<li>Client → <code>/ws/{client_id}</code>
+<code>ws_routes.py:14</code></li>
+<li><code>ConnectionManager.connect</code>
+<code>manager.py:70</code></li>
+<li>Client sends
+<code>{action:&quot;subscribe&quot;, game_id, bet_type, ...}</code></li>
+<li><code>WebSocketHandler.handle_message</code> dispatches
+<code>handler.py:166</code></li>
+<li><code>handle_subscribe</code> parses <code>SubscribeRequest</code>;
+if <code>is_builder*</code> branches to F-WS-2
+<code>handler.py:227</code></li>
+<li><code>manager.update_subscription(...)</code>
+<code>manager.py:518</code> — invokes <code>GetOddsForBet</code> (newly
+under <code>application.service.odds.odds_service</code>)</li>
+<li>Initial odds pushed as <code>odds_update</code>
+<code>manager.py:416</code>; ongoing updates via broadcast loop (F14 in
+flows-v1).</li>
+</ol>
+<h3 id="f-ws-2-builder-subscribe-uses-renamed-builderservice-import">F-WS-2:
+Builder subscribe (uses renamed BuilderService import)</h3>
+<ol type="1">
+<li>Same dispatch as F-WS-1 step 4.</li>
+<li><code>handle_builder_subscribe</code> <code>handler.py:256</code>
+validates <code>zone_group</code> (must be
+<code>CUSTOM_ZONE_GROUP</code> with <code>zones[]</code> or in
+<code>DEFAULT_ZONE_GROUP_CONFIGS</code>)
+<code>handler.py:265-280</code>.</li>
+<li>Maps UUID <code>game_id</code> via
+<code>manager.id_mapping_repo.map_game_id</code>
+<code>handler.py:285-286</code>.</li>
+<li><code>BuilderService(self.manager.odd_service).generate_quick_picks(...)</code>
+in a thread <code>handler.py:299</code> — service now resolved from
+<code>application.service.odds.builder_service</code>.</li>
+<li><code>manager.send_builder_odds_update(...)</code> emits the result
+with <code>data={builder_quick_picks: ...}</code>
+<code>handler.py:303-307</code>.</li>
+</ol>
+<h2 id="risk-note-minor">Risk note (minor)</h2>
+<ul>
+<li><code>handler_typed.py</code> and <code>manager_typed.py</code> are
+not wired (no importers outside themselves; <code>ws_dependencies</code>
+instantiates only
+<code>ConnectionManager</code>/<code>WebSocketHandler</code> from the
+non-typed files). The PR&#39;s edit to <code>manager_typed.py:12</code> is
+dormant scaffolding — flag for cleanup but no runtime impact.</li>
+<li>Docs-only example field rename in
+<code>docs/api/websocket_subscription_api.md:363</code>
+(<code>&quot;zao&quot;:</code> → <code>&quot;zao_bets&quot;:</code>, plus added
+<code>&quot;metadata&quot;</code> example). The runtime <code>odds_update</code>
+payload is built by <code>manager.py</code> /
+<code>ConnectionManager.send_odds_update</code>
+(<code>manager.py:416</code>) and was not modified, so this looks like a
+doc-fixup to match what the code already emits — but worth a manual
+confirm against the actual <code>OddsUpdate</code> schema before
+treating as protocol-stable.</li>
+</ul>
+</body>
+</html>
